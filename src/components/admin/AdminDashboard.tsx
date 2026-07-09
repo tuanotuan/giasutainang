@@ -491,43 +491,61 @@ function ClassForm({
 function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => Promise<void> }) {
   const [keyword, setKeyword] = useState("");
   const [message, setMessage] = useState("");
+  const [editing, setEditing] = useState<Tutor | null>(null);
+  const [saving, setSaving] = useState(false);
   const normalized = keyword.toLocaleLowerCase("vi");
   const visible = items.filter((item) => !normalized || `${item.name} ${item.subjects.join(" ")} ${item.areas.join(" ")}`.toLocaleLowerCase("vi").includes(normalized));
 
-  const add = async () => {
-    const source = initialTutors[0];
-    const tutor: Tutor = {
-      ...source,
-      id: crypto.randomUUID(),
-      code: `GST-${Date.now().toString().slice(-6)}`,
-      name: "Gia sư mới",
-      subjects: [...source.subjects],
-      grades: [...source.grades],
-      areas: [...source.areas],
-      availableTimes: [...source.availableTimes],
-      achievements: [...source.achievements],
-    };
-    await mutateSimple("/api/admin/tutors", "POST", tutor, "Đã thêm gia sư.", setMessage, onRefresh);
-  };
-
-  const edit = async (item: Tutor) => {
-    const name = prompt("Tên gia sư", item.name);
-    if (!name) return;
-    await mutateSimple(`/api/admin/tutors/${encodeURIComponent(item.id)}`, "PUT", { ...item, name }, "Đã cập nhật gia sư.", setMessage, onRefresh);
+  const saveTutor = async (tutor: Tutor) => {
+    setSaving(true);
+    setMessage("");
+    const exists = items.some((item) => item.id === tutor.id);
+    try {
+      await apiRequest<{ success: boolean }>(
+        exists ? `/api/admin/tutors/${encodeURIComponent(tutor.id)}` : "/api/admin/tutors",
+        { method: exists ? "PUT" : "POST", body: JSON.stringify(tutor) },
+      );
+      setEditing(null);
+      await onRefresh();
+      setMessage(exists ? "Đã cập nhật thông tin gia sư." : "Đã thêm gia sư mới.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể lưu thông tin gia sư.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (item: Tutor) => {
     if (!confirm(`Xóa gia sư ${item.code}?`)) return;
-    await mutateSimple(`/api/admin/tutors/${encodeURIComponent(item.id)}`, "DELETE", undefined, "Đã xóa gia sư.", setMessage, onRefresh);
+    setSaving(true);
+    setMessage("");
+    try {
+      await apiRequest<{ success: boolean }>(`/api/admin/tutors/${encodeURIComponent(item.id)}`, { method: "DELETE" });
+      await onRefresh();
+      setMessage("Đã xóa gia sư.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể xóa gia sư.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <ManagerShell
-      onAdd={() => void add()}
+      onAdd={() => setEditing(makeTutorDraft())}
       label="Thêm gia sư"
       toolbar={<input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="Lọc môn hoặc khu vực..." className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm sm:w-64" />}
     >
       {message && <Notice tone={message.includes("Không") ? "error" : "success"} className="mb-4">{message}</Notice>}
+      {editing && (
+        <TutorForm
+          key={editing.id}
+          value={editing}
+          saving={saving}
+          onCancel={() => setEditing(null)}
+          onSubmit={(tutor) => void saveTutor(tutor)}
+        />
+      )}
       <AdminTable headers={["Mã", "Họ tên", "Trình độ", "Môn dạy", "Đánh giá", "Thao tác"]}>
         {visible.map((item) => (
           <tr key={item.id}>
@@ -536,11 +554,69 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
             <Cell>{item.level}</Cell>
             <Cell>{item.subjects.join(", ")}</Cell>
             <Cell>{item.rating}</Cell>
-            <Actions onEdit={() => void edit(item)} onDelete={() => void remove(item)} />
+            <Actions onEdit={() => setEditing(item)} onDelete={() => void remove(item)} disabled={saving} />
           </tr>
         ))}
       </AdminTable>
     </ManagerShell>
+  );
+}
+
+function TutorForm({
+  value,
+  saving,
+  onCancel,
+  onSubmit,
+}: {
+  value: Tutor;
+  saving: boolean;
+  onCancel: () => void;
+  onSubmit: (tutor: Tutor) => void;
+}) {
+  const [form, setForm] = useState<Tutor>(value);
+  const update = <K extends keyof Tutor>(key: K, next: Tutor[K]) => setForm((current) => ({ ...current, [key]: next }));
+  const updateList = (key: "subjects" | "grades" | "areas" | "availableTimes" | "achievements", value: string) => update(key, splitList(value));
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit(form);
+      }}
+      className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card"
+    >
+      <div className="mb-4 flex flex-col gap-1">
+        <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Thêm gia sư mới" : `Chỉnh sửa ${value.name}`}</h2>
+        <p className="text-sm text-slate-500">Điền thông tin bên dưới rồi bấm lưu. Hồ sơ sẽ xuất hiện trong danh sách gia sư trên website.</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <Input label="Mã gia sư" value={form.code} onChange={(next) => update("code", next)} required />
+        <Input label="Họ và tên" value={form.name} onChange={(next) => update("name", next)} required />
+        <Input label="Năm sinh" type="number" value={String(form.birthYear)} onChange={(next) => update("birthYear", Number(next))} required />
+        <Select label="Giới tính" value={form.gender} onChange={(next) => update("gender", next as Tutor["gender"])}>
+          <option value="Nam">Nam</option><option value="Nữ">Nữ</option>
+        </Select>
+        <Select label="Trình độ" value={form.level} onChange={(next) => update("level", next as Tutor["level"])}>
+          <option value="Sinh viên">Sinh viên</option><option value="Giáo viên">Giáo viên</option><option value="Cử nhân">Cử nhân</option><option value="Thạc sĩ">Thạc sĩ</option>
+        </Select>
+        <Input label="Trường / đơn vị" value={form.school} onChange={(next) => update("school", next)} required />
+        <Input label="Chuyên ngành" value={form.major} onChange={(next) => update("major", next)} required />
+        <Input label="Môn có thể dạy (ngăn cách bằng dấu phẩy)" value={form.subjects.join(", ")} onChange={(next) => updateList("subjects", next)} required />
+        <Input label="Lớp có thể dạy (ngăn cách bằng dấu phẩy)" value={form.grades.join(", ")} onChange={(next) => updateList("grades", next)} required />
+        <Input label="Khu vực có thể dạy (ngăn cách bằng dấu phẩy)" value={form.areas.join(", ")} onChange={(next) => updateList("areas", next)} required />
+        <Input label="Thời gian có thể dạy (ngăn cách bằng dấu phẩy)" value={form.availableTimes.join(", ")} onChange={(next) => updateList("availableTimes", next)} required className="xl:col-span-2" />
+        <Input label="Mức học phí mong muốn / buổi" value={form.expectedSalary} onChange={(next) => update("expectedSalary", next)} required />
+        <Textarea label="Kinh nghiệm giảng dạy" value={form.experience} onChange={(next) => update("experience", next)} required className="md:col-span-2" />
+        <Textarea label="Thành tích nổi bật (ngăn cách bằng dấu phẩy)" value={form.achievements.join(", ")} onChange={(next) => updateList("achievements", next)} className="md:col-span-2" />
+        <Textarea label="Phong cách giảng dạy" value={form.teachingStyle} onChange={(next) => update("teachingStyle", next)} required className="md:col-span-2 xl:col-span-3" />
+      </div>
+      <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <button type="button" onClick={onCancel} className="button-secondary justify-center" disabled={saving}>Hủy</button>
+        <button type="submit" className="button-primary justify-center" disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 animate-spin" />} Lưu gia sư
+        </button>
+      </div>
+    </form>
   );
 }
 
@@ -792,11 +868,13 @@ function Textarea({
   label,
   value,
   onChange,
+  required = false,
   className = "",
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  required?: boolean;
   className?: string;
 }) {
   return (
@@ -805,6 +883,7 @@ function Textarea({
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={4}
+        required={required}
         className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
       />
     </Field>
@@ -850,6 +929,35 @@ function makeClassDraft(): ClassItem {
     note: "",
     createdAt: new Date().toISOString().slice(0, 10),
   };
+}
+
+function makeTutorDraft(): Tutor {
+  const stamp = Date.now().toString().slice(-6);
+  return {
+    id: `new-${crypto.randomUUID()}`,
+    code: `GST-${stamp}`,
+    name: "",
+    birthYear: 2000,
+    gender: "Nam",
+    avatar: "",
+    school: "",
+    major: "",
+    level: "Sinh viên",
+    subjects: [],
+    grades: [],
+    areas: [],
+    availableTimes: [],
+    experience: "",
+    achievements: [],
+    teachingStyle: "",
+    expectedSalary: "",
+    rating: 5,
+    reviewCount: 0,
+  };
+}
+
+function splitList(value: string) {
+  return [...new Set(value.split(/[,\n]/).map((item) => item.trim()).filter(Boolean))];
 }
 
 function shortId(id: string) {
