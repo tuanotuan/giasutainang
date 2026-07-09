@@ -28,8 +28,31 @@ Mở [http://localhost:3000](http://localhost:3000) trên trình duyệt.
 
 ```bash
 npm run build
-npm start
 ```
+
+Static export được tạo trong thư mục `out/`.
+
+## Deploy miễn phí lên Cloudflare Pages
+
+1. Vào Cloudflare Dashboard → Workers & Pages.
+2. Chọn Create application → Pages → Import an existing Git repository.
+3. Chọn repository `tuanotuan/giasutainang`.
+4. Cấu hình:
+
+```text
+Production branch: main
+Framework preset: Next.js (Static HTML Export)
+Build command: npm run build
+Build output directory: out
+```
+
+5. Thêm biến môi trường:
+
+```text
+NEXT_PUBLIC_SITE_URL=https://giasutainang.online
+```
+
+6. Deploy và thêm custom domain sau khi bản build thành công.
 
 ## Cấu trúc thư mục
 

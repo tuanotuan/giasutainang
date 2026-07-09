@@ -5,6 +5,8 @@ import { serviceContents } from "@/data/services";
 import { tutors } from "@/data/tutors";
 import { siteConfig } from "@/data/site";
 
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = siteConfig.url;
   const staticRoutes = [

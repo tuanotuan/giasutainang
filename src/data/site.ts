@@ -29,7 +29,7 @@ export const siteConfig = {
   zalo: "https://zalo.me/0357570667",
   facebook: "https://www.facebook.com/gstainang",
   logo: "/images/gia-su-tai-nang-logo.jpg",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://giasutainang.online",
 };
 
 export const navigation = [
