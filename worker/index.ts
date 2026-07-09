@@ -85,7 +85,7 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
 
   if (pathname.startsWith("/api/admin/")) {
     if (!(await isAdmin(request, env))) return json({ error: "Chưa đăng nhập." }, 401);
-    if (!env.DB) return json({ error: "Chưa kết nối Cloudflare D1." }, 503);
+    if (!env.DB) return json({ error: "Hệ thống lưu thông tin chưa sẵn sàng. Vui lòng thử lại sau ít phút." }, 503);
 
     if (pathname === "/api/admin/setup" && request.method === "POST") {
       await setupDatabase(env.DB);
@@ -114,10 +114,10 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
         .bind(String(body.status), now(), id).run();
       return json({ success: true });
     }
-    return json({ error: "Không tìm thấy API quản trị." }, 404);
+    return json({ error: "Không tìm thấy mục bạn cần." }, 404);
   }
 
-  if (!env.DB) return json({ error: "Database chưa sẵn sàng." }, 503);
+  if (!env.DB) return json({ error: "Hệ thống lưu thông tin chưa sẵn sàng. Vui lòng thử lại sau ít phút." }, 503);
   await ensureDatabase(env.DB);
 
   if (pathname === "/api/classes" && request.method === "GET") {
@@ -149,7 +149,7 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
   if (pathname === "/api/requests/contact" && request.method === "POST") {
     return saveSubmission(request, env.DB, "contact");
   }
-  return json({ error: "Không tìm thấy API." }, 404);
+  return json({ error: "Không tìm thấy mục bạn cần." }, 404);
 }
 
 async function setupDatabase(db: D1Database) {

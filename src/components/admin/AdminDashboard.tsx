@@ -3,7 +3,7 @@
 import {
   AlertCircle,
   CheckCircle2,
-  Database,
+  ShieldCheck,
   Edit3,
   Loader2,
   LogOut,
@@ -52,7 +52,7 @@ const fallbackState: AdminState = {
 };
 
 const sectionTitle: Record<AdminSection, string> = {
-  dashboard: "Tổng quan hệ thống",
+  dashboard: "Tổng quan",
   classes: "Quản lý lớp mới",
   tutors: "Quản lý gia sư",
   requests: "Yêu cầu & liên hệ",
@@ -144,13 +144,13 @@ export function AdminDashboard() {
             <span className="text-xs font-bold uppercase tracking-[.16em] text-primary-600">Gia Sư Tài Năng</span>
             <h1 className="mt-2 text-2xl font-extrabold text-ink sm:text-3xl">{sectionTitle[section]}</h1>
             <p className="mt-2 text-sm text-slate-500">
-              Dữ liệu được lưu qua Cloudflare D1 sau khi cấu hình database cho Worker.
+              Mọi thay đổi được lưu tự động và sẽ hiển thị trên website.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button type="button" onClick={loadState} className="button-secondary h-11 px-4" disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              Làm mới
+              Cập nhật dữ liệu
             </button>
             <button
               type="button"
@@ -173,7 +173,7 @@ export function AdminDashboard() {
               await apiRequest<{ success: boolean }>("/api/admin/setup", { method: "POST" });
               await loadState();
             } catch (error) {
-              setMessage(error instanceof Error ? error.message : "Không khởi tạo được database.");
+              setMessage(error instanceof Error ? error.message : "Chưa thể chuẩn bị dữ liệu. Vui lòng thử lại.");
             } finally {
               setLoading(false);
             }
@@ -213,16 +213,16 @@ function LoginPanel({ error, loading, onLogin }: { error: string; loading: boole
         className="w-full max-w-md rounded-3xl bg-white p-7 text-left shadow-card"
       >
         <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
-          <Database className="h-7 w-7" />
+          <ShieldCheck className="h-7 w-7" />
         </div>
-        <p className="text-xs font-extrabold uppercase tracking-[.16em] text-primary-600">Khu quản trị</p>
-        <h1 className="mt-2 text-2xl font-extrabold text-ink">Đăng nhập admin</h1>
+        <p className="text-xs font-extrabold uppercase tracking-[.16em] text-primary-600">Khu vực quản lý</p>
+        <h1 className="mt-2 text-2xl font-extrabold text-ink">Đăng nhập quản lý</h1>
         <p className="mt-2 text-sm text-slate-500">
-          Nhập mật khẩu quản trị đã cấu hình trong Cloudflare Worker để xem và sửa dữ liệu thật.
+          Nhập mật khẩu để xem và cập nhật thông tin trên website.
         </p>
         {error && <Notice tone="error" className="mt-5">{error}</Notice>}
         <label className="mt-6 block">
-          <span className="text-xs font-bold text-slate-600">Mật khẩu admin</span>
+          <span className="text-xs font-bold text-slate-600">Mật khẩu quản lý</span>
           <input
             value={password}
             onChange={(event) => setPassword(event.target.value)}
@@ -246,16 +246,16 @@ function SetupPanel({ loading, onSetup }: { loading: boolean; onSetup: () => Pro
     <section className="rounded-3xl border border-dashed border-primary-200 bg-white p-7 shadow-card">
       <div className="flex max-w-3xl flex-col gap-5 sm:flex-row sm:items-start">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-50 text-primary-600">
-          <Database className="h-7 w-7" />
+          <ShieldCheck className="h-7 w-7" />
         </div>
         <div>
-          <h2 className="text-xl font-extrabold text-ink">Database chưa được khởi tạo</h2>
+          <h2 className="text-xl font-extrabold text-ink">Dữ liệu chưa sẵn sàng</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Bấm nút dưới đây để tạo bảng D1 và nạp dữ liệu mẫu ban đầu. Sau đó phần lớp mới, gia sư, bài viết và yêu cầu sẽ lấy từ database.
+            Bấm nút dưới đây để chuẩn bị thông tin ban đầu. Sau đó bạn có thể thêm, sửa và xoá lớp mới, gia sư, bài viết và các yêu cầu liên hệ.
           </p>
           <button type="button" onClick={() => void onSetup()} className="button-primary mt-5" disabled={loading}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Database className="h-4 w-4" />}
-            Khởi tạo database
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ShieldCheck className="h-4 w-4" />}
+            Chuẩn bị dữ liệu ban đầu
           </button>
         </div>
       </div>
@@ -528,7 +528,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
       toolbar={<input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="Lọc môn hoặc khu vực..." className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm sm:w-64" />}
     >
       {message && <Notice tone={message.includes("Không") ? "error" : "success"} className="mb-4">{message}</Notice>}
-      <AdminTable headers={["Mã", "Họ tên", "Trình độ", "Môn dạy", "Rating", "Thao tác"]}>
+      <AdminTable headers={["Mã", "Họ tên", "Trình độ", "Môn dạy", "Đánh giá", "Thao tác"]}>
         {visible.map((item) => (
           <tr key={item.id}>
             <Cell strong>{item.code}</Cell>

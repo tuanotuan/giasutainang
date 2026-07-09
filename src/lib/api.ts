@@ -10,6 +10,6 @@ export async function apiRequest<T>(
     },
   });
   const data = await response.json().catch(() => ({})) as T & { error?: string };
-  if (!response.ok) throw new Error(data.error || "Không thể kết nối máy chủ.");
+  if (!response.ok) throw new Error(data.error || "Chưa thể tải thông tin. Vui lòng thử lại.");
   return data;
 }
