@@ -24,7 +24,7 @@ export function AdminDashboard() {
       <main className="min-w-0 p-4 sm:p-6 lg:p-8">
         <div className="mb-7">
           <span className="text-xs font-bold uppercase tracking-[.16em] text-primary-600">Gia Sư Tài Năng</span>
-          <h1 className="mt-2 text-2xl font-black text-ink sm:text-3xl">{sectionTitle[section]}</h1>
+          <h1 className="mt-2 text-2xl font-extrabold text-ink sm:text-3xl">{sectionTitle[section]}</h1>
           <p className="mt-2 text-sm text-slate-500">Dữ liệu và thao tác chỉ tồn tại trong phiên trình duyệt hiện tại.</p>
         </div>
         {section === "dashboard" && <Dashboard classes={classes} tutors={tutors} requests={requests} />}

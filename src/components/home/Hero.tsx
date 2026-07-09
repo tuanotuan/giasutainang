@@ -25,7 +25,7 @@ export function Hero() {
             <Star className="h-3.5 w-3.5 fill-accent-400 text-accent-400" />
             Kết nối đúng người · Học đúng cách
           </span>
-          <h1 className="max-w-3xl text-4xl font-black leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-[56px]">
+          <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-[56px]">
             Tìm gia sư dạy kèm{" "}
             <span className="relative whitespace-nowrap text-primary-600">
               tại nhà & online
@@ -81,7 +81,7 @@ export function Hero() {
                 <div className="flex flex-col justify-between rounded-3xl bg-gradient-to-br from-amber-300 to-accent-500 p-5 text-primary-900">
                   <div className="flex -space-x-2">
                     {["AN", "MK", "TM"].map((item) => (
-                      <span key={item} className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-amber-300 bg-white text-[10px] font-black text-primary-700">
+                      <span key={item} className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-amber-300 bg-white text-[10px] font-extrabold text-primary-700">
                         {item}
                       </span>
                     ))}

@@ -23,7 +23,7 @@ export default async function ClassDetailPage({ params }: PageProps) {
   return (
     <>
       <section className="bg-primary-800 py-12 text-white">
-        <div className="container-page"><nav className="mb-6 flex items-center gap-2 text-xs text-primary-100"><Link href="/" className="flex items-center gap-1"><Home className="h-3.5 w-3.5" /> Trang chủ</Link><ChevronRight className="h-3.5 w-3.5" /><Link href="/lop-moi">Lớp mới</Link></nav><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">{item.status === "assigned" ? "Đã giao" : "Đang tuyển"}</span><h1 className="mt-4 text-3xl font-black sm:text-4xl">{item.title}</h1><p className="mt-3 text-primary-100">{item.code} · Đăng ngày {item.createdAt}</p></div>
+        <div className="container-page"><nav className="mb-6 flex items-center gap-2 text-xs text-primary-100"><Link href="/" className="flex items-center gap-1"><Home className="h-3.5 w-3.5" /> Trang chủ</Link><ChevronRight className="h-3.5 w-3.5" /><Link href="/lop-moi">Lớp mới</Link></nav><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">{item.status === "assigned" ? "Đã giao" : "Đang tuyển"}</span><h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">{item.title}</h1><p className="mt-3 text-primary-100">{item.code} · Đăng ngày {item.createdAt}</p></div>
       </section>
       <section className="section-space bg-slate-50/70">
         <div className="container-page grid items-start gap-7 lg:grid-cols-[1fr_360px]">
@@ -42,7 +42,7 @@ export default async function ClassDetailPage({ params }: PageProps) {
           {item.status === "assigned" ? <div className="rounded-2xl bg-white p-7 text-center shadow-card"><UserCheck className="mx-auto h-10 w-10 text-slate-300" /><h2 className="mt-4 font-bold">Lớp đã được giao</h2><p className="mt-2 text-sm text-slate-500">Bạn có thể xem các lớp liên quan bên dưới.</p></div> : <ReceiveClassForm classCode={item.code} />}
         </div>
       </section>
-      <section className="section-space bg-white"><div className="container-page"><h2 className="mb-7 text-2xl font-black text-ink">Lớp liên quan</h2><div className="grid gap-5 md:grid-cols-3">{related.map((entry) => <ClassCard key={entry.id} item={entry} />)}</div></div></section>
+      <section className="section-space bg-white"><div className="container-page"><h2 className="mb-7 text-2xl font-extrabold text-ink">Lớp liên quan</h2><div className="grid gap-5 md:grid-cols-3">{related.map((entry) => <ClassCard key={entry.id} item={entry} />)}</div></div></section>
     </>
   );
 }

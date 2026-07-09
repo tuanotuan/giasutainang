@@ -29,7 +29,7 @@ export function ReceiveClassForm({ classCode }: { classCode: string }) {
     <>
       {success && <Toast message={`Đã gửi đăng ký nhận lớp ${classCode}. Trung tâm sẽ liên hệ xác minh.`} onClose={() => setSuccess(false)} />}
       <form id="nhan-lop" onSubmit={handleSubmit(onSubmit)} className="rounded-2xl bg-white p-6 shadow-card">
-        <h2 className="text-xl font-black text-ink">Đăng ký nhận lớp</h2>
+        <h2 className="text-xl font-extrabold text-ink">Đăng ký nhận lớp</h2>
         <p className="mt-2 text-xs text-slate-500">Thông tin chỉ được dùng để xác minh hồ sơ gia sư.</p>
         <div className="mt-6 space-y-4">
           <FormField label="Họ tên gia sư" required error={errors.fullName?.message}><input {...register("fullName")} className={fieldClass} /></FormField>

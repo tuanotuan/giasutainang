@@ -11,7 +11,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
         <span className="absolute right-4 top-4 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold text-primary-700 shadow-sm">
           {tutor.code}
         </span>
-        <div className="flex h-20 w-20 translate-y-8 items-center justify-center rounded-2xl border-4 border-white bg-primary-600 text-xl font-black text-white shadow-lg">
+        <div className="flex h-20 w-20 translate-y-8 items-center justify-center rounded-2xl border-4 border-white bg-primary-600 text-xl font-extrabold text-white shadow-lg">
           {initials}
         </div>
       </div>

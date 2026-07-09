@@ -30,7 +30,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
           <nav className="mb-6 flex items-center gap-2 text-xs text-primary-100" aria-label="Breadcrumb">
             <Link href="/" className="flex items-center gap-1"><Home className="h-3.5 w-3.5" /> Trang chủ</Link><ChevronRight className="h-3.5 w-3.5" /><Link href="/dich-vu">Dịch vụ</Link>
           </nav>
-          <h1 className="max-w-4xl text-3xl font-black sm:text-5xl">{service.title}</h1>
+          <h1 className="max-w-4xl text-3xl font-extrabold sm:text-5xl">{service.title}</h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-primary-100">{service.summary}</p>
           <Link href="/dang-ky-tim-gia-su" className="mt-7 inline-flex rounded-xl bg-accent-500 px-6 py-3 text-sm font-bold">Đăng ký tư vấn</Link>
         </div>
@@ -39,7 +39,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
         <div className="container-page grid gap-12 lg:grid-cols-2">
           <div>
             <span className="eyebrow">Lợi ích nổi bật</span>
-            <h2 className="text-3xl font-black text-ink">Lộ trình rõ ràng, trải nghiệm linh hoạt</h2>
+            <h2 className="text-3xl font-extrabold text-ink">Lộ trình rõ ràng, trải nghiệm linh hoạt</h2>
             <p className="mt-5 leading-8 text-slate-600">Tài Năng bắt đầu bằng việc lắng nghe mục tiêu và đánh giá bối cảnh học tập. Từ đó, gia đình nhận được gợi ý hồ sơ phù hợp thay vì lựa chọn theo một tiêu chí duy nhất. Người dạy sẽ cùng học sinh xác định điểm mạnh, phần kiến thức cần củng cố và nhịp học có thể duy trì lâu dài.</p>
             <p className="mt-4 leading-8 text-slate-600">Trong quá trình học, mục tiêu được chia thành các chặng nhỏ để dễ theo dõi. Phản hồi giữa gia sư, học sinh và phụ huynh giúp điều chỉnh bài tập, thời lượng và phương pháp khi cần thiết.</p>
           </div>
@@ -51,7 +51,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       <section className="pb-16 sm:pb-20">
         <div className="container-page max-w-4xl">
           <article className="rounded-3xl border border-slate-100 bg-white p-6 shadow-card sm:p-10">
-            <h2 className="text-2xl font-black text-ink">Cách Tài Năng triển khai {service.title.toLocaleLowerCase("vi")}</h2>
+            <h2 className="text-2xl font-extrabold text-ink">Cách Tài Năng triển khai {service.title.toLocaleLowerCase("vi")}</h2>
             <div className="mt-6 space-y-5 text-[15px] leading-8 text-slate-600">
               <p>Điểm bắt đầu không phải là chọn ngay một hồ sơ có nhiều thành tích, mà là hiểu rõ người học đang cần điều gì. Chuyên viên sẽ hỏi về kiến thức hiện tại, mục tiêu trong vài tháng tới, lịch sinh hoạt và những trải nghiệm học trước đây. Những thông tin này giúp xác định kiểu hỗ trợ phù hợp, đồng thời tránh đặt ra một lịch học quá dày hoặc mục tiêu thiếu thực tế.</p>
               <p>Sau bước trao đổi, gia đình nhận được một số hồ sơ có chuyên môn và thời gian phù hợp. Mỗi hồ sơ trình bày rõ nền tảng học tập, môn dạy, nhóm lớp, khu vực và cách tiếp cận. Gia đình có thể đặt thêm câu hỏi trước khi chọn người học thử. Việc so sánh nên dựa trên khả năng giải thích, sự kiên nhẫn và mức độ phù hợp với học sinh, không chỉ dựa vào tên trường.</p>
@@ -68,12 +68,12 @@ export default async function ServiceDetailPage({ params }: PageProps) {
         <div className="container-page">
           <div className="grid gap-10 lg:grid-cols-2">
             <div>
-              <h2 className="text-2xl font-black text-ink">Đối tượng phù hợp</h2>
+              <h2 className="text-2xl font-extrabold text-ink">Đối tượng phù hợp</h2>
               <div className="mt-5 space-y-3">{service.audiences.map((item) => <p key={item} className="flex items-center gap-3 rounded-xl bg-white p-4 text-sm font-semibold text-slate-700 shadow-card"><CheckCircle2 className="h-5 w-5 text-primary-500" />{item}</p>)}</div>
             </div>
             <div>
-              <h2 className="text-2xl font-black text-ink">Quy trình đăng ký</h2>
-              <ol className="mt-5 space-y-3">{["Chia sẻ nhu cầu và mục tiêu", "Nhận tư vấn lộ trình", "Xem hồ sơ gia sư phù hợp", "Học thử và bắt đầu đồng hành"].map((item, index) => <li key={item} className="flex items-center gap-4 rounded-xl bg-white p-4 text-sm font-semibold text-slate-700 shadow-card"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-xs font-black text-white">{index + 1}</span>{item}</li>)}</ol>
+              <h2 className="text-2xl font-extrabold text-ink">Quy trình đăng ký</h2>
+              <ol className="mt-5 space-y-3">{["Chia sẻ nhu cầu và mục tiêu", "Nhận tư vấn lộ trình", "Xem hồ sơ gia sư phù hợp", "Học thử và bắt đầu đồng hành"].map((item, index) => <li key={item} className="flex items-center gap-4 rounded-xl bg-white p-4 text-sm font-semibold text-slate-700 shadow-card"><span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-xs font-extrabold text-white">{index + 1}</span>{item}</li>)}</ol>
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default async function ServiceDetailPage({ params }: PageProps) {
       <PricingPreview />
       <section className="section-space bg-slate-50/70">
         <div className="container-page max-w-3xl">
-          <h2 className="text-center text-3xl font-black text-ink">Câu hỏi thường gặp</h2>
+          <h2 className="text-center text-3xl font-extrabold text-ink">Câu hỏi thường gặp</h2>
           <div className="mt-8 space-y-4">{service.faq.map((item) => <details key={item.question} className="group rounded-2xl bg-white p-5 shadow-card"><summary className="flex cursor-pointer list-none items-center gap-3 font-bold text-ink"><CircleHelp className="h-5 w-5 text-primary-600" />{item.question}</summary><p className="mt-3 pl-8 text-sm leading-6 text-slate-600">{item.answer}</p></details>)}</div>
         </div>
       </section>

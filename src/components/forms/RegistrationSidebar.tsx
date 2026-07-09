@@ -10,7 +10,7 @@ export function FindTutorSidebar() {
         <ol className="mt-6 space-y-5">
           {processSteps.map((step, index) => (
             <li key={step.title} className="flex gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-black text-amber-300">{index + 1}</span>
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-extrabold text-amber-300">{index + 1}</span>
               <div><strong className="block text-sm">{step.title}</strong><p className="mt-1 text-xs leading-5 text-primary-100">{step.description}</p></div>
             </li>
           ))}
@@ -51,7 +51,7 @@ export function RegisterTutorSidebar() {
         <h2 className="flex items-center gap-2 font-bold text-ink"><ShieldCheck className="h-5 w-5 text-primary-600" /> Quy trình nhận lớp</h2>
         <ol className="mt-4 space-y-3 text-xs text-slate-600">
           {["Đăng ký hồ sơ", "Trung tâm xác minh", "Chọn lớp phù hợp", "Nhận lớp và bắt đầu dạy"].map((item, index) => (
-            <li key={item} className="flex items-center gap-3"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-50 font-black text-primary-700">{index + 1}</span>{item}</li>
+            <li key={item} className="flex items-center gap-3"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary-50 font-extrabold text-primary-700">{index + 1}</span>{item}</li>
           ))}
         </ol>
       </div>

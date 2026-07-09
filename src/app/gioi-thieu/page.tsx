@@ -30,11 +30,11 @@ export default function AboutPage() {
       <ProcessSection />
       <section className="section-space bg-primary-800 text-white">
         <div className="container-page grid items-center gap-10 lg:grid-cols-2">
-          <div><span className="text-xs font-bold uppercase tracking-[.16em] text-amber-300">Quy trình kiểm duyệt</span><h2 className="mt-3 text-3xl font-black">Mỗi hồ sơ đi qua nhiều lớp thông tin</h2><p className="mt-4 leading-7 text-primary-100">Thông tin học vấn, kinh nghiệm, môn dạy và khu vực được đối chiếu trước khi hồ sơ được giới thiệu.</p></div>
+          <div><span className="text-xs font-bold uppercase tracking-[.16em] text-amber-300">Quy trình kiểm duyệt</span><h2 className="mt-3 text-3xl font-extrabold">Mỗi hồ sơ đi qua nhiều lớp thông tin</h2><p className="mt-4 leading-7 text-primary-100">Thông tin học vấn, kinh nghiệm, môn dạy và khu vực được đối chiếu trước khi hồ sơ được giới thiệu.</p></div>
           <div className="grid gap-3 sm:grid-cols-2">{["Tiếp nhận hồ sơ", "Đối chiếu thông tin", "Trao đổi chuyên môn", "Theo dõi phản hồi"].map((item, index) => <div key={item} className="flex items-center gap-3 rounded-2xl bg-white/10 p-4"><BadgeCheck className="h-5 w-5 text-amber-300" /><span className="text-sm font-bold">{index + 1}. {item}</span></div>)}</div>
         </div>
       </section>
-      <section className="py-16 text-center"><Users className="mx-auto h-9 w-9 text-primary-600" /><h2 className="mt-4 text-3xl font-black text-ink">Sẵn sàng tìm người đồng hành?</h2><Link href="/dang-ky-tim-gia-su" className="button-primary mt-6">Đăng ký tìm gia sư <ArrowRight className="h-4 w-4" /></Link></section>
+      <section className="py-16 text-center"><Users className="mx-auto h-9 w-9 text-primary-600" /><h2 className="mt-4 text-3xl font-extrabold text-ink">Sẵn sàng tìm người đồng hành?</h2><Link href="/dang-ky-tim-gia-su" className="button-primary mt-6">Đăng ký tìm gia sư <ArrowRight className="h-4 w-4" /></Link></section>
     </>
   );
 }

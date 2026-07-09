@@ -24,7 +24,7 @@ export function ContactForm() {
     <>
       {success && <Toast message="Đã gửi lời nhắn. Tài Năng sẽ liên hệ trong thời gian sớm nhất." onClose={() => setSuccess(false)} />}
       <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl bg-white p-6 shadow-card sm:p-8">
-        <h2 className="text-2xl font-black text-ink">Gửi lời nhắn</h2>
+        <h2 className="text-2xl font-extrabold text-ink">Gửi lời nhắn</h2>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           <FormField label="Họ tên" required error={errors.fullName?.message}><input {...register("fullName")} className={fieldClass} /></FormField>
           <FormField label="Số điện thoại" required error={errors.phone?.message}><input {...register("phone")} className={fieldClass} inputMode="numeric" /></FormField>

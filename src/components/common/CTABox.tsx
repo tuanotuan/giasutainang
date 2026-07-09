@@ -10,7 +10,7 @@ export function CTABox() {
           <div className="absolute -left-14 -top-16 h-48 w-48 rounded-full border-[30px] border-white/5" />
           <div className="absolute -bottom-20 -right-10 h-56 w-56 rounded-full bg-amber-300/10" />
           <Sparkles className="relative mx-auto mb-4 h-7 w-7 text-amber-300" />
-          <h2 className="relative text-3xl font-black text-white sm:text-4xl">Chưa biết bắt đầu từ đâu?</h2>
+          <h2 className="relative text-3xl font-extrabold text-white sm:text-4xl">Chưa biết bắt đầu từ đâu?</h2>
           <p className="relative mx-auto mt-4 max-w-2xl leading-7 text-primary-100">
             Chia sẻ mục tiêu học tập, Tài Năng sẽ tư vấn lộ trình và gợi ý hồ sơ gia sư phù hợp hoàn toàn miễn phí.
           </p>

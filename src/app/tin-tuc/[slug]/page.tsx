@@ -40,7 +40,7 @@ export default async function PostDetailPage({ params }: PageProps) {
               <span className="line-clamp-1 text-white">{post.title}</span>
             </nav>
             <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-amber-300">{post.category}</span>
-            <h1 className="mt-5 text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">{post.title}</h1>
+            <h1 className="mt-5 text-3xl font-extrabold leading-tight sm:text-4xl lg:text-5xl">{post.title}</h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-primary-100">{post.excerpt}</p>
             <div className="mt-6 flex gap-5 text-xs text-primary-100">
               <span className="flex items-center gap-2"><CalendarDays className="h-4 w-4" /> {post.date}</span>
@@ -51,9 +51,9 @@ export default async function PostDetailPage({ params }: PageProps) {
         <div className="container-page grid max-w-5xl items-start gap-8 py-14 lg:grid-cols-[1fr_260px]">
           <div className="prose prose-slate max-w-none">
             <p className="text-lg font-medium leading-8 text-slate-700">{post.content}</p>
-            <h2 id="bat-dau" className="mt-10 text-2xl font-black text-ink">Bắt đầu từ việc quan sát đúng</h2>
+            <h2 id="bat-dau" className="mt-10 text-2xl font-extrabold text-ink">Bắt đầu từ việc quan sát đúng</h2>
             <p className="mt-4 leading-8 text-slate-600">Mỗi học sinh có điểm xuất phát và nhịp tiếp thu riêng. Trước khi thay đổi lịch học hoặc tăng bài tập, gia đình nên dành thời gian nhìn lại điều trẻ đang hiểu, điều còn vướng và cảm xúc đi kèm khi học.</p>
-            <h2 id="thuc-hanh" className="mt-10 text-2xl font-black text-ink">Biến mục tiêu thành hành động nhỏ</h2>
+            <h2 id="thuc-hanh" className="mt-10 text-2xl font-extrabold text-ink">Biến mục tiêu thành hành động nhỏ</h2>
             <p className="mt-4 leading-8 text-slate-600">Một mục tiêu tốt cần cụ thể, có thể theo dõi và vừa đủ thử thách. Thay vì nói “học tốt hơn”, hãy chọn một việc có thể thực hiện trong tuần, sau đó cùng đánh giá để điều chỉnh.</p>
             <h3 className="mt-8 text-xl font-bold text-ink">Gợi ý cho gia đình</h3>
             <ul className="mt-4 space-y-3 pl-5 text-slate-600">
@@ -61,7 +61,7 @@ export default async function PostDetailPage({ params }: PageProps) {
               <li className="list-disc">Theo dõi sự tiến bộ bằng kỹ năng cụ thể, không chỉ điểm số.</li>
               <li className="list-disc">Trao đổi sớm với gia sư khi có điều chưa phù hợp.</li>
             </ul>
-            <h2 id="ket-luan" className="mt-10 text-2xl font-black text-ink">Kết luận</h2>
+            <h2 id="ket-luan" className="mt-10 text-2xl font-extrabold text-ink">Kết luận</h2>
             <p className="mt-4 leading-8 text-slate-600">Sự đồng hành bền vững đến từ những điều chỉnh nhỏ nhưng đều đặn. Khi gia đình, học sinh và người dạy cùng hiểu mục tiêu, quá trình học sẽ nhẹ nhàng và hiệu quả hơn.</p>
           </div>
           <aside className="rounded-2xl border border-slate-100 bg-slate-50 p-5 lg:sticky lg:top-24">
@@ -78,7 +78,7 @@ export default async function PostDetailPage({ params }: PageProps) {
       {related.length > 0 && (
         <section className="section-space bg-slate-50/70">
           <div className="container-page">
-            <h2 className="mb-7 text-2xl font-black text-ink">Bài viết liên quan</h2>
+            <h2 className="mb-7 text-2xl font-extrabold text-ink">Bài viết liên quan</h2>
             <div className="grid gap-5 md:grid-cols-3">{related.map((item, index) => <PostCard key={item.id} post={item} index={index} />)}</div>
           </div>
         </section>

@@ -22,7 +22,7 @@ export function ListingHero({ eyebrow, title, description }: ListingHeroProps) {
         <span className="mb-3 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-300">
           <BookOpenCheck className="h-4 w-4" /> {eyebrow}
         </span>
-        <h1 className="max-w-3xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">{title}</h1>
+        <h1 className="max-w-3xl text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">{title}</h1>
         <p className="mt-4 max-w-2xl leading-7 text-primary-100">{description}</p>
       </div>
     </section>

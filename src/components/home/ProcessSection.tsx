@@ -14,7 +14,7 @@ export function ProcessSection() {
           <div className="absolute left-[12.5%] right-[12.5%] top-9 hidden border-t-2 border-dashed border-primary-200 md:block" />
           {processSteps.map((item, index) => (
             <article key={item.title} className="relative rounded-2xl border border-slate-100 bg-white p-6 text-center shadow-card">
-              <span className="relative mx-auto mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full border-8 border-white bg-primary-600 text-xl font-black text-white shadow-lg shadow-primary-600/20">
+              <span className="relative mx-auto mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full border-8 border-white bg-primary-600 text-xl font-extrabold text-white shadow-lg shadow-primary-600/20">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <h3 className="font-bold text-ink">{item.title}</h3>

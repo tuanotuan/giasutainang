@@ -14,7 +14,7 @@ export function ClassCard({ item }: { item: ClassItem }) {
   return (
     <article className="rounded-2xl border border-slate-100 bg-white p-5 shadow-card transition hover:-translate-y-1 hover:border-primary-100 hover:shadow-soft">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-black text-primary-700">{item.code}</span>
+        <span className="text-xs font-extrabold text-primary-700">{item.code}</span>
         <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${status.className}`}>{status.label}</span>
       </div>
       <h3 className="mt-4 line-clamp-2 text-lg font-bold leading-6 text-ink">{item.title}</h3>

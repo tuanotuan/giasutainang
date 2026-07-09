@@ -30,10 +30,10 @@ export default async function TutorDetailPage({ params }: PageProps) {
         <div className="container-page">
           <nav className="mb-7 flex items-center gap-2 text-xs text-primary-100" aria-label="Breadcrumb"><Link href="/" className="flex items-center gap-1"><Home className="h-3.5 w-3.5" /> Trang chủ</Link><ChevronRight className="h-3.5 w-3.5" /><Link href="/gia-su-tieu-bieu">Gia sư</Link></nav>
           <div className="flex flex-col items-start gap-6 sm:flex-row sm:items-center">
-            <span className="flex h-32 w-32 shrink-0 items-center justify-center rounded-3xl border-4 border-white/20 bg-primary-600 text-3xl font-black">{initials}</span>
+            <span className="flex h-32 w-32 shrink-0 items-center justify-center rounded-3xl border-4 border-white/20 bg-primary-600 text-3xl font-extrabold">{initials}</span>
             <div>
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-amber-300">{tutor.code}</span>
-              <h1 className="mt-3 text-3xl font-black sm:text-4xl">{tutor.name}</h1>
+              <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">{tutor.name}</h1>
               <p className="mt-2 text-primary-100">{tutor.level} · {tutor.major}</p>
               <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-amber-300"><Star className="h-4 w-4 fill-current" /> {tutor.rating} ({tutor.reviewCount} đánh giá)</span>
             </div>
@@ -67,7 +67,7 @@ export default async function TutorDetailPage({ params }: PageProps) {
         </div>
       </section>
       <section className="section-space bg-white">
-        <div className="container-page"><h2 className="mb-7 text-2xl font-black text-ink">Gia sư liên quan</h2><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{related.map((item) => <TutorCard key={item.id} tutor={item} />)}</div></div>
+        <div className="container-page"><h2 className="mb-7 text-2xl font-extrabold text-ink">Gia sư liên quan</h2><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">{related.map((item) => <TutorCard key={item.id} tutor={item} />)}</div></div>
       </section>
     </>
   );

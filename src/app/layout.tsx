@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
+import { Be_Vietnam_Pro } from "next/font/google";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { TopContactBar } from "@/components/layout/TopContactBar";
 import { FloatingContactButtons } from "@/components/common/FloatingContactButtons";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
+
+const beVietnamPro = Be_Vietnam_Pro({
+  subsets: ["latin", "vietnamese"],
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-be-vietnam-pro",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -30,7 +38,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="vi">
-      <body>
+      <body className={beVietnamPro.variable}>
         <a href="#noi-dung-chinh" className="fixed left-4 top-3 z-[110] -translate-y-20 rounded-lg bg-primary-800 px-4 py-2 text-sm font-bold text-white transition focus:translate-y-0">
           Chuyển đến nội dung chính
         </a>
