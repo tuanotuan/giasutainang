@@ -1,0 +1,66 @@
+"use client";
+
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
+import { posts } from "@/data/posts";
+import { Pagination } from "@/components/common/Pagination";
+import { PostCard } from "./PostCard";
+
+const categories = ["Tất cả", ...Array.from(new Set(posts.map((post) => post.category)))];
+const PAGE_SIZE = 6;
+
+export function BlogList() {
+  const [category, setCategory] = useState("Tất cả");
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+  const filtered = useMemo(() => {
+    const query = keyword.toLocaleLowerCase("vi");
+    return posts.filter(
+      (post) =>
+        (category === "Tất cả" || post.category === category) &&
+        (!query || `${post.title} ${post.excerpt}`.toLocaleLowerCase("vi").includes(query)),
+    );
+  }, [category, keyword]);
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const updateCategory = (next: string) => {
+    setCategory(next);
+    setPage(1);
+  };
+
+  return (
+    <section className="section-space bg-slate-50/70">
+      <div className="container-page">
+        <div className="mb-8 rounded-2xl border border-slate-100 bg-white p-4 shadow-card">
+          <div className="relative mb-4">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              value={keyword}
+              onChange={(event) => { setKeyword(event.target.value); setPage(1); }}
+              className="h-12 w-full rounded-xl border border-slate-200 pl-11 pr-4 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
+              placeholder="Tìm bài viết..."
+            />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {categories.map((item) => (
+              <button
+                key={item}
+                type="button"
+                onClick={() => updateCategory(item)}
+                className={`shrink-0 rounded-full px-4 py-2 text-xs font-bold transition ${category === item ? "bg-primary-600 text-white" : "bg-slate-100 text-slate-600 hover:bg-primary-50 hover:text-primary-700"}`}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+        </div>
+        <p className="mb-5 text-sm text-slate-500">Có <strong className="text-ink">{filtered.length}</strong> bài viết</p>
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {visible.map((post, index) => <PostCard key={post.id} post={post} index={index} />)}
+        </div>
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
+      </div>
+    </section>
+  );
+}
