@@ -7,4 +7,5 @@ npm-debug.log*
 yarn-debug.log*
 pnpm-debug.log*
 .dev-server*.log
+.wrangler
 *.tsbuildinfo

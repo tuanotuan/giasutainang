@@ -32,18 +32,19 @@ npm run build
 
 Static export được tạo trong thư mục `out/`.
 
-## Deploy miễn phí lên Cloudflare Pages
+## Deploy miễn phí lên Cloudflare Workers Static Assets
 
-1. Vào Cloudflare Dashboard → Workers & Pages.
-2. Chọn Create application → Pages → Import an existing Git repository.
+1. Vào Cloudflare Dashboard → Compute → Workers & Pages.
+2. Chọn Create application → Connect GitHub.
 3. Chọn repository `tuanotuan/giasutainang`.
 4. Cấu hình:
 
 ```text
 Production branch: main
-Framework preset: Next.js (Static HTML Export)
 Build command: npm run build
-Build output directory: out
+Deploy command: npx wrangler deploy
+Non-production deploy command: npx wrangler versions upload
+Root directory: /
 ```
 
 5. Thêm biến môi trường:
