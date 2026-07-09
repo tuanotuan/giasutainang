@@ -37,7 +37,7 @@ export default async function ClassDetailPage({ params }: PageProps) {
               <Detail icon={UserCheck} label="Yêu cầu gia sư" value={item.tutorRequirement} />
             </div>
             <article className="rounded-2xl bg-white p-6 shadow-card"><h2 className="font-bold text-ink">Ghi chú từ phụ huynh</h2><p className="mt-3 text-sm leading-7 text-slate-600">{item.note}</p></article>
-            <div className="rounded-2xl bg-primary-800 p-6 text-white"><span className="text-xs text-primary-100">Mức phí / lương mỗi buổi</span><strong className="mt-1 block text-3xl text-amber-300">{formatCurrency(item.salary)}</strong><p className="mt-3 text-xs text-primary-100">Mức phí mô phỏng, được thống nhất lại trước khi nhận lớp.</p></div>
+            <div className="rounded-2xl bg-primary-800 p-6 text-white"><span className="text-xs text-primary-100">Mức phí / lương mỗi buổi</span><strong className="mt-1 block text-3xl text-amber-300">{formatCurrency(item.salary)}</strong><p className="mt-3 text-xs text-primary-100">Mức phí được thống nhất lại trước khi nhận lớp.</p></div>
           </div>
           {item.status === "assigned" ? <div className="rounded-2xl bg-white p-7 text-center shadow-card"><UserCheck className="mx-auto h-10 w-10 text-slate-300" /><h2 className="mt-4 font-bold">Lớp đã được giao</h2><p className="mt-2 text-sm text-slate-500">Bạn có thể xem các lớp liên quan bên dưới.</p></div> : <ReceiveClassForm classCode={item.code} />}
         </div>

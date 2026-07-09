@@ -14,6 +14,7 @@ import {
   registerTutorSchema,
   type RegisterTutorFormValues,
 } from "@/lib/validations";
+import { apiRequest } from "@/lib/api";
 import { Toast } from "@/components/common/Toast";
 import {
   fieldClass,
@@ -23,7 +24,7 @@ import {
 } from "./FormControls";
 
 export function RegisterTutorForm() {
-  const [toast, setToast] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
   const {
     register,
     handleSubmit,
@@ -51,19 +52,25 @@ export function RegisterTutorForm() {
     },
   });
 
-  const onSubmit = (data: RegisterTutorFormValues) => {
-    console.log("Mock tutor registration:", data);
-    setToast(true);
-    reset();
-    window.setTimeout(() => setToast(false), 5000);
+  const onSubmit = async (data: RegisterTutorFormValues) => {
+    try {
+      const payload = { ...data, avatar: undefined, profileFile: undefined };
+      await apiRequest("/api/requests/register-tutor", { method: "POST", body: JSON.stringify(payload) });
+      setNotice({ message: "Đăng ký thành công. Tài Năng sẽ liên hệ sau khi xem hồ sơ.", variant: "success" });
+      reset();
+      window.setTimeout(() => setNotice(null), 5000);
+    } catch (error) {
+      setNotice({ message: error instanceof Error ? error.message : "Không thể gửi hồ sơ.", variant: "error" });
+    }
   };
 
   return (
     <>
-      {toast && (
+      {notice && (
         <Toast
-          message="Đăng ký thành công. Tài Năng sẽ liên hệ sau khi xem hồ sơ."
-          onClose={() => setToast(false)}
+          message={notice.message}
+          variant={notice.variant}
+          onClose={() => setNotice(null)}
         />
       )}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
@@ -161,13 +168,13 @@ export function RegisterTutorForm() {
             <div className="grid gap-4 sm:grid-cols-2">
               <FileField
                 label="Ảnh đại diện"
-                description="JPG, PNG — chỉ mô phỏng"
+                description="Có thể gửi qua Zalo khi xác minh"
                 icon={<ImagePlus className="h-5 w-5" />}
                 input={<input {...register("avatar")} type="file" accept="image/*" className="absolute inset-0 cursor-pointer opacity-0" />}
               />
               <FileField
                 label="File hồ sơ"
-                description="PDF, DOC — chỉ mô phỏng"
+                description="Có thể gửi qua Zalo khi xác minh"
                 icon={<FileText className="h-5 w-5" />}
                 input={<input {...register("profileFile")} type="file" accept=".pdf,.doc,.docx" className="absolute inset-0 cursor-pointer opacity-0" />}
               />

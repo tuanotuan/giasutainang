@@ -1,12 +1,22 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "giasutainang",
+  "main": "./worker/index.ts",
   "compatibility_date": "2026-07-09",
   "assets": {
     "directory": "./out",
+    "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash"
+    "html_handling": "auto-trailing-slash",
+    "run_worker_first": ["/api/*"]
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "giasutainang-db",
+      "database_id": "3be56bf2-c956-4f2b-a8f1-d7d3c682af8a"
+    }
+  ],
   "routes": [
     {
       "pattern": "giasutainang.online",

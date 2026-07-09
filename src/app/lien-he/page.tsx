@@ -20,7 +20,7 @@ export default function ContactPage() {
         <div className="container-page grid items-start gap-7 lg:grid-cols-[.8fr_1.2fr]">
           <div className="space-y-4">
             {contacts.map(({ icon: Icon, label, value }) => <div key={label} className="flex gap-4 rounded-2xl bg-white p-5 shadow-card"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600"><Icon className="h-5 w-5" /></span><div><span className="text-xs text-slate-400">{label}</span><strong className="mt-1 block text-sm text-slate-700">{value}</strong></div></div>)}
-            <div className="flex aspect-[16/8] items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white text-sm font-bold text-slate-400">Bản đồ mô phỏng</div>
+            <div className="flex aspect-[16/8] items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white text-sm font-bold text-slate-400">Khu vực văn phòng trung tâm</div>
           </div>
           <ContactForm />
         </div>

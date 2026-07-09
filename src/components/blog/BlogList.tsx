@@ -1,18 +1,26 @@
 "use client";
 
 import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
-import { posts } from "@/data/posts";
+import { useEffect, useMemo, useState } from "react";
+import { posts as initialPosts } from "@/data/posts";
+import type { Post } from "@/types";
 import { Pagination } from "@/components/common/Pagination";
 import { PostCard } from "./PostCard";
 
-const categories = ["Tất cả", ...Array.from(new Set(posts.map((post) => post.category)))];
 const PAGE_SIZE = 6;
 
 export function BlogList() {
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [category, setCategory] = useState("Tất cả");
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  useEffect(() => {
+    fetch("/api/posts")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items: Post[] }) => setPosts(data.items))
+      .catch(() => undefined);
+  }, []);
+  const categories = ["Tất cả", ...Array.from(new Set(posts.map((post) => post.category)))];
   const filtered = useMemo(() => {
     const query = keyword.toLocaleLowerCase("vi");
     return posts.filter(
@@ -20,7 +28,7 @@ export function BlogList() {
         (category === "Tất cả" || post.category === category) &&
         (!query || `${post.title} ${post.excerpt}`.toLocaleLowerCase("vi").includes(query)),
     );
-  }, [category, keyword]);
+  }, [category, keyword, posts]);
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 

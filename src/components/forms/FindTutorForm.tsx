@@ -16,6 +16,7 @@ import {
   findTutorSchema,
   type FindTutorFormValues,
 } from "@/lib/validations";
+import { apiRequest } from "@/lib/api";
 import { Toast } from "@/components/common/Toast";
 import {
   fieldClass,
@@ -25,7 +26,7 @@ import {
 } from "./FormControls";
 
 export function FindTutorForm() {
-  const [toast, setToast] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
   const {
     register,
     handleSubmit,
@@ -60,19 +61,27 @@ export function FindTutorForm() {
     if (tutorCode) setValue("selectedTutorCode", tutorCode);
   }, [setValue]);
 
-  const onSubmit = (data: FindTutorFormValues) => {
-    console.log("Mock tutor request:", data);
-    setToast(true);
-    reset();
-    window.setTimeout(() => setToast(false), 5000);
+  const onSubmit = async (data: FindTutorFormValues) => {
+    try {
+      await apiRequest("/api/requests/find-tutor", {
+        method: "POST",
+        body: JSON.stringify(data),
+      });
+      setNotice({ message: "Đã gửi yêu cầu. Trung tâm sẽ liên hệ tư vấn.", variant: "success" });
+      reset();
+      window.setTimeout(() => setNotice(null), 5000);
+    } catch (error) {
+      setNotice({ message: error instanceof Error ? error.message : "Không thể gửi yêu cầu.", variant: "error" });
+    }
   };
 
   return (
     <>
-      {toast && (
+      {notice && (
         <Toast
-          message="Đã gửi yêu cầu. Trung tâm sẽ liên hệ tư vấn."
-          onClose={() => setToast(false)}
+          message={notice.message}
+          variant={notice.variant}
+          onClose={() => setNotice(null)}
         />
       )}
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">

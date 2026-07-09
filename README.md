@@ -1,6 +1,8 @@
 # Gia Sư Tài Năng
 
-Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng với Next.js App Router, TypeScript và Tailwind CSS. Thông tin thương hiệu và liên hệ đã được cập nhật; hồ sơ gia sư, lớp học, học phí và bài viết hiện vẫn là dữ liệu mẫu.
+Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
+
+Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API để nâng cấp sang dữ liệu thật bằng Cloudflare D1.
 
 ## Cài đặt
 
@@ -10,19 +12,15 @@ Yêu cầu Node.js 20 trở lên.
 npm install
 ```
 
-Có thể khai báo URL website thật khi deploy:
-
-```bash
-NEXT_PUBLIC_SITE_URL=https://ten-mien-cua-ban.vn
-```
-
-## Chạy môi trường phát triển
+## Chạy local
 
 ```bash
 npm run dev
 ```
 
-Mở [http://localhost:3000](http://localhost:3000) trên trình duyệt.
+Mở [http://localhost:3000](http://localhost:3000).
+
+Lưu ý: khi chạy bằng `next dev`, các route `/api/*` của Cloudflare Worker không chạy. Giao diện public sẽ tự fallback sang dữ liệu mẫu trong `src/data`.
 
 ## Build production
 
@@ -30,14 +28,19 @@ Mở [http://localhost:3000](http://localhost:3000) trên trình duyệt.
 npm run build
 ```
 
-Static export được tạo trong thư mục `out/`.
+Static export nằm trong thư mục `out/`.
 
-## Deploy miễn phí lên Cloudflare Workers Static Assets
+Kiểm tra Worker trước khi deploy:
 
-1. Vào Cloudflare Dashboard → Compute → Workers & Pages.
-2. Chọn Create application → Connect GitHub.
-3. Chọn repository `tuanotuan/giasutainang`.
-4. Cấu hình:
+```bash
+npx wrangler deploy --dry-run
+```
+
+## Deploy miễn phí lên Cloudflare Workers
+
+Repository: `tuanotuan/giasutainang`
+
+Cấu hình Cloudflare Builds:
 
 ```text
 Production branch: main
@@ -47,119 +50,134 @@ Non-production deploy command: npx wrangler versions upload
 Root directory: /
 ```
 
-5. Thêm biến môi trường:
+Biến môi trường public:
 
 ```text
 NEXT_PUBLIC_SITE_URL=https://giasutainang.online
 ```
 
-6. Deploy và thêm custom domain sau khi bản build thành công.
+Custom domains đã dùng:
+
+```text
+giasutainang.online
+www.giasutainang.online
+```
+
+## Cấu hình dữ liệu thật với Cloudflare D1
+
+Tạo D1 database miễn phí trên Cloudflare, ví dụ tên:
+
+```text
+giasutainang-db
+```
+
+Sau khi tạo, lấy `database_id` và thêm vào `wrangler.jsonc`:
+
+```jsonc
+"d1_databases": [
+  {
+    "binding": "DB",
+    "database_name": "giasutainang-db",
+    "database_id": "DATABASE_ID_CUA_BAN"
+  }
+]
+```
+
+Trong Cloudflare Worker settings, thêm secret/variable:
+
+```text
+ADMIN_PASSWORD=mat-khau-admin-cua-ban
+SESSION_SECRET=chuoi-random-dai-de-ky-cookie
+```
+
+Sau khi deploy có DB binding:
+
+1. Vào `/admin`.
+2. Đăng nhập bằng `ADMIN_PASSWORD`.
+3. Nếu thấy thông báo database chưa khởi tạo, bấm “Khởi tạo database”.
+4. Hệ thống sẽ tạo bảng D1 và nạp dữ liệu ban đầu từ `src/data`.
+
+## API hiện có
+
+Public:
+
+- `GET /api/classes`
+- `GET /api/classes/:id`
+- `GET /api/tutors`
+- `GET /api/posts`
+- `POST /api/requests/find-tutor`
+- `POST /api/requests/register-tutor`
+- `POST /api/requests/receive-class`
+- `POST /api/requests/contact`
+
+Admin:
+
+- `POST /api/admin/login`
+- `POST /api/admin/logout`
+- `GET /api/admin/session`
+- `POST /api/admin/setup`
+- `GET /api/admin/state`
+- CRUD `/api/admin/classes`
+- CRUD `/api/admin/tutors`
+- CRUD `/api/admin/posts`
+- `PATCH /api/admin/requests/:id`
 
 ## Cấu trúc thư mục
 
 ```text
+worker/
+└── index.ts             # Cloudflare Worker API, auth cookie, D1 schema và CRUD
+
 src/
 ├── app/                 # App Router, metadata và các trang
 ├── components/
-│   ├── blog/            # Card bài viết
-│   ├── admin/           # Dashboard và thành phần quản trị mock
-│   ├── classes/         # Card lớp học
-│   ├── common/          # Thành phần UI dùng chung
-│   ├── forms/           # Form và field dùng chung
-│   ├── home/            # Các section của trang chủ
+│   ├── admin/           # Dashboard quản trị thật qua Worker API
+│   ├── blog/            # Card và danh sách bài viết
+│   ├── classes/         # Card, filter, chi tiết lớp dùng dữ liệu API
+│   ├── common/          # UI dùng chung
+│   ├── forms/           # Form có validation và submit API
+│   ├── home/            # Các section trang chủ
 │   ├── layout/          # Header, footer, top bar, mobile menu
 │   ├── pricing/         # Bảng học phí
-│   └── tutors/          # Card gia sư
-├── data/                # Toàn bộ dữ liệu mô phỏng
-├── lib/                 # Hàm tiện ích
-└── types/               # Kiểu dữ liệu TypeScript
+│   └── tutors/          # Card và danh sách gia sư
+├── data/                # Dữ liệu seed/fallback ban đầu
+├── lib/                 # Helper API, filter, validation, utility
+└── types/               # TypeScript interfaces
 ```
 
-## Thêm dữ liệu mô phỏng
-
-- Thêm hồ sơ gia sư trong `src/data/tutors.ts` theo interface `Tutor`.
-- Thêm lớp mới trong `src/data/classes.ts` theo interface `ClassItem`.
-- Thêm bài tư vấn trong `src/data/posts.ts` theo interface `Post`.
-- Thêm gói học phí trong `src/data/prices.ts` theo interface `PriceItem`.
-- Nội dung chung, menu, môn học và khu vực nằm trong `src/data/site.ts`.
-- Nội dung các trang dịch vụ nằm trong `src/data/services.ts`.
-- Yêu cầu tìm gia sư dùng cho admin mock nằm trong `src/data/requests.ts`.
-
-Các interface được khai báo tập trung tại `src/types/index.ts`. Giữ `id`, `code` và `slug` duy nhất khi bổ sung dữ liệu.
-
-## Phạm vi Phase 1
-
-- Layout responsive dùng chung: top contact bar, header, mobile menu, footer.
-- Floating contact buttons.
-- Trang chủ đầy đủ: hero và bộ lọc nhanh, thống kê, giới thiệu, quy trình, lý do lựa chọn, dịch vụ, gia sư tiêu biểu, lớp mới, bảng giá, bài tư vấn và CTA.
-- Dữ liệu giả được tách khỏi UI, không sử dụng dữ liệu từ website thật.
-
-## Phạm vi Phase 2
-
-- Trang `/gia-su-tieu-bieu` với 40 hồ sơ mô phỏng.
-- Lọc gia sư theo từ khóa, môn, lớp, khu vực, trình độ và giới tính.
-- Trang `/lop-moi` với 30 lớp mô phỏng.
-- Lọc lớp theo từ khóa, môn, lớp, khu vực, hình thức, số buổi, mức lương và trạng thái.
-- Sắp xếp lớp theo thời gian hoặc mức lương.
-- Phân trang, giao diện bộ lọc riêng cho mobile và trạng thái không có kết quả.
-- Logic tìm kiếm/lọc dùng chung nằm tại `src/lib/filters.ts`.
-
-## Phạm vi Phase 3
-
-- Trang `/dang-ky-tim-gia-su` với form nhu cầu đầy đủ và sidebar hướng dẫn.
-- Trang `/dang-ky-tro-thanh-gia-su` với form hồ sơ, chọn nhiều môn/lớp/khu vực/khung giờ và upload file mô phỏng.
-- Validation bằng React Hook Form, Zod và `@hookform/resolvers`.
-- Hiển thị lỗi ngay tại trường, toast thành công và log dữ liệu ra console; chưa gửi tới backend.
-- Schema tập trung tại `src/lib/validations.ts`, các lựa chọn form nằm trong `src/data/form-options.ts`.
-
-## Phạm vi Phase 4
-
-- Blog `/tin-tuc` với 12 bài mô phỏng, lọc danh mục, tìm kiếm và phân trang.
-- Trang chi tiết bài viết có breadcrumb, mục lục, bài liên quan và metadata động.
-- 8 trang dịch vụ SEO tại `/dich-vu/[slug]` với lợi ích, đối tượng, quy trình, bảng giá và FAQ.
-- Trang giới thiệu, bảng giá, liên hệ, chính sách bảo mật và điều khoản sử dụng.
-- Trang chi tiết cho toàn bộ 40 gia sư và 30 lớp.
-- `sitemap.xml`, `robots.txt`, Open Graph và metadata tiếng Việt.
-
-## Phạm vi Phase 5
-
-- Dashboard mock tại `/admin`, không có đăng nhập thật.
-- Thống kê, biểu đồ CSS và tổng quan trạng thái lớp.
-- Quản lý lớp, gia sư và bài viết với thao tác thêm/sửa/xóa bằng local state.
-- Cập nhật trạng thái yêu cầu tìm gia sư ngay trên bảng.
-- Dữ liệu admin trở về ban đầu khi tải lại trang và không được gửi lên máy chủ.
-
-## Responsive và accessibility
-
-- Layout thích ứng cho mobile, tablet và desktop.
-- Bộ lọc mobile dạng bottom sheet; bảng giá và bảng admin cuộn ngang trên màn hình nhỏ.
-- Menu hamburger hoạt động đến breakpoint desktop rộng.
-- Có skip link, focus state, nhãn form, thông báo lỗi và toast có `aria-live`.
-
-## Các route chính
+## Route chính
 
 | Route | Nội dung |
 | --- | --- |
 | `/` | Trang chủ |
 | `/gioi-thieu` | Giới thiệu trung tâm |
 | `/gia-su-tieu-bieu` | Danh sách và bộ lọc gia sư |
-| `/gia-su-tieu-bieu/[id]` | Hồ sơ gia sư |
-| `/lop-moi` | Danh sách và bộ lọc lớp |
-| `/lop-moi/[id]` | Chi tiết và form nhận lớp |
+| `/gia-su-tieu-bieu/[id]` | Hồ sơ gia sư seed |
+| `/lop-moi` | Danh sách và bộ lọc lớp, ưu tiên dữ liệu API |
+| `/lop-moi/chi-tiet/?id=...` | Chi tiết lớp từ API/D1, dùng cho lớp thêm mới |
+| `/lop-moi/[id]` | Chi tiết lớp seed cũ |
 | `/dang-ky-tim-gia-su` | Form phụ huynh |
 | `/dang-ky-tro-thanh-gia-su` | Form đăng ký gia sư |
 | `/bang-gia-gia-su` | Bảng học phí |
 | `/dich-vu` | Danh sách dịch vụ |
 | `/dich-vu/[slug]` | Trang SEO dịch vụ |
 | `/tin-tuc` | Blog |
-| `/tin-tuc/[slug]` | Chi tiết bài viết |
+| `/tin-tuc/[slug]` | Chi tiết bài viết seed |
 | `/lien-he` | Liên hệ |
-| `/admin` | Dashboard quản trị mock |
+| `/admin` | Dashboard quản trị |
+
+## Quản trị dữ liệu
+
+Trong `/admin`:
+
+- Thêm/sửa/xóa lớp mới.
+- Đổi trạng thái lớp: chưa giao, ưu tiên, đã giao.
+- Xem yêu cầu tìm gia sư từ form phụ huynh.
+- Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
+- Thêm/sửa/xóa nhanh gia sư và bài viết.
 
 ## Lưu ý
 
-- Tên trung tâm, logo và thông tin liên hệ trong `src/data/site.ts` là thông tin do chủ trung tâm cung cấp.
-- Hồ sơ gia sư, lớp học, bảng giá và nội dung blog vẫn là dữ liệu mẫu.
-- Các form chỉ validate, hiển thị toast và log dữ liệu trong console.
-- Upload file chỉ là giao diện mô phỏng.
-- Chưa có backend, database hay authentication.
+- Tên trung tâm, logo, hotline, email, Zalo/Facebook và địa chỉ là thông tin do chủ trung tâm cung cấp.
+- Dữ liệu gia sư, lớp, bài viết ban đầu vẫn là seed/fallback để site không bị trắng khi DB chưa sẵn sàng.
+- Không commit `ADMIN_PASSWORD`, `SESSION_SECRET` hoặc thông tin bí mật vào repo.

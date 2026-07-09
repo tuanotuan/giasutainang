@@ -16,7 +16,7 @@ export function AdminSidebar({ active, onChange }: { active: AdminSection; onCha
   return (
     <aside className="border-b border-slate-200 bg-white lg:min-h-[calc(100vh-76px)] lg:border-b-0 lg:border-r">
       <div className="p-4 lg:p-5">
-        <p className="mb-4 hidden text-xs font-extrabold uppercase tracking-[.16em] text-slate-400 lg:block">Quản trị mock</p>
+        <p className="mb-4 hidden text-xs font-extrabold uppercase tracking-[.16em] text-slate-400 lg:block">Quản trị dữ liệu</p>
         <nav className="flex gap-2 overflow-x-auto lg:flex-col">
           {items.map(({ id, label, icon: Icon }) => (
             <button key={id} type="button" onClick={() => onChange(id)} className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-bold transition ${active === id ? "bg-primary-600 text-white" : "text-slate-600 hover:bg-slate-100"}`}>

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Toast } from "@/components/common/Toast";
+import { apiRequest } from "@/lib/api";
 import { fieldClass, FormField, textAreaClass } from "./FormControls";
 
 const schema = z.object({
@@ -18,16 +19,20 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 export function ReceiveClassForm({ classCode }: { classCode: string }) {
-  const [success, setSuccess] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { fullName: "", phone: "", email: "", experience: "", message: "" } });
-  const onSubmit = (data: Values) => {
-    console.log("Mock receive class:", { classCode, ...data });
-    setSuccess(true);
-    reset();
+  const onSubmit = async (data: Values) => {
+    try {
+      await apiRequest("/api/requests/receive-class", { method: "POST", body: JSON.stringify({ classCode, ...data }) });
+      setNotice({ message: `Đã gửi đăng ký nhận lớp ${classCode}. Trung tâm sẽ liên hệ xác minh.`, variant: "success" });
+      reset();
+    } catch (error) {
+      setNotice({ message: error instanceof Error ? error.message : "Không thể gửi đăng ký.", variant: "error" });
+    }
   };
   return (
     <>
-      {success && <Toast message={`Đã gửi đăng ký nhận lớp ${classCode}. Trung tâm sẽ liên hệ xác minh.`} onClose={() => setSuccess(false)} />}
+      {notice && <Toast message={notice.message} variant={notice.variant} onClose={() => setNotice(null)} />}
       <form id="nhan-lop" onSubmit={handleSubmit(onSubmit)} className="rounded-2xl bg-white p-6 shadow-card">
         <h2 className="text-xl font-extrabold text-ink">Đăng ký nhận lớp</h2>
         <p className="mt-2 text-xs text-slate-500">Thông tin chỉ được dùng để xác minh hồ sơ gia sư.</p>

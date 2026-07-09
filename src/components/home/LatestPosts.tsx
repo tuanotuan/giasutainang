@@ -1,10 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { posts } from "@/data/posts";
+import { useEffect, useState } from "react";
+import { posts as initialPosts } from "@/data/posts";
+import type { Post } from "@/types";
 import { PostCard } from "@/components/blog/PostCard";
 import { SectionTitle } from "@/components/common/SectionTitle";
 
 export function LatestPosts() {
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
+  useEffect(() => {
+    fetch("/api/posts")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items: Post[] }) => setPosts(data.items))
+      .catch(() => undefined);
+  }, []);
   return (
     <section className="section-space bg-slate-50/70">
       <div className="container-page">

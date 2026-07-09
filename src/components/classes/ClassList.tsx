@@ -1,9 +1,10 @@
 "use client";
 
 import { ArrowUpDown, SearchX } from "lucide-react";
-import { useMemo, useState } from "react";
-import { classes } from "@/data/classes";
+import { useEffect, useMemo, useState } from "react";
+import { classes as initialClasses } from "@/data/classes";
 import { filterClasses, type ClassFilterValues } from "@/lib/filters";
+import type { ClassItem } from "@/types";
 import { Pagination } from "@/components/common/Pagination";
 import { ClassCard } from "./ClassCard";
 import { ClassFilter, initialClassFilters } from "./ClassFilter";
@@ -11,9 +12,16 @@ import { ClassFilter, initialClassFilters } from "./ClassFilter";
 const PAGE_SIZE = 9;
 
 export function ClassList() {
+  const [items, setItems] = useState<ClassItem[]>(initialClasses);
   const [filters, setFilters] = useState<ClassFilterValues>(initialClassFilters);
   const [page, setPage] = useState(1);
-  const filteredClasses = useMemo(() => filterClasses(classes, filters), [filters]);
+  useEffect(() => {
+    fetch("/api/classes")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items: ClassItem[] }) => setItems(data.items))
+      .catch(() => undefined);
+  }, []);
+  const filteredClasses = useMemo(() => filterClasses(items, filters), [filters, items]);
   const totalPages = Math.ceil(filteredClasses.length / PAGE_SIZE);
   const visibleClasses = filteredClasses.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 

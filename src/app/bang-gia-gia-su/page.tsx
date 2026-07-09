@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function PricingPage() {
   return (
     <>
-      <ListingHero eyebrow="Minh bạch & dễ tham khảo" title="Bảng giá gia sư tham khảo" description="Mức phí mô phỏng theo tháng, giúp gia đình dự trù ngân sách trước khi nhận tư vấn." />
+      <ListingHero eyebrow="Minh bạch & dễ tham khảo" title="Bảng giá gia sư tham khảo" description="Mức phí tham khảo theo tháng, giúp gia đình dự trù ngân sách trước khi nhận tư vấn." />
       <section className="section-space bg-slate-50/70">
         <div className="container-page">
           <PricingTable />

@@ -1,10 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { classes } from "@/data/classes";
+import { useEffect, useState } from "react";
+import { classes as initialClasses } from "@/data/classes";
+import type { ClassItem } from "@/types";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { ClassCard } from "@/components/classes/ClassCard";
 
 export function NewClasses() {
+  const [classes, setClasses] = useState<ClassItem[]>(initialClasses);
+  useEffect(() => {
+    fetch("/api/classes")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items: ClassItem[] }) => setClasses(data.items))
+      .catch(() => undefined);
+  }, []);
   return (
     <section className="section-space bg-slate-50/70">
       <div className="container-page">
@@ -12,7 +23,7 @@ export function NewClasses() {
           <SectionTitle
             eyebrow="Cơ hội mới mỗi ngày"
             title="Lớp mới cần gia sư"
-            description="Danh sách lớp mô phỏng đang chờ người dạy phù hợp."
+            description="Danh sách lớp đang chờ người dạy phù hợp, được trung tâm cập nhật thường xuyên."
             align="left"
           />
           <Link href="/lop-moi" className="button-secondary mb-10">

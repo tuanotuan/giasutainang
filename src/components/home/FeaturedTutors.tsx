@@ -1,10 +1,21 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { tutors } from "@/data/tutors";
+import { useEffect, useState } from "react";
+import { tutors as initialTutors } from "@/data/tutors";
+import type { Tutor } from "@/types";
 import { SectionTitle } from "@/components/common/SectionTitle";
 import { TutorCard } from "@/components/tutors/TutorCard";
 
 export function FeaturedTutors() {
+  const [tutors, setTutors] = useState<Tutor[]>(initialTutors);
+  useEffect(() => {
+    fetch("/api/tutors")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items: Tutor[] }) => setTutors(data.items))
+      .catch(() => undefined);
+  }, []);
   return (
     <section className="section-space bg-white">
       <div className="container-page">

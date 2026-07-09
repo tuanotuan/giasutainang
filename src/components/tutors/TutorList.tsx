@@ -1,9 +1,10 @@
 "use client";
 
 import { SearchX } from "lucide-react";
-import { useMemo, useState } from "react";
-import { tutors } from "@/data/tutors";
+import { useEffect, useMemo, useState } from "react";
+import { tutors as initialTutors } from "@/data/tutors";
 import { filterTutors, type TutorFilterValues } from "@/lib/filters";
+import type { Tutor } from "@/types";
 import { Pagination } from "@/components/common/Pagination";
 import { TutorCard } from "./TutorCard";
 import { TutorFilter } from "./TutorFilter";
@@ -20,9 +21,16 @@ const initialFilters: TutorFilterValues = {
 const PAGE_SIZE = 12;
 
 export function TutorList() {
+  const [items, setItems] = useState<Tutor[]>(initialTutors);
   const [filters, setFilters] = useState(initialFilters);
   const [page, setPage] = useState(1);
-  const filteredTutors = useMemo(() => filterTutors(tutors, filters), [filters]);
+  useEffect(() => {
+    fetch("/api/tutors")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items: Tutor[] }) => setItems(data.items))
+      .catch(() => undefined);
+  }, []);
+  const filteredTutors = useMemo(() => filterTutors(items, filters), [filters, items]);
   const totalPages = Math.ceil(filteredTutors.length / PAGE_SIZE);
   const visibleTutors = filteredTutors.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Toast } from "@/components/common/Toast";
+import { apiRequest } from "@/lib/api";
 import { fieldClass, FormField, textAreaClass } from "./FormControls";
 
 const schema = z.object({
@@ -17,12 +18,20 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 export function ContactForm() {
-  const [success, setSuccess] = useState(false);
+  const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
   const { register, handleSubmit, reset, formState: { errors } } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { fullName: "", phone: "", email: "", message: "" } });
-  const onSubmit = (data: Values) => { console.log("Mock contact:", data); setSuccess(true); reset(); };
+  const onSubmit = async (data: Values) => {
+    try {
+      await apiRequest("/api/requests/contact", { method: "POST", body: JSON.stringify({ ...data, name: data.fullName }) });
+      setNotice({ message: "Đã gửi lời nhắn. Tài Năng sẽ liên hệ trong thời gian sớm nhất.", variant: "success" });
+      reset();
+    } catch (error) {
+      setNotice({ message: error instanceof Error ? error.message : "Không thể gửi lời nhắn.", variant: "error" });
+    }
+  };
   return (
     <>
-      {success && <Toast message="Đã gửi lời nhắn. Tài Năng sẽ liên hệ trong thời gian sớm nhất." onClose={() => setSuccess(false)} />}
+      {notice && <Toast message={notice.message} variant={notice.variant} onClose={() => setNotice(null)} />}
       <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl bg-white p-6 shadow-card sm:p-8">
         <h2 className="text-2xl font-extrabold text-ink">Gửi lời nhắn</h2>
         <div className="mt-6 grid gap-5 sm:grid-cols-2">

@@ -13,7 +13,7 @@ export default function NewClassesPage() {
       <ListingHero
         eyebrow="Cập nhật thường xuyên"
         title="Lớp mới cần gia sư"
-        description="Tìm lớp phù hợp với chuyên môn, khu vực và thời gian của bạn. Toàn bộ thông tin bên dưới là dữ liệu mô phỏng."
+        description="Tìm lớp phù hợp với chuyên môn, khu vực và thời gian của bạn. Danh sách được cập nhật từ hệ thống quản trị."
       />
       <ClassList />
     </>
