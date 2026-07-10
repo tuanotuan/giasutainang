@@ -1,6 +1,7 @@
 import { classes as seedClasses } from "../src/data/classes";
 import { posts as seedPosts } from "../src/data/posts";
 import { tutors as seedTutors } from "../src/data/tutors";
+import type { Tutor, TutorRequest } from "../src/types";
 
 interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
@@ -15,9 +16,14 @@ interface D1Database {
   exec(query: string): Promise<unknown>;
 }
 
+interface AiBinding {
+  run(model: string, input: { prompt: string }): Promise<{ response?: string }>;
+}
+
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   DB?: D1Database;
+  AI?: AiBinding;
   ADMIN_PASSWORD?: string;
   SESSION_SECRET?: string;
 }
@@ -106,6 +112,10 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     if (pathname === "/api/admin/posts") return createPost(request, env.DB);
     if (pathname.startsWith("/api/admin/posts/")) {
       return mutatePost(request, env.DB, decodeURIComponent(pathname.split("/").pop() ?? ""));
+    }
+    if (pathname.startsWith("/api/admin/ai/request/") && request.method === "POST") {
+      const id = decodeURIComponent(pathname.split("/").pop() ?? "");
+      return createTutorSuggestion(env.DB, env.AI, id);
     }
     if (pathname.startsWith("/api/admin/requests/") && request.method === "PATCH") {
       const id = decodeURIComponent(pathname.split("/").pop() ?? "");
@@ -217,6 +227,113 @@ async function adminState(db: D1Database) {
   }
 }
 
+async function createTutorSuggestion(db: D1Database, ai: AiBinding | undefined, requestId: string) {
+  const requestRow = await db.prepare("SELECT * FROM tutor_requests WHERE id = ?1").bind(requestId).first<JsonRecord>();
+  if (!requestRow) return json({ error: "Không tìm thấy yêu cầu này." }, 404);
+
+  const tutorRows = await db.prepare("SELECT * FROM tutors ORDER BY rating DESC, created_at DESC").all<JsonRecord>();
+  const tutorRequest = rowToRequest(requestRow);
+  const matches = rankTutors(tutorRequest, tutorRows.results.map(rowToTutor));
+  const fallbackSummary = createFallbackSummary(tutorRequest, matches.length);
+  const summary = ai ? await createAiSummary(ai, tutorRequest, matches, fallbackSummary) : fallbackSummary;
+
+  return json({
+    summary,
+    suggestions: matches.map(({ id, code, name, level, subjects, areas, availableTimes, expectedSalary, score, reasons }) => ({
+      id, code, name, level, subjects, areas, availableTimes, expectedSalary, score, reasons,
+    })),
+    note: "Đây là gợi ý để tham khảo. Hãy liên hệ và xác nhận lại lịch dạy trước khi ghép lớp.",
+  });
+}
+
+function rankTutors(request: ReturnType<typeof rowToRequest>, tutors: ReturnType<typeof rowToTutor>[]) {
+  return tutors.map((tutor) => {
+    const reasons: string[] = [];
+    let score = 0;
+    const sameSubjects = tutor.subjects.filter((subject) => request.subjects.some((wanted) => sameText(subject, wanted)));
+    if (sameSubjects.length) {
+      score += 5;
+      reasons.push(`Dạy ${sameSubjects.join(", ")}`);
+    }
+    if (tutor.grades.some((grade) => sameText(grade, request.grade))) {
+      score += 3;
+      reasons.push(`Có nhận ${request.grade}`);
+    }
+    const locationMatches = request.learningMode === "Online"
+      ? tutor.areas.some((area) => sameText(area, "Online"))
+      : tutor.areas.some((area) => sameText(area, request.area));
+    if (locationMatches) {
+      score += 3;
+      reasons.push(request.learningMode === "Online" ? "Có thể dạy trực tuyến" : `Dạy tại ${request.area}`);
+    }
+    if (request.tutorLevel && request.tutorLevel !== "Không yêu cầu" && sameText(tutor.level, request.tutorLevel)) {
+      score += 2;
+      reasons.push(`Đúng yêu cầu trình độ ${request.tutorLevel}`);
+    }
+    if (request.tutorGender && request.tutorGender !== "Không yêu cầu" && sameText(tutor.gender, request.tutorGender)) {
+      score += 1;
+      reasons.push(`Đúng yêu cầu giới tính ${request.tutorGender}`);
+    }
+    if (tutor.availableTimes.length) reasons.push("Có lịch dạy đã đăng ký");
+    return { ...tutor, score, reasons };
+  }).filter((tutor) => tutor.score > 0).sort((left, right) => right.score - left.score || right.rating - left.rating).slice(0, 5);
+}
+
+function createFallbackSummary(request: ReturnType<typeof rowToRequest>, matchCount: number) {
+  const subjects = request.subjects.join(", ");
+  return `Cần tìm gia sư ${subjects} cho ${request.grade}, ${request.learningMode.toLocaleLowerCase("vi")} tại ${request.area}, học ${request.sessionsPerWeek} buổi/tuần. Hệ thống tìm được ${matchCount} hồ sơ phù hợp ban đầu; cần xác nhận lại lịch học và mức phí trước khi ghép lớp.`;
+}
+
+async function createAiSummary(
+  ai: AiBinding,
+  request: ReturnType<typeof rowToRequest>,
+  matches: ReturnType<typeof rankTutors>,
+  fallbackSummary: string,
+) {
+  const safeRequest = {
+    monHoc: request.subjects,
+    lop: request.grade,
+    hinhThuc: request.learningMode,
+    khuVuc: request.area,
+    soHocVien: request.studentCount,
+    hocLuc: request.studentLevel,
+    soBuoiTuan: request.sessionsPerWeek,
+    lichMongMuon: request.schedule,
+    trinhDoGiaSu: request.tutorLevel,
+    gioiTinhGiaSu: request.tutorGender,
+    nganSach: request.budget,
+  };
+  const safeMatches = matches.map((tutor) => ({
+    ma: tutor.code,
+    trinhDo: tutor.level,
+    monDay: tutor.subjects,
+    lopDay: tutor.grades,
+    khuVucDay: tutor.areas,
+    lichDaDangKy: tutor.availableTimes,
+    mucPhiMongMuon: tutor.expectedSalary,
+  }));
+  const prompt = [
+    "Bạn là trợ lý nội bộ của một trung tâm gia sư tại Việt Nam.",
+    "Hãy viết tiếng Việt, tối đa 3 câu ngắn: tóm tắt nhu cầu và nêu 1-2 điều nhân viên cần xác nhận trước khi ghép lớp.",
+    "Không hứa hẹn kết quả, không tự quyết định ghép lớp, không nhắc đến AI.",
+    "Dữ liệu dưới đây đã loại bỏ tên, số điện thoại, email và địa chỉ chi tiết. Không suy đoán thông tin còn thiếu.",
+    `Nhu cầu: ${JSON.stringify(safeRequest)}`,
+    `Các hồ sơ đã được hệ thống lọc: ${JSON.stringify(safeMatches)}`,
+  ].join("\n");
+  try {
+    const result = await ai.run("@cf/meta/llama-3.1-8b-instruct", { prompt });
+    const summary = String(result.response ?? "").trim();
+    return summary || fallbackSummary;
+  } catch (error) {
+    console.error("AI summary error", error);
+    return fallbackSummary;
+  }
+}
+
+function sameText(left: string, right: string) {
+  return left.trim().toLocaleLowerCase("vi") === right.trim().toLocaleLowerCase("vi");
+}
+
 async function createClass(request: Request, db: D1Database) {
   if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
   const body = await readJson(request);
@@ -323,14 +440,14 @@ function rowToClass(row: JsonRecord) {
   };
 }
 
-function rowToTutor(row: JsonRecord) {
+function rowToTutor(row: JsonRecord): Tutor {
   return {
-    id: row.id, code: row.code, name: row.name, birthYear: row.birth_year, gender: row.gender,
-    avatar: row.avatar, school: row.school, major: row.major, level: row.level,
-    subjects: parseJson(row.subjects, []), grades: parseJson(row.grades, []), areas: parseJson(row.areas, []),
-    availableTimes: parseJson(row.available_times, []), experience: row.experience,
-    achievements: parseJson(row.achievements, []), teachingStyle: row.teaching_style,
-    expectedSalary: row.expected_salary, rating: row.rating, reviewCount: row.review_count,
+    id: text(row.id), code: text(row.code), name: text(row.name), birthYear: number(row.birth_year, 2000), gender: text(row.gender) as Tutor["gender"],
+    avatar: text(row.avatar), school: text(row.school), major: text(row.major), level: text(row.level) as Tutor["level"],
+    subjects: stringList(row.subjects), grades: stringList(row.grades), areas: stringList(row.areas),
+    availableTimes: stringList(row.available_times), experience: text(row.experience),
+    achievements: stringList(row.achievements), teachingStyle: text(row.teaching_style),
+    expectedSalary: text(row.expected_salary), rating: number(row.rating, 5), reviewCount: number(row.review_count, 0),
   };
 }
 
@@ -338,14 +455,14 @@ function rowToPost(row: JsonRecord) {
   return { id: row.id, slug: row.slug, title: row.title, excerpt: row.excerpt, category: row.category, thumbnail: row.thumbnail, date: row.date, content: row.content };
 }
 
-function rowToRequest(row: JsonRecord) {
+function rowToRequest(row: JsonRecord): TutorRequest {
   return {
-    id: row.id, parentName: row.parent_name, phone: row.phone, email: row.email,
-    area: row.area, learningMode: row.learning_mode, grade: row.grade,
-    subjects: parseJson(row.subjects, []), studentCount: row.student_count, studentLevel: row.student_level,
-    sessionsPerWeek: row.sessions_per_week, schedule: row.schedule, tutorLevel: row.tutor_level,
-    tutorGender: row.tutor_gender, selectedTutorCode: row.selected_tutor_code, budget: row.budget,
-    note: row.note, status: row.status, createdAt: row.created_at,
+    id: text(row.id), parentName: text(row.parent_name), phone: text(row.phone), email: textOrUndefined(row.email),
+    area: text(row.area), learningMode: text(row.learning_mode) as TutorRequest["learningMode"], grade: text(row.grade),
+    subjects: stringList(row.subjects), studentCount: number(row.student_count, 1), studentLevel: text(row.student_level),
+    sessionsPerWeek: number(row.sessions_per_week, 1), schedule: text(row.schedule), tutorLevel: text(row.tutor_level),
+    tutorGender: text(row.tutor_gender), selectedTutorCode: textOrUndefined(row.selected_tutor_code), budget: text(row.budget),
+    note: textOrUndefined(row.note), status: text(row.status) as TutorRequest["status"], createdAt: text(row.created_at),
   };
 }
 
@@ -412,6 +529,19 @@ function json(data: unknown, status = 200, headers: HeadersInit = {}) {
 
 function parseJson<T>(value: unknown, fallback: T): T {
   try { return typeof value === "string" ? JSON.parse(value) as T : fallback; } catch { return fallback; }
+}
+
+function stringList(value: unknown) {
+  return parseJson<unknown[]>(value, []).filter((item): item is string => typeof item === "string");
+}
+
+function text(value: unknown) {
+  return typeof value === "string" ? value : String(value ?? "");
+}
+
+function textOrUndefined(value: unknown) {
+  const result = text(value).trim();
+  return result || undefined;
 }
 
 function optional(value: unknown) {

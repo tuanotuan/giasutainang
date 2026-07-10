@@ -9,6 +9,7 @@ import {
   LogOut,
   Plus,
   RefreshCw,
+  Sparkles,
   Trash2,
 } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
@@ -40,6 +41,23 @@ type AdminState = {
   requests: TutorRequest[];
   posts: Post[];
   submissions: SubmissionRecord[];
+};
+
+type TutorSuggestion = {
+  summary: string;
+  suggestions: Array<{
+    id: string;
+    code: string;
+    name: string;
+    level: string;
+    subjects: string[];
+    areas: string[];
+    availableTimes: string[];
+    expectedSalary: string;
+    score: number;
+    reasons: string[];
+  }>;
+  note: string;
 };
 
 const fallbackState: AdminState = {
@@ -630,6 +648,8 @@ function RequestManager({
   onRefresh: () => Promise<void>;
 }) {
   const [message, setMessage] = useState("");
+  const [suggestion, setSuggestion] = useState<TutorSuggestion | null>(null);
+  const [suggestionFor, setSuggestionFor] = useState("");
 
   const updateStatus = async (item: TutorRequest, status: TutorRequest["status"]) => {
     try {
@@ -644,12 +664,31 @@ function RequestManager({
     }
   };
 
+  const getSuggestion = async (item: TutorRequest) => {
+    setSuggestionFor(item.id);
+    setMessage("");
+    try {
+      const result = await apiRequest<TutorSuggestion>(`/api/admin/ai/request/${encodeURIComponent(item.id)}`, { method: "POST" });
+      setSuggestion(result);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể tạo gợi ý. Vui lòng thử lại.");
+    } finally {
+      setSuggestionFor("");
+    }
+  };
+
   return (
     <div className="space-y-6">
       {message && <Notice tone={message.includes("Không") ? "error" : "success"}>{message}</Notice>}
       <section>
-        <h2 className="mb-3 text-lg font-extrabold text-ink">Yêu cầu tìm gia sư</h2>
-        <AdminTable headers={["Mã", "Phụ huynh", "Điện thoại", "Nhu cầu", "Ngày gửi", "Trạng thái"]}>
+        <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-lg font-extrabold text-ink">Yêu cầu tìm gia sư</h2>
+            <p className="mt-1 text-sm text-slate-500">Bấm “Gợi ý ghép” để xem hồ sơ phù hợp và phần tóm tắt nhanh.</p>
+          </div>
+        </div>
+        {suggestion && <SuggestionPanel value={suggestion} onClose={() => setSuggestion(null)} />}
+        <AdminTable headers={["Mã", "Phụ huynh", "Điện thoại", "Nhu cầu", "Ngày gửi", "Trạng thái", "Gợi ý"]}>
           {items.map((item) => (
             <tr key={item.id}>
               <Cell strong>{shortId(item.id)}</Cell>
@@ -664,6 +703,17 @@ function RequestManager({
                   <option value="matched">Đã ghép</option>
                   <option value="cancelled">Hủy</option>
                 </select>
+              </Cell>
+              <Cell>
+                <button
+                  type="button"
+                  onClick={() => void getSuggestion(item)}
+                  disabled={suggestionFor === item.id}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 transition hover:bg-violet-100 disabled:opacity-60"
+                >
+                  {suggestionFor === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                  {suggestionFor === item.id ? "Đang chuẩn bị" : "Gợi ý ghép"}
+                </button>
               </Cell>
             </tr>
           ))}
@@ -685,6 +735,36 @@ function RequestManager({
         </AdminTable>
       </section>
     </div>
+  );
+}
+
+function SuggestionPanel({ value, onClose }: { value: TutorSuggestion; onClose: () => void }) {
+  return (
+    <section className="mb-4 rounded-2xl border border-violet-100 bg-violet-50/60 p-5">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="flex items-center gap-2 text-sm font-extrabold text-violet-800"><Sparkles className="h-4 w-4" /> Gợi ý ghép gia sư</p>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-700">{value.summary}</p>
+        </div>
+        <button type="button" onClick={onClose} className="text-xs font-bold text-slate-500 hover:text-slate-900">Đóng</button>
+      </div>
+      {value.suggestions.length ? (
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
+          {value.suggestions.map((tutor) => (
+            <article key={tutor.id} className="rounded-xl bg-white p-4 shadow-sm">
+              <p className="text-xs font-bold text-primary-600">{tutor.code}</p>
+              <h3 className="mt-1 font-extrabold text-ink">{tutor.name}</h3>
+              <p className="mt-1 text-xs text-slate-500">{tutor.level} · {tutor.subjects.join(", ")}</p>
+              <p className="mt-2 text-xs text-slate-600">{tutor.reasons.join(" · ")}</p>
+              <p className="mt-2 text-xs font-bold text-accent-600">{tutor.expectedSalary}</p>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-4 rounded-xl bg-white p-4 text-sm text-slate-600">Chưa tìm thấy hồ sơ khớp điều kiện hiện có. Mày có thể nới rộng khu vực hoặc thêm gia sư mới.</p>
+      )}
+      <p className="mt-4 text-xs leading-5 text-slate-500">{value.note}</p>
+    </section>
   );
 }
 
