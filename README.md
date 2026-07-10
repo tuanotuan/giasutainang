@@ -186,7 +186,7 @@ Trong `/admin`:
 - Thêm/sửa/xóa lớp mới.
 - Đổi trạng thái lớp: chưa giao, ưu tiên, đã giao.
 - Xem yêu cầu tìm gia sư từ form phụ huynh.
-- Form phụ huynh lưu số điện thoại dùng Zalo và địa chỉ toàn quốc theo 34 tỉnh/thành phố, khu vực, phường/xã/đặc khu, số nhà/tên đường.
+- Form phụ huynh lưu số điện thoại dùng Zalo; địa chỉ được chọn lần lượt theo tỉnh/thành phố → quận/huyện/khu vực → phường/xã, sau đó chỉ cần nhập số nhà và tên đường.
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.

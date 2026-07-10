@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import {
   genderOptions,
   gradeOptions,
-  provinceOptions,
   studentLevels,
   subjectOptions,
   tutorLevels,
@@ -24,6 +23,7 @@ import {
   FormSection,
   textAreaClass,
 } from "./FormControls";
+import { CascadingAddressFields } from "./CascadingAddressFields";
 
 export function FindTutorForm() {
   const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
@@ -103,18 +103,7 @@ export function FindTutorForm() {
             <FormField label="Email" error={errors.email?.message}>
               <input {...register("email")} className={fieldClass} placeholder="phuhuynh@example.com" type="email" autoComplete="email" />
             </FormField>
-            <FormField label="Tỉnh / Thành phố" required error={errors.province?.message}>
-              <select {...register("province")} className={fieldClass}>
-                <option value="">Chọn tỉnh hoặc thành phố</option>
-                {provinceOptions.map((item) => <option key={item}>{item}</option>)}
-              </select>
-            </FormField>
-            <FormField label="Quận / Huyện / Khu vực" required error={errors.district?.message}>
-              <input {...register("district")} className={fieldClass} placeholder="Ví dụ: Bình Thạnh, TP. Thủ Đức..." autoComplete="address-level2" />
-            </FormField>
-            <FormField label="Phường / Xã / Đặc khu" required error={errors.ward?.message}>
-              <input {...register("ward")} className={fieldClass} placeholder="Ví dụ: Phường Thạnh Mỹ Tây" autoComplete="address-level3" />
-            </FormField>
+            <CascadingAddressFields register={register} setValue={setValue} errors={errors} />
             <FormField label="Số nhà, tên đường" required error={errors.address?.message} className="sm:col-span-2">
               <input {...register("address")} className={fieldClass} placeholder="Ví dụ: 135/1 Nguyễn Hữu Cảnh" autoComplete="street-address" />
             </FormField>
