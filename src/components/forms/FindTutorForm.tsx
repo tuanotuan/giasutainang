@@ -5,9 +5,9 @@ import { Check, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import {
-  areaOptions,
   genderOptions,
   gradeOptions,
+  provinceOptions,
   studentLevels,
   subjectOptions,
   tutorLevels,
@@ -40,7 +40,7 @@ export function FindTutorForm() {
       phone: "",
       email: "",
       province: "Thành phố Hồ Chí Minh",
-      area: "",
+      district: "",
       ward: "",
       address: "",
       learningMode: "Tại nhà",
@@ -66,10 +66,10 @@ export function FindTutorForm() {
 
   const onSubmit = async (data: FindTutorFormValues) => {
     try {
-      const fullAddress = [data.address, data.ward, data.area, data.province].filter(Boolean).join(", ");
+      const fullAddress = [data.address, data.ward, data.district, data.province].filter(Boolean).join(", ");
       await apiRequest("/api/requests/find-tutor", {
         method: "POST",
-        body: JSON.stringify({ ...data, address: fullAddress }),
+        body: JSON.stringify({ ...data, area: data.district, address: fullAddress }),
       });
       setNotice({ message: "Đã gửi yêu cầu. Trung tâm sẽ liên hệ tư vấn.", variant: "success" });
       reset();
@@ -106,17 +106,15 @@ export function FindTutorForm() {
             </FormField>
             <FormField label="Tỉnh / Thành phố" required error={errors.province?.message}>
               <select {...register("province")} className={fieldClass}>
-                <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
+                <option value="">Chọn tỉnh hoặc thành phố</option>
+                {provinceOptions.map((item) => <option key={item}>{item}</option>)}
               </select>
             </FormField>
-            <FormField label="Quận / Huyện / Thành phố Thủ Đức" required error={errors.area?.message}>
-              <select {...register("area")} className={fieldClass}>
-                <option value="">Chọn quận hoặc huyện</option>
-                {areaOptions.filter((item) => item !== "Online").map((item) => <option key={item}>{item}</option>)}
-              </select>
+            <FormField label="Quận / Huyện / Khu vực" required error={errors.district?.message}>
+              <input {...register("district")} className={fieldClass} placeholder="Ví dụ: Bình Thạnh, TP. Thủ Đức..." autoComplete="address-level2" />
             </FormField>
-            <FormField label="Phường / Xã" required error={errors.ward?.message}>
-              <input {...register("ward")} className={fieldClass} placeholder="Ví dụ: Phường 22" autoComplete="address-level3" />
+            <FormField label="Phường / Xã / Đặc khu" required error={errors.ward?.message}>
+              <input {...register("ward")} className={fieldClass} placeholder="Ví dụ: Phường Thạnh Mỹ Tây" autoComplete="address-level3" />
             </FormField>
             <FormField label="Số nhà, tên đường" required error={errors.address?.message} className="sm:col-span-2">
               <input {...register("address")} className={fieldClass} placeholder="Ví dụ: 135/1 Nguyễn Hữu Cảnh" autoComplete="street-address" />

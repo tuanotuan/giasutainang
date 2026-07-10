@@ -63,6 +63,43 @@ export const areaOptions = [
   "Online",
 ];
 
+export const provinceOptions = [
+  "Thành phố Hà Nội",
+  "Thành phố Hải Phòng",
+  "Thành phố Huế",
+  "Thành phố Đà Nẵng",
+  "Thành phố Cần Thơ",
+  "Thành phố Hồ Chí Minh",
+  "Tỉnh An Giang",
+  "Tỉnh Bắc Ninh",
+  "Tỉnh Cà Mau",
+  "Tỉnh Cao Bằng",
+  "Tỉnh Đắk Lắk",
+  "Tỉnh Điện Biên",
+  "Tỉnh Đồng Nai",
+  "Tỉnh Đồng Tháp",
+  "Tỉnh Gia Lai",
+  "Tỉnh Hà Tĩnh",
+  "Tỉnh Hưng Yên",
+  "Tỉnh Khánh Hòa",
+  "Tỉnh Lai Châu",
+  "Tỉnh Lâm Đồng",
+  "Tỉnh Lạng Sơn",
+  "Tỉnh Lào Cai",
+  "Tỉnh Nghệ An",
+  "Tỉnh Ninh Bình",
+  "Tỉnh Phú Thọ",
+  "Tỉnh Quảng Ngãi",
+  "Tỉnh Quảng Ninh",
+  "Tỉnh Quảng Trị",
+  "Tỉnh Sơn La",
+  "Tỉnh Tây Ninh",
+  "Tỉnh Thái Nguyên",
+  "Tỉnh Thanh Hóa",
+  "Tỉnh Tuyên Quang",
+  "Tỉnh Vĩnh Long",
+];
+
 export const tutorLevels = ["Sinh viên", "Giáo viên", "Cử nhân", "Thạc sĩ", "Không yêu cầu"];
 export const studentLevels = ["Giỏi", "Khá", "Trung bình", "Yếu", "Kém"];
 export const genderOptions = ["Nam", "Nữ", "Không yêu cầu"];

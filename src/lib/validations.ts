@@ -16,7 +16,7 @@ export const findTutorSchema = z.object({
   phone: phoneSchema,
   email: optionalEmail,
   province: z.string().min(1, "Vui lòng chọn tỉnh hoặc thành phố"),
-  area: z.string().min(1, "Vui lòng chọn khu vực"),
+  district: z.string().trim().min(2, "Vui lòng nhập quận, huyện hoặc khu vực"),
   ward: z.string().trim().min(2, "Vui lòng nhập phường hoặc xã"),
   address: z.string().trim().min(3, "Vui lòng nhập số nhà và tên đường"),
   learningMode: z.enum(["Tại nhà", "Online", "Học nhóm"]),
