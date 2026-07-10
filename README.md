@@ -112,6 +112,7 @@ Public:
 - `POST /api/requests/register-tutor`
 - `POST /api/requests/receive-class`
 - `POST /api/requests/contact`
+- `POST /api/ai/chat` (hỏi đáp công khai, không yêu cầu dữ liệu cá nhân)
 
 Admin:
 
@@ -125,6 +126,12 @@ Admin:
 - CRUD `/api/admin/posts`
 - CRUD `/api/admin/prices`
 - `PATCH /api/admin/requests/:id`
+- `POST /api/admin/ai/request/:id` (gợi ý ghép gia sư)
+- `POST /api/admin/ai/zalo/:id` (soạn tin xác nhận Zalo)
+- `POST /api/admin/ai/class-post/:id` (soạn bài đăng lớp)
+- `POST /api/admin/ai/tutor-audit/:id` (kiểm tra độ đầy đủ hồ sơ)
+- `POST /api/admin/ai/roadmap` (gợi ý lộ trình học)
+- `GET /api/admin/ai/report` (tổng hợp vận hành)
 
 ## Cấu trúc thư mục
 
@@ -184,6 +191,9 @@ Trong `/admin`:
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
+- Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
+- Khung “Hỏi nhanh” ngoài website trả lời thông tin học phí, quy trình, lịch học và học trực tuyến; không yêu cầu khách cung cấp dữ liệu cá nhân.
+- Mọi tính năng tạo nội dung đều có câu trả lời dự phòng nếu Workers AI tạm thời không khả dụng.
 
 ## Lưu ý
 

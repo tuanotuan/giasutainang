@@ -123,6 +123,24 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
       const id = decodeURIComponent(pathname.split("/").pop() ?? "");
       return createTutorSuggestion(env.DB, env.AI, id);
     }
+    if (pathname.startsWith("/api/admin/ai/zalo/") && request.method === "POST") {
+      const id = decodeURIComponent(pathname.split("/").pop() ?? "");
+      return createZaloMessage(env.DB, env.AI, id);
+    }
+    if (pathname.startsWith("/api/admin/ai/class-post/") && request.method === "POST") {
+      const id = decodeURIComponent(pathname.split("/").pop() ?? "");
+      return createClassPost(env.DB, env.AI, id);
+    }
+    if (pathname.startsWith("/api/admin/ai/tutor-audit/") && request.method === "POST") {
+      const id = decodeURIComponent(pathname.split("/").pop() ?? "");
+      return auditTutorProfile(env.DB, env.AI, id);
+    }
+    if (pathname === "/api/admin/ai/roadmap" && request.method === "POST") {
+      return createLearningRoadmap(request, env.AI);
+    }
+    if (pathname === "/api/admin/ai/report" && request.method === "GET") {
+      return createOperationsReport(env.DB, env.AI);
+    }
     if (pathname.startsWith("/api/admin/requests/") && request.method === "PATCH") {
       const id = decodeURIComponent(pathname.split("/").pop() ?? "");
       const body = await readJson(request);
@@ -178,6 +196,9 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
   }
   if (pathname === "/api/requests/contact" && request.method === "POST") {
     return saveSubmission(request, env.DB, "contact");
+  }
+  if (pathname === "/api/ai/chat" && request.method === "POST") {
+    return answerPublicQuestion(request, env.DB, env.AI);
   }
   return json({ error: "Không tìm thấy mục bạn cần." }, 404);
 }
@@ -375,6 +396,171 @@ async function createAiSummary(
     console.error("AI summary error", error);
     return fallbackSummary;
   }
+}
+
+async function runAiText(ai: AiBinding | undefined, prompt: string, fallback: string) {
+  if (!ai) return fallback;
+  try {
+    const result = await ai.run("@cf/meta/llama-3.1-8b-instruct", { prompt });
+    return String(result.response ?? "").trim() || fallback;
+  } catch (error) {
+    console.error("AI text error", error);
+    return fallback;
+  }
+}
+
+async function createZaloMessage(db: D1Database, ai: AiBinding | undefined, requestId: string) {
+  const row = await db.prepare("SELECT * FROM tutor_requests WHERE id = ?1").bind(requestId).first<JsonRecord>();
+  if (!row) return json({ error: "Không tìm thấy yêu cầu này." }, 404);
+  const item = rowToRequest(row);
+  const firstName = item.parentName.trim().split(/\s+/).pop() || "anh/chị";
+  const fallback = `Gia Sư Tài Năng chào anh/chị ${firstName}. Trung tâm đã nhận nhu cầu tìm gia sư ${item.subjects.join(", ")} cho ${item.grade}, học ${item.learningMode.toLocaleLowerCase("vi")} tại ${item.area}, dự kiến ${item.sessionsPerWeek} buổi/tuần. Anh/chị cho trung tâm xin thời gian thuận tiện để trao đổi thêm về lịch học và mức phí nhé.`;
+  const safe = {
+    xungHo: `anh/chị ${firstName}`,
+    monHoc: item.subjects,
+    lop: item.grade,
+    khuVuc: item.area,
+    hinhThuc: item.learningMode,
+    soBuoi: item.sessionsPerWeek,
+    lich: item.schedule,
+    nganSach: item.budget,
+  };
+  const message = await runAiText(ai, [
+    "Bạn hỗ trợ trung tâm Gia Sư Tài Năng soạn tin Zalo xác nhận đã nhận yêu cầu.",
+    "Viết tiếng Việt thân thiện, 3-4 câu ngắn, không emoji, không hứa đã có gia sư, kết thúc bằng câu hỏi về thời gian tiện nghe máy.",
+    "Chỉ dùng dữ liệu được cung cấp, không tự thêm thông tin.",
+    JSON.stringify(safe),
+  ].join("\n"), fallback);
+  return json({ message, phone: item.phone, zaloUrl: `https://zalo.me/${item.phone.replace(/\D/g, "")}` });
+}
+
+async function createClassPost(db: D1Database, ai: AiBinding | undefined, classId: string) {
+  const row = await db.prepare("SELECT * FROM classes WHERE id = ?1").bind(classId).first<JsonRecord>();
+  if (!row) return json({ error: "Không tìm thấy lớp này." }, 404);
+  const item = rowToClass(row);
+  const fallback = `TUYỂN GIA SƯ - ${item.code}\n\nMôn học: ${item.subject} - ${item.grade}\nHình thức: ${item.learningMode}\nKhu vực: ${item.area}\nLịch học: ${item.schedule}, ${item.sessionsPerWeek} buổi/tuần, ${item.duration}/buổi\nMức phí: ${new Intl.NumberFormat("vi-VN").format(Number(item.salary))}đ/buổi\nYêu cầu: ${item.tutorRequirement}\n\nGia sư quan tâm vui lòng liên hệ Gia Sư Tài Năng qua hotline/Zalo 0357570667 và gửi kèm mã lớp ${item.code}.`;
+  const safe = {
+    maLop: item.code, mon: item.subject, lop: item.grade, hinhThuc: item.learningMode,
+    khuVuc: item.area, lich: item.schedule, soBuoi: item.sessionsPerWeek,
+    thoiLuong: item.duration, mucPhi: item.salary, yeuCau: item.tutorRequirement, ghiChu: item.note,
+  };
+  const content = await runAiText(ai, [
+    "Soạn bài đăng tuyển gia sư bằng tiếng Việt cho Facebook/Zalo, dễ đọc, tối đa 130 từ.",
+    "Giữ nguyên mã lớp, lịch, mức phí và yêu cầu. Không nêu địa chỉ chi tiết, không hứa hẹn, không bịa thông tin.",
+    "Kết bài bằng hotline/Zalo 0357570667. Có thể dùng tối đa 4 emoji phù hợp.",
+    JSON.stringify(safe),
+  ].join("\n"), fallback);
+  return json({ content });
+}
+
+async function auditTutorProfile(db: D1Database, ai: AiBinding | undefined, tutorId: string) {
+  const row = await db.prepare("SELECT * FROM tutors WHERE id = ?1").bind(tutorId).first<JsonRecord>();
+  if (!row) return json({ error: "Không tìm thấy hồ sơ gia sư." }, 404);
+  const tutor = rowToTutor(row);
+  const issues: string[] = [];
+  const strengths: string[] = [];
+  if (!tutor.avatar) issues.push("Chưa có ảnh đại diện"); else strengths.push("Đã có ảnh đại diện");
+  if (tutor.experience.trim().length < 60) issues.push("Kinh nghiệm còn ngắn, nên nêu số năm và đối tượng từng dạy"); else strengths.push("Kinh nghiệm được mô tả khá rõ");
+  if (tutor.teachingStyle.trim().length < 45) issues.push("Phong cách giảng dạy cần cụ thể hơn"); else strengths.push("Có mô tả phong cách giảng dạy");
+  if (!tutor.achievements.length) issues.push("Chưa có thành tích hoặc chứng chỉ"); else strengths.push(`Có ${tutor.achievements.length} thành tích được ghi nhận`);
+  if (!tutor.availableTimes.length) issues.push("Chưa đăng ký lịch có thể dạy");
+  if (!tutor.areas.length) issues.push("Chưa chọn khu vực nhận lớp");
+  if (!tutor.subjects.length || !tutor.grades.length) issues.push("Môn hoặc khối lớp nhận dạy chưa đầy đủ");
+  const score = Math.max(40, Math.min(100, 100 - issues.length * 10));
+  const fallback = issues.length
+    ? `Hồ sơ đạt ${score}/100. Nên bổ sung: ${issues.join("; ")}.`
+    : "Hồ sơ đã có đủ thông tin cơ bản để tư vấn cho phụ huynh.";
+  const summary = await runAiText(ai, [
+    "Bạn là nhân viên kiểm duyệt hồ sơ gia sư. Viết 2 câu tiếng Việt: nhận xét điểm mạnh và đề nghị bổ sung, không suy đoán.",
+    `Dữ liệu an toàn: ${JSON.stringify({ trinhDo: tutor.level, truong: tutor.school, chuyenNganh: tutor.major, mon: tutor.subjects, lop: tutor.grades, khuVuc: tutor.areas, kinhNghiem: tutor.experience, thanhTich: tutor.achievements, phongCach: tutor.teachingStyle })}`,
+    `Các mục hệ thống phát hiện: ${JSON.stringify(issues)}`,
+  ].join("\n"), fallback);
+  return json({ score, issues, strengths, summary });
+}
+
+async function createLearningRoadmap(request: Request, ai: AiBinding | undefined) {
+  const body = await readJson(request);
+  const grade = String(body.grade ?? "").trim().slice(0, 50);
+  const subject = String(body.subject ?? "").trim().slice(0, 50);
+  const level = String(body.level ?? "").trim().slice(0, 50);
+  const goal = String(body.goal ?? "").trim().slice(0, 200);
+  const weeks = Math.max(2, Math.min(24, Number(body.weeks) || 8));
+  if (!grade || !subject || !level || !goal) return json({ error: "Vui lòng điền đủ thông tin để tạo lộ trình." }, 400);
+  const fallback = [
+    `Lộ trình ${weeks} tuần cho ${subject} - ${grade}`,
+    `Tuần 1-2: đánh giá kiến thức hiện tại (${level}), xác định phần còn yếu và thống nhất cách học.`,
+    `Tuần 3-${Math.max(4, weeks - 2)}: củng cố kiến thức trọng tâm, luyện bài theo từng dạng và sửa lỗi sau mỗi buổi.`,
+    `Tuần ${Math.max(3, weeks - 1)}-${weeks}: luyện bài tổng hợp, kiểm tra tiến bộ và điều chỉnh phần chưa đạt mục tiêu.`,
+    `Theo dõi: ghi nhận kết quả mỗi tuần và trao đổi với phụ huynh sau 2 tuần. Mục tiêu: ${goal}.`,
+  ].join("\n\n");
+  const roadmap = await runAiText(ai, [
+    "Tạo lộ trình học tiếng Việt thực tế cho trung tâm gia sư, chia 4 giai đoạn rõ ràng.",
+    "Tối đa 350 từ, có mục tiêu, hoạt động, cách đo tiến bộ. Không hứa chắc điểm số và nhắc cần điều chỉnh sau buổi đánh giá đầu tiên.",
+    JSON.stringify({ grade, subject, level, goal, weeks }),
+  ].join("\n"), fallback);
+  return json({ roadmap });
+}
+
+async function createOperationsReport(db: D1Database, ai: AiBinding | undefined) {
+  const [classRows, tutorRows, requestRows] = await Promise.all([
+    db.prepare("SELECT * FROM classes").all<JsonRecord>(),
+    db.prepare("SELECT * FROM tutors").all<JsonRecord>(),
+    db.prepare("SELECT * FROM tutor_requests").all<JsonRecord>(),
+  ]);
+  const classes = classRows.results.map(rowToClass);
+  const tutors = tutorRows.results.map(rowToTutor);
+  const requests = requestRows.results.map(rowToRequest);
+  const countTop = (values: string[]) => Object.entries(values.reduce<Record<string, number>>((acc, value) => {
+    if (value) acc[value] = (acc[value] ?? 0) + 1;
+    return acc;
+  }, {})).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, count]) => ({ name, count }));
+  const metrics = {
+    totalClasses: classes.length,
+    openClasses: classes.filter((item) => item.status !== "assigned").length,
+    assignedClasses: classes.filter((item) => item.status === "assigned").length,
+    tutors: tutors.length,
+    newRequests: requests.filter((item) => item.status === "new").length,
+    matchedRequests: requests.filter((item) => item.status === "matched").length,
+    topSubjects: countTop(requests.flatMap((item) => item.subjects)),
+    topAreas: countTop(requests.map((item) => item.area)),
+    tutorSubjects: countTop(tutors.flatMap((item) => item.subjects)),
+  };
+  const fallback = `Hiện có ${metrics.openClasses} lớp chưa giao, ${metrics.newRequests} yêu cầu mới và ${metrics.tutors} hồ sơ gia sư. ${metrics.topSubjects[0] ? `Nhu cầu nổi bật là ${metrics.topSubjects[0].name}.` : "Chưa đủ yêu cầu để xác định môn nổi bật."} Nên ưu tiên liên hệ yêu cầu mới và rà soát các lớp chưa giao.`;
+  const summary = await runAiText(ai, [
+    "Bạn là trợ lý vận hành trung tâm gia sư. Từ số liệu tổng hợp, viết 3-5 câu tiếng Việt nêu điểm đáng chú ý và 2 việc nên ưu tiên.",
+    "Không suy đoán doanh thu, không bịa xu hướng khi dữ liệu ít.", JSON.stringify(metrics),
+  ].join("\n"), fallback);
+  return json({ metrics, summary, generatedAt: now() });
+}
+
+async function answerPublicQuestion(request: Request, db: D1Database, ai: AiBinding | undefined) {
+  const body = await readJson(request);
+  const question = String(body.question ?? "").trim().slice(0, 300);
+  if (question.length < 3) return json({ error: "Bạn hãy nhập câu hỏi rõ hơn một chút." }, 400);
+  const normalized = question.toLocaleLowerCase("vi");
+  const direct = normalized.includes("số điện thoại") || normalized.includes("hotline") || normalized.includes("zalo")
+    ? "Bạn có thể gọi hoặc nhắn Zalo Gia Sư Tài Năng qua số 0357570667. Trung tâm hỗ trợ từ 06:00 đến 22:00 hằng ngày."
+    : normalized.includes("địa chỉ")
+      ? "Gia Sư Tài Năng tại 135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh. Trung tâm cũng tư vấn học trực tuyến trên toàn quốc."
+      : normalized.includes("đăng ký") || normalized.includes("tìm gia sư")
+        ? "Bạn vào mục “Tìm gia sư”, điền nhu cầu học tập và số điện thoại. Trung tâm sẽ liên hệ để xác nhận lịch, ngân sách và gửi hồ sơ phù hợp."
+        : "";
+  if (direct) return json({ answer: direct, suggestions: ["Học phí khoảng bao nhiêu?", "Quy trình tìm gia sư thế nào?", "Có dạy online không?"] });
+  const priceRows = await db.prepare("SELECT subject_or_grade, student_tutor_price, teacher_tutor_price, sessions_per_week, duration FROM prices ORDER BY sort_order LIMIT 12").all<JsonRecord>();
+  const context = priceRows.results.map((row) => ({
+    nhom: row.subject_or_grade, sinhVien: row.student_tutor_price, giaoVien: row.teacher_tutor_price,
+    soBuoi: row.sessions_per_week, thoiLuong: row.duration,
+  }));
+  const fallback = "Mức học phí và cách sắp xếp gia sư phụ thuộc môn học, khối lớp, hình thức và lịch học. Bạn có thể để lại nhu cầu tại mục “Tìm gia sư” hoặc gọi/Zalo 0357570667 để được tư vấn chính xác.";
+  const answer = await runAiText(ai, [
+    "Bạn là trợ lý hỏi đáp của Gia Sư Tài Năng. Trả lời tiếng Việt thân thiện trong tối đa 4 câu.",
+    "Chỉ trả lời về tìm gia sư, đăng ký làm gia sư, học phí, lịch học, học online và quy trình của trung tâm.",
+    "Nếu ngoài phạm vi hoặc thiếu dữ liệu, hướng người dùng gọi/Zalo 0357570667. Không yêu cầu hay lặp lại dữ liệu cá nhân, không hứa kết quả học tập.",
+    "Thông tin cố định: hỗ trợ 06:00-22:00 hằng ngày; tư vấn miễn phí; dạy tại nhà chủ yếu TP.HCM; học online toàn quốc.",
+    `Bảng giá tham khảo: ${JSON.stringify(context)}`,
+    `Câu hỏi: ${question}`,
+  ].join("\n"), fallback);
+  return json({ answer, suggestions: ["Học phí khoảng bao nhiêu?", "Quy trình tìm gia sư thế nào?", "Có dạy online không?"] });
 }
 
 function sameText(left: string, right: string) {

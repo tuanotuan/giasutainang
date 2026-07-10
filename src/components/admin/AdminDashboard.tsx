@@ -4,6 +4,7 @@ import {
   AlertCircle,
   AlertTriangle,
   CheckCircle2,
+  Copy,
   ShieldCheck,
   Edit3,
   Loader2,
@@ -23,6 +24,7 @@ import { formatCurrency } from "@/lib/utils";
 import type { ClassItem, Post, PriceItem, Tutor, TutorRequest } from "@/types";
 import { AdminSidebar, type AdminSection } from "./AdminSidebar";
 import { AdminStats } from "./AdminStats";
+import { AdminAiTools } from "./AdminAiTools";
 
 type SubmissionRecord = {
   id: string;
@@ -80,6 +82,7 @@ const sectionTitle: Record<AdminSection, string> = {
   requests: "Yêu cầu & liên hệ",
   pricing: "Quản lý bảng giá",
   posts: "Quản lý bài viết",
+  assistant: "Trợ lý thông minh",
 };
 
 export function AdminDashboard() {
@@ -209,6 +212,7 @@ export function AdminDashboard() {
             {section === "requests" && <RequestManager items={state.requests} submissions={state.submissions} onRefresh={loadState} />}
             {section === "pricing" && <PriceManager items={state.prices} onRefresh={loadState} />}
             {section === "posts" && <PostManager items={state.posts} onRefresh={loadState} />}
+            {section === "assistant" && <AdminAiTools />}
           </>
         )}
       </main>
@@ -351,6 +355,8 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
   const [editing, setEditing] = useState<ClassItem | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [classPost, setClassPost] = useState("");
+  const [preparingPostFor, setPreparingPostFor] = useState("");
   const visible = statusFilter ? items.filter((item) => item.status === statusFilter) : items;
 
   const saveClass = async (item: ClassItem) => {
@@ -386,6 +392,16 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
     }
   };
 
+  const prepareClassPost = async (item: ClassItem) => {
+    setPreparingPostFor(item.id); setMessage("");
+    try {
+      const result = await apiRequest<{ content: string }>(`/api/admin/ai/class-post/${encodeURIComponent(item.id)}`, { method: "POST" });
+      setClassPost(result.content);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể soạn bài đăng.");
+    } finally { setPreparingPostFor(""); }
+  };
+
   return (
     <ManagerShell
       onAdd={() => setEditing(makeClassDraft())}
@@ -400,6 +416,7 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
       )}
     >
       {message && <Notice tone={message.includes("Không") ? "error" : "success"} className="mb-4">{message}</Notice>}
+      {classPost && <TextResultPanel title="Bài đăng tuyển gia sư" text={classPost} onClose={() => setClassPost("")} onCopied={() => setMessage("Đã sao chép bài đăng.")} />}
       {editing && (
         <ClassForm
           key={editing.id}
@@ -409,7 +426,7 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
           onSubmit={(item) => void saveClass(item)}
         />
       )}
-      <AdminTable headers={["Mã lớp", "Tên lớp", "Khu vực", "Lương", "Trạng thái", "Thao tác"]}>
+      <AdminTable headers={["Mã lớp", "Tên lớp", "Khu vực", "Lương", "Trạng thái", "Soạn bài", "Thao tác"]}>
         {visible.map((item) => (
           <tr key={item.id}>
             <Cell strong>{item.code}</Cell>
@@ -428,10 +445,11 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
                 <option value="assigned">Đã giao</option>
               </select>
             </Cell>
+            <Cell><button type="button" onClick={() => void prepareClassPost(item)} disabled={Boolean(preparingPostFor)} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 disabled:opacity-60">{preparingPostFor === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} Soạn bài</button></Cell>
             <Actions onEdit={() => setEditing(item)} onDelete={() => void deleteClass(item)} disabled={saving} />
           </tr>
         ))}
-        {visible.length === 0 && <EmptyRow colSpan={6} text="Chưa có lớp phù hợp với bộ lọc." />}
+        {visible.length === 0 && <EmptyRow colSpan={7} text="Chưa có lớp phù hợp với bộ lọc." />}
       </AdminTable>
     </ManagerShell>
   );
@@ -517,6 +535,8 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<Tutor | null>(null);
   const [saving, setSaving] = useState(false);
+  const [auditing, setAuditing] = useState("");
+  const [audit, setAudit] = useState<{ score: number; issues: string[]; strengths: string[]; summary: string } | null>(null);
   const normalized = keyword.toLocaleLowerCase("vi");
   const visible = items.filter((item) => !normalized || `${item.name} ${item.subjects.join(" ")} ${item.areas.join(" ")}`.toLocaleLowerCase("vi").includes(normalized));
 
@@ -553,6 +573,14 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
     }
   };
 
+  const auditProfile = async (item: Tutor) => {
+    setAuditing(item.id); setMessage("");
+    try {
+      setAudit(await apiRequest<{ score: number; issues: string[]; strengths: string[]; summary: string }>(`/api/admin/ai/tutor-audit/${encodeURIComponent(item.id)}`, { method: "POST" }));
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Chưa thể kiểm tra hồ sơ."); }
+    finally { setAuditing(""); }
+  };
+
   return (
     <ManagerShell
       onAdd={() => setEditing(makeTutorDraft())}
@@ -560,6 +588,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
       toolbar={<input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="Lọc môn hoặc khu vực..." className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm sm:w-64" />}
     >
       {message && <Notice tone={message.includes("Không") ? "error" : "success"} className="mb-4">{message}</Notice>}
+      {audit && <TutorAuditPanel value={audit} onClose={() => setAudit(null)} />}
       {editing && (
         <TutorForm
           key={editing.id}
@@ -569,7 +598,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
           onSubmit={(tutor) => void saveTutor(tutor)}
         />
       )}
-      <AdminTable headers={["Mã", "Họ tên", "Trình độ", "Môn dạy", "Đánh giá", "Thao tác"]}>
+      <AdminTable headers={["Mã", "Họ tên", "Trình độ", "Môn dạy", "Đánh giá", "Kiểm tra", "Thao tác"]}>
         {visible.map((item) => (
           <tr key={item.id}>
             <Cell strong>{item.code}</Cell>
@@ -577,10 +606,11 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
             <Cell>{item.level}</Cell>
             <Cell>{item.subjects.join(", ")}</Cell>
             <Cell>{item.rating}</Cell>
+            <Cell><button type="button" onClick={() => void auditProfile(item)} disabled={Boolean(auditing)} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 disabled:opacity-60">{auditing === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} Kiểm tra</button></Cell>
             <Actions onEdit={() => setEditing(item)} onDelete={() => void remove(item)} disabled={saving} />
           </tr>
         ))}
-        {visible.length === 0 && <EmptyRow colSpan={6} text="Chưa có hồ sơ gia sư phù hợp." />}
+        {visible.length === 0 && <EmptyRow colSpan={7} text="Chưa có hồ sơ gia sư phù hợp." />}
       </AdminTable>
     </ManagerShell>
   );
@@ -656,6 +686,9 @@ function RequestManager({
   const [message, setMessage] = useState("");
   const [suggestion, setSuggestion] = useState<TutorSuggestion | null>(null);
   const [suggestionFor, setSuggestionFor] = useState("");
+  const [zaloDraft, setZaloDraft] = useState("");
+  const [zaloPhone, setZaloPhone] = useState("");
+  const [zaloFor, setZaloFor] = useState("");
 
   const updateStatus = async (item: TutorRequest, status: TutorRequest["status"]) => {
     try {
@@ -683,6 +716,15 @@ function RequestManager({
     }
   };
 
+  const prepareZalo = async (item: TutorRequest) => {
+    setZaloFor(item.id); setMessage("");
+    try {
+      const result = await apiRequest<{ message: string; phone: string }>(`/api/admin/ai/zalo/${encodeURIComponent(item.id)}`, { method: "POST" });
+      setZaloDraft(result.message); setZaloPhone(result.phone);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Chưa thể soạn tin nhắn."); }
+    finally { setZaloFor(""); }
+  };
+
   return (
     <div className="space-y-6">
       {message && <Notice tone={message.includes("Không") ? "error" : "success"}>{message}</Notice>}
@@ -694,6 +736,7 @@ function RequestManager({
           </div>
         </div>
         {suggestion && <SuggestionPanel value={suggestion} onClose={() => setSuggestion(null)} />}
+        {zaloDraft && <TextResultPanel title={`Tin nhắn tư vấn · ${zaloPhone}`} text={zaloDraft} onClose={() => setZaloDraft("")} onCopied={() => setMessage("Đã sao chép tin nhắn Zalo.")} />}
         <AdminTable headers={["Mã", "Phụ huynh", "Điện thoại / Zalo", "Nhu cầu & địa chỉ", "Ngày gửi", "Trạng thái", "Gợi ý"]}>
           {items.map((item) => (
             <tr key={item.id}>
@@ -713,7 +756,7 @@ function RequestManager({
                   <option value="cancelled">Hủy</option>
                 </select>
               </Cell>
-              <Cell>
+              <Cell><div className="flex flex-col gap-2">
                 <button
                   type="button"
                   onClick={() => void getSuggestion(item)}
@@ -723,7 +766,8 @@ function RequestManager({
                   {suggestionFor === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
                   {suggestionFor === item.id ? "Đang chuẩn bị" : "Gợi ý ghép"}
                 </button>
-              </Cell>
+                <button type="button" onClick={() => void prepareZalo(item)} disabled={Boolean(zaloFor)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 disabled:opacity-60">{zaloFor === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} Soạn tin Zalo</button>
+              </div></Cell>
             </tr>
           ))}
           {items.length === 0 && <EmptyRow colSpan={7} text="Chưa có yêu cầu tìm gia sư mới." />}
@@ -772,9 +816,32 @@ function SuggestionPanel({ value, onClose }: { value: TutorSuggestion; onClose: 
           ))}
         </div>
       ) : (
-        <p className="mt-4 rounded-xl bg-white p-4 text-sm text-slate-600">Chưa tìm thấy hồ sơ khớp điều kiện hiện có. Mày có thể nới rộng khu vực hoặc thêm gia sư mới.</p>
+        <p className="mt-4 rounded-xl bg-white p-4 text-sm text-slate-600">Chưa tìm thấy hồ sơ khớp điều kiện hiện có. Bạn có thể nới rộng khu vực hoặc thêm gia sư mới.</p>
       )}
       <p className="mt-4 text-xs leading-5 text-slate-500">{value.note}</p>
+    </section>
+  );
+}
+
+function TextResultPanel({ title, text, onClose, onCopied }: { title: string; text: string; onClose: () => void; onCopied: () => void }) {
+  const copy = async () => {
+    await navigator.clipboard.writeText(text);
+    onCopied();
+  };
+  return (
+    <section className="mb-4 rounded-2xl border border-violet-100 bg-violet-50/60 p-5">
+      <div className="flex items-center justify-between gap-4"><p className="flex items-center gap-2 text-sm font-extrabold text-violet-800"><Sparkles className="h-4 w-4" /> {title}</p><button type="button" onClick={onClose} className="text-xs font-bold text-slate-500">Đóng</button></div>
+      <p className="mt-3 whitespace-pre-line rounded-xl bg-white p-4 text-sm leading-7 text-slate-700">{text}</p>
+      <button type="button" onClick={() => void copy()} className="button-secondary mt-3"><Copy className="h-4 w-4" /> Sao chép nội dung</button>
+    </section>
+  );
+}
+
+function TutorAuditPanel({ value, onClose }: { value: { score: number; issues: string[]; strengths: string[]; summary: string }; onClose: () => void }) {
+  return (
+    <section className="mb-4 rounded-2xl border border-violet-100 bg-violet-50/60 p-5">
+      <div className="flex items-start justify-between gap-4"><div><p className="text-sm font-extrabold text-violet-800">Mức hoàn thiện hồ sơ: {value.score}/100</p><p className="mt-2 text-sm leading-6 text-slate-700">{value.summary}</p></div><button type="button" onClick={onClose} className="text-xs font-bold text-slate-500">Đóng</button></div>
+      <div className="mt-4 grid gap-3 md:grid-cols-2"><div className="rounded-xl bg-white p-4"><h3 className="text-sm font-extrabold text-emerald-700">Thông tin đã tốt</h3><ul className="mt-2 space-y-1 text-sm text-slate-600">{value.strengths.length ? value.strengths.map((item) => <li key={item}>• {item}</li>) : <li>Chưa có mục nổi bật.</li>}</ul></div><div className="rounded-xl bg-white p-4"><h3 className="text-sm font-extrabold text-amber-700">Nên bổ sung</h3><ul className="mt-2 space-y-1 text-sm text-slate-600">{value.issues.length ? value.issues.map((item) => <li key={item}>• {item}</li>) : <li>Hồ sơ đã đủ thông tin cơ bản.</li>}</ul></div></div>
     </section>
   );
 }

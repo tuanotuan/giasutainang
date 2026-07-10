@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { TopContactBar } from "@/components/layout/TopContactBar";
 import { FloatingContactButtons } from "@/components/common/FloatingContactButtons";
+import { ConsultingChat } from "@/components/common/ConsultingChat";
 import { siteConfig } from "@/data/site";
 import "./globals.css";
 
@@ -52,6 +53,7 @@ export default function RootLayout({
         <main id="noi-dung-chinh">{children}</main>
         <Footer />
         <FloatingContactButtons />
+        <ConsultingChat />
       </body>
     </html>
   );
