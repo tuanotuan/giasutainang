@@ -25,6 +25,9 @@ Build a Vietnamese tutoring center website named "Gia Sư Minh Tâm".
 - Keep data separate from UI.
 - Validate forms.
 - Make layout responsive.
+- Treat mobile usability as a required acceptance criterion for every UI change.
+- Test common phone widths (320px, 375px, 390px, and 430px) before considering UI work complete.
+- Keep touch targets at least 44px, prevent horizontal overflow, respect mobile safe areas, and ensure fixed elements do not cover content or form controls.
 - Avoid hardcoding repeated data inside components.
 - Do not add a real backend unless requested.
 - Do not add real authentication unless requested.
