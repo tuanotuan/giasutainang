@@ -43,8 +43,8 @@ export function MobileMenu() {
             className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div id="menu-di-dong" role="dialog" aria-modal="true" aria-label="Danh mục điều hướng" className="absolute right-0 top-0 flex h-full w-[min(88%,360px)] flex-col bg-white p-5 shadow-2xl">
-            <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-5">
+          <div id="menu-di-dong" role="dialog" aria-modal="true" aria-label="Danh mục điều hướng" className="absolute right-0 top-0 flex h-[100dvh] w-[min(92%,380px)] flex-col bg-white px-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] pt-[calc(1.25rem+env(safe-area-inset-top))] shadow-2xl">
+            <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-4">
               <span className="font-bold text-primary-800">Danh mục</span>
               <button
                 type="button"
@@ -61,13 +61,13 @@ export function MobileMenu() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setOpen(false)}
-                  className="border-b border-slate-100 py-3.5 text-sm font-semibold text-slate-700 transition hover:pl-2 hover:text-primary-600"
+                  className="flex min-h-12 items-center border-b border-slate-100 py-3 text-[15px] font-semibold text-slate-700 transition active:bg-primary-50 active:text-primary-700"
                 >
                   {item.label}
                 </Link>
               ))}
             </nav>
-            <a href={`tel:${siteConfig.phone.replace(/\s/g, "")}`} className="button-primary mt-5">
+            <a href={`tel:${siteConfig.phone.replace(/\s/g, "")}`} className="button-primary mt-3 w-full">
               <Phone className="h-4 w-4" />
               {siteConfig.phone}
             </a>

@@ -19,26 +19,26 @@ export function Hero() {
     <section className="relative overflow-hidden bg-gradient-to-br from-primary-50 via-white to-amber-50/70">
       <div className="absolute -left-40 top-20 h-80 w-80 rounded-full bg-primary-100/60 blur-3xl" />
       <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-amber-100/70 blur-3xl" />
-      <div className="container-page relative grid min-h-[640px] items-center gap-12 py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
+      <div className="container-page relative grid items-center gap-8 py-10 sm:min-h-[640px] sm:gap-12 sm:py-14 lg:grid-cols-[1.05fr_.95fr] lg:py-20">
         <div>
           <span className="eyebrow">
             <Star className="h-3.5 w-3.5 fill-accent-400 text-accent-400" />
             Kết nối đúng người · Học đúng cách
           </span>
-          <h1 className="max-w-3xl text-4xl font-extrabold leading-[1.12] tracking-tight text-ink sm:text-5xl lg:text-[56px]">
+          <h1 className="max-w-3xl break-words text-[32px] font-extrabold leading-[1.15] tracking-tight text-ink min-[390px]:text-[34px] sm:text-5xl lg:text-[56px]">
             Tìm gia sư dạy kèm{" "}
-            <span className="relative whitespace-nowrap text-primary-600">
+            <span className="relative text-primary-600">
               tại nhà & online
-              <svg className="absolute -bottom-2 left-0 h-3 w-full text-accent-400" viewBox="0 0 320 12" fill="none" aria-hidden="true">
+              <svg className="absolute -bottom-2 left-0 hidden h-3 w-full text-accent-400 sm:block" viewBox="0 0 320 12" fill="none" aria-hidden="true">
                 <path d="M3 8.5C74 1.5 216 1 317 5.5" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
               </svg>
             </span>{" "}
             nhanh chóng
           </h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-slate-600">
+          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-7 sm:text-lg sm:leading-8">
             Kết nối phụ huynh với gia sư phù hợp theo môn học, khu vực, trình độ và ngân sách.
           </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
             <Link href="/dang-ky-tim-gia-su" className="button-primary">
               Đăng ký tìm gia sư
               <ArrowRight className="h-4 w-4" />
@@ -60,7 +60,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[500px]">
+        <div className="relative mx-auto hidden w-full max-w-[500px] sm:block">
           <div className="absolute -left-8 top-16 h-24 w-24 rounded-full border-[18px] border-primary-100/80" />
           <div className="relative overflow-hidden rounded-[32px] bg-primary-800 p-6 shadow-2xl shadow-primary-900/20 sm:p-8">
             <div className="absolute right-0 top-0 h-44 w-44 rounded-bl-full bg-primary-700" />

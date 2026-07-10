@@ -164,7 +164,7 @@ export function AdminDashboard() {
   return (
     <div className="grid min-h-[calc(100vh-76px)] bg-slate-50 lg:grid-cols-[240px_1fr]">
       <AdminSidebar active={section} onChange={setSection} />
-      <main className="min-w-0 p-4 sm:p-6 lg:p-8">
+      <main className="min-w-0 p-3 sm:p-6 lg:p-8">
         <div className="mb-7 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <span className="text-xs font-bold uppercase tracking-[.16em] text-primary-600">Gia Sư Tài Năng</span>
@@ -1060,7 +1060,7 @@ function ManagerShell({
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>{toolbar}</div>
         {onAdd && label && (
-          <button type="button" onClick={onAdd} className="button-primary">
+          <button type="button" onClick={onAdd} className="button-primary w-full sm:w-auto">
             <Plus className="h-4 w-4" />
             {label}
           </button>
@@ -1074,10 +1074,11 @@ function ManagerShell({
 function AdminTable({ headers, children }: { headers: string[]; children: ReactNode }) {
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-card">
-      <div className="overflow-x-auto">
+      <p className="border-b border-slate-100 bg-primary-50 px-4 py-2 text-[11px] font-semibold text-primary-700 sm:hidden">Vuốt ngang bảng để xem đầy đủ thông tin →</p>
+      <div className="overflow-x-auto overscroll-x-contain">
         <table className="w-full min-w-[800px] text-left text-sm">
           <thead className="bg-slate-100 text-xs text-slate-500">
-            <tr>{headers.map((header) => <th key={header} className="px-4 py-3 font-bold">{header}</th>)}</tr>
+            <tr>{headers.map((header, index) => <th key={header} className={`px-4 py-3 font-bold ${index === 0 ? "sticky left-0 z-10 bg-slate-100" : ""}`}>{header}</th>)}</tr>
           </thead>
           <tbody className="divide-y divide-slate-100">{children}</tbody>
         </table>
@@ -1087,7 +1088,7 @@ function AdminTable({ headers, children }: { headers: string[]; children: ReactN
 }
 
 function Cell({ children, strong = false }: { children: ReactNode; strong?: boolean }) {
-  return <td className={`px-4 py-3 text-xs ${strong ? "font-bold text-ink" : "text-slate-600"}`}>{children}</td>;
+  return <td className={`px-4 py-3 text-xs ${strong ? "sticky left-0 z-[5] bg-white font-bold text-ink" : "text-slate-600"}`}>{children}</td>;
 }
 
 function EmptyRow({ colSpan, text }: { colSpan: number; text: string }) {
@@ -1099,10 +1100,10 @@ function Actions({ onEdit, onDelete, disabled = false }: { onEdit: () => void; o
   return (
     <td className="px-4 py-3">
       <div className="flex gap-2">
-        <button type="button" onClick={onEdit} aria-label="Sửa" disabled={disabled} className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 disabled:opacity-50">
+        <button type="button" onClick={onEdit} aria-label="Sửa" disabled={disabled} className="flex h-11 w-11 items-center justify-center rounded-lg bg-blue-50 text-blue-600 disabled:opacity-50 sm:h-9 sm:w-9">
           <Edit3 className="h-4 w-4" />
         </button>
-        <button type="button" onClick={() => setConfirming(true)} aria-label="Xóa" disabled={disabled} className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 disabled:opacity-50">
+        <button type="button" onClick={() => setConfirming(true)} aria-label="Xóa" disabled={disabled} className="flex h-11 w-11 items-center justify-center rounded-lg bg-rose-50 text-rose-600 disabled:opacity-50 sm:h-9 sm:w-9">
           <Trash2 className="h-4 w-4" />
         </button>
       </div>

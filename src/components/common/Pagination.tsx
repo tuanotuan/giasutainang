@@ -21,7 +21,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary-300 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary-300 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Trang trước"
       >
         <ChevronLeft className="h-4 w-4" />
@@ -32,7 +32,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
           <button
             type="button"
             onClick={() => onPageChange(page)}
-            className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold transition ${
+            className={`h-11 min-w-11 rounded-xl px-3 text-sm font-bold transition ${
               page === currentPage
                 ? "bg-primary-600 text-white shadow-lg shadow-primary-600/20"
                 : "border border-slate-200 bg-white text-slate-600 hover:border-primary-300 hover:text-primary-600"
@@ -47,7 +47,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         type="button"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary-300 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 transition hover:border-primary-300 hover:text-primary-600 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="Trang sau"
       >
         <ChevronRight className="h-4 w-4" />

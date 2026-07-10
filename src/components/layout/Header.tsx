@@ -7,13 +7,13 @@ import { MobileMenu } from "./MobileMenu";
 export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 shadow-sm shadow-slate-900/5 backdrop-blur">
-      <div className="container-page flex h-[76px] items-center justify-between gap-6">
+      <div className="container-page flex h-16 items-center justify-between gap-3 sm:h-[76px] sm:gap-6">
         <Link href="/" className="flex shrink-0 items-center gap-3" aria-label={`${siteConfig.name} - Trang chủ`}>
-          <span className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl border border-primary-100 bg-white shadow-lg shadow-primary-600/20">
+          <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-primary-100 bg-white shadow-lg shadow-primary-600/20 sm:h-12 sm:w-12 sm:rounded-2xl">
             <Image src={siteConfig.logo} alt="" fill sizes="48px" priority className="scale-[1.35] object-cover object-[50%_35%]" />
           </span>
           <span>
-            <strong className="block text-lg leading-tight text-primary-800">{siteConfig.name}</strong>
+            <strong className="block text-[15px] leading-tight text-primary-800 min-[375px]:text-base sm:text-lg">{siteConfig.name}</strong>
             <small className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-500 sm:block">
               {siteConfig.tagline}
             </small>

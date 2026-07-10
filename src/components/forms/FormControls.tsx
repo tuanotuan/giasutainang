@@ -47,9 +47,9 @@ export function FormSection({
   children: ReactNode;
 }) {
   return (
-    <fieldset className="rounded-2xl border border-slate-100 bg-white p-5 shadow-card sm:p-7">
+    <fieldset className="rounded-2xl border border-slate-100 bg-white p-4 shadow-card sm:p-7">
       <legend className="sr-only">{title}</legend>
-      <div className="mb-6 flex items-start gap-3 border-b border-slate-100 pb-5">
+      <div className="mb-5 flex items-start gap-3 border-b border-slate-100 pb-4 sm:mb-6 sm:pb-5">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-600 text-xs font-extrabold text-white">{number}</span>
         <div>
           <h2 className="font-bold text-ink">{title}</h2>
