@@ -1,11 +1,24 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, Check, GraduationCap, Laptop, School, Target } from "lucide-react";
+import { useEffect, useState } from "react";
 import { featuredPrices } from "@/data/prices";
 import { SectionTitle } from "@/components/common/SectionTitle";
+import type { PriceItem } from "@/types";
 
 const icons = [GraduationCap, School, Laptop, Target];
 
 export function PricingPreview() {
+  const [items, setItems] = useState<PriceItem[]>(featuredPrices);
+
+  useEffect(() => {
+    fetch("/api/prices")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items?: PriceItem[] }) => data.items?.length && setItems(data.items.slice(0, 4)))
+      .catch(() => undefined);
+  }, []);
+
   return (
     <section className="section-space bg-white">
       <div className="container-page">
@@ -15,8 +28,8 @@ export function PricingPreview() {
           description="Mức phí có thể thay đổi theo môn học, số buổi, khu vực và yêu cầu chuyên môn."
         />
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {featuredPrices.map((item, index) => {
-            const Icon = icons[index];
+          {items.map((item, index) => {
+            const Icon = icons[index] ?? GraduationCap;
             const price = item.studentTutorPrice || item.teacherTutorPrice;
             return (
               <article key={item.id} className={`relative rounded-2xl border p-6 ${index === 1 ? "border-primary-500 bg-primary-600 text-white shadow-xl shadow-primary-600/20" : "border-slate-100 bg-white shadow-card"}`}>

@@ -1,7 +1,8 @@
 import { classes as seedClasses } from "../src/data/classes";
 import { posts as seedPosts } from "../src/data/posts";
+import { priceItems as seedPrices } from "../src/data/prices";
 import { tutors as seedTutors } from "../src/data/tutors";
-import type { Tutor, TutorRequest } from "../src/types";
+import type { PriceItem, Tutor, TutorRequest } from "../src/types";
 
 interface D1PreparedStatement {
   bind(...values: unknown[]): D1PreparedStatement;
@@ -39,6 +40,7 @@ const SCHEMA_STATEMENTS = [
   "CREATE TABLE IF NOT EXISTS classes (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, status TEXT NOT NULL DEFAULT 'open', title TEXT NOT NULL, subject TEXT NOT NULL, grade TEXT NOT NULL, student_count INTEGER NOT NULL DEFAULT 1, student_level TEXT NOT NULL, area TEXT NOT NULL, address TEXT NOT NULL, learning_mode TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, duration TEXT NOT NULL, schedule TEXT NOT NULL, tutor_requirement TEXT NOT NULL, salary INTEGER NOT NULL, note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS tutors (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, birth_year INTEGER NOT NULL, gender TEXT NOT NULL, avatar TEXT NOT NULL DEFAULT '', school TEXT NOT NULL, major TEXT NOT NULL, level TEXT NOT NULL, subjects TEXT NOT NULL, grades TEXT NOT NULL, areas TEXT NOT NULL, available_times TEXT NOT NULL, experience TEXT NOT NULL, achievements TEXT NOT NULL, teaching_style TEXT NOT NULL, expected_salary TEXT NOT NULL, rating REAL NOT NULL DEFAULT 5, review_count INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS posts (id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, excerpt TEXT NOT NULL, category TEXT NOT NULL, thumbnail TEXT NOT NULL DEFAULT '', date TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS prices (id TEXT PRIMARY KEY, category TEXT NOT NULL, subject_or_grade TEXT NOT NULL, student_tutor_price TEXT NOT NULL DEFAULT '', teacher_tutor_price TEXT NOT NULL DEFAULT '', sessions_per_week TEXT NOT NULL, duration TEXT NOT NULL, note TEXT, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS tutor_requests (id TEXT PRIMARY KEY, parent_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, area TEXT NOT NULL, learning_mode TEXT NOT NULL, grade TEXT NOT NULL, subjects TEXT NOT NULL, student_count INTEGER NOT NULL, student_level TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, schedule TEXT NOT NULL, tutor_level TEXT NOT NULL, tutor_gender TEXT NOT NULL, selected_tutor_code TEXT, budget TEXT NOT NULL, note TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS submissions (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, reference_code TEXT, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_classes_status_created ON classes(status, created_at DESC)",
@@ -113,6 +115,10 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     if (pathname.startsWith("/api/admin/posts/")) {
       return mutatePost(request, env.DB, decodeURIComponent(pathname.split("/").pop() ?? ""));
     }
+    if (pathname === "/api/admin/prices") return createPrice(request, env.DB);
+    if (pathname.startsWith("/api/admin/prices/")) {
+      return mutatePrice(request, env.DB, decodeURIComponent(pathname.split("/").pop() ?? ""));
+    }
     if (pathname.startsWith("/api/admin/ai/request/") && request.method === "POST") {
       const id = decodeURIComponent(pathname.split("/").pop() ?? "");
       return createTutorSuggestion(env.DB, env.AI, id);
@@ -147,6 +153,10 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     const result = await env.DB.prepare("SELECT * FROM posts ORDER BY created_at DESC").all<JsonRecord>();
     return json({ items: result.results.map(rowToPost) });
   }
+  if (pathname === "/api/prices" && request.method === "GET") {
+    const result = await env.DB.prepare("SELECT * FROM prices ORDER BY sort_order ASC, created_at ASC").all<JsonRecord>();
+    return json({ items: result.results.map(rowToPrice) });
+  }
   if (pathname === "/api/requests/find-tutor" && request.method === "POST") {
     return saveTutorRequest(request, env.DB);
   }
@@ -167,32 +177,44 @@ async function setupDatabase(db: D1Database) {
     await db.exec(statement);
   }
   const seeded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'seeded_at'").first<{ value: string }>();
-  if (seeded?.value) return;
   const stamp = now();
   const statements: D1PreparedStatement[] = [];
-  for (const item of seedClasses) {
+  if (!seeded?.value) for (const item of seedClasses) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO classes
       (id,code,status,title,subject,grade,student_count,student_level,area,address,learning_mode,sessions_per_week,duration,schedule,tutor_requirement,salary,note,created_at,updated_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19)`)
       .bind(item.id,item.code,item.status,item.title,item.subject,item.grade,item.studentCount,item.studentLevel,item.area,item.address,item.learningMode,item.sessionsPerWeek,item.duration,item.schedule,item.tutorRequirement,item.salary,item.note,item.createdAt,stamp));
   }
-  for (const item of seedTutors) {
+  if (!seeded?.value) for (const item of seedTutors) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO tutors
       (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,created_at,updated_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21)`)
       .bind(item.id,item.code,item.name,item.birthYear,item.gender,item.avatar,item.school,item.major,item.level,JSON.stringify(item.subjects),JSON.stringify(item.grades),JSON.stringify(item.areas),JSON.stringify(item.availableTimes),item.experience,JSON.stringify(item.achievements),item.teachingStyle,item.expectedSalary,item.rating,item.reviewCount,stamp,stamp));
   }
-  for (const item of seedPosts) {
+  if (!seeded?.value) for (const item of seedPosts) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO posts
       (id,slug,title,excerpt,category,thumbnail,date,content,created_at,updated_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10)`)
       .bind(item.id,item.slug,item.title,item.excerpt,item.category,item.thumbnail,item.date,item.content,stamp,stamp));
   }
+  const pricesSeeded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'prices_seeded_at'").first<{ value: string }>();
+  if (!pricesSeeded?.value) for (const [index, item] of seedPrices.entries()) {
+    statements.push(db.prepare(`INSERT OR IGNORE INTO prices
+      (id,category,subject_or_grade,student_tutor_price,teacher_tutor_price,sessions_per_week,duration,note,sort_order,created_at,updated_at)
+      VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)`)
+      .bind(item.id,item.category,item.subjectOrGrade,item.studentTutorPrice,item.teacherTutorPrice,item.sessionsPerWeek,item.duration,item.note ?? null,index,stamp,stamp));
+  }
   for (let index = 0; index < statements.length; index += 50) {
     await db.batch(statements.slice(index, index + 50));
   }
-  await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('seeded_at', ?1, ?2)")
-    .bind(stamp, stamp).run();
+  if (!seeded?.value) {
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('seeded_at', ?1, ?2)")
+      .bind(stamp, stamp).run();
+  }
+  if (!pricesSeeded?.value) {
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('prices_seeded_at', ?1, ?2)")
+      .bind(stamp, stamp).run();
+  }
 }
 
 async function ensureDatabase(db: D1Database) {
@@ -207,11 +229,12 @@ async function ensureDatabase(db: D1Database) {
 
 async function adminState(db: D1Database) {
   try {
-    const [classes, tutors, requests, posts, submissions] = await Promise.all([
+    const [classes, tutors, requests, posts, prices, submissions] = await Promise.all([
       db.prepare("SELECT * FROM classes ORDER BY created_at DESC").all<JsonRecord>(),
       db.prepare("SELECT * FROM tutors ORDER BY created_at DESC").all<JsonRecord>(),
       db.prepare("SELECT * FROM tutor_requests ORDER BY created_at DESC").all<JsonRecord>(),
       db.prepare("SELECT * FROM posts ORDER BY created_at DESC").all<JsonRecord>(),
+      db.prepare("SELECT * FROM prices ORDER BY sort_order ASC, created_at ASC").all<JsonRecord>(),
       db.prepare("SELECT * FROM submissions ORDER BY created_at DESC").all<JsonRecord>(),
     ]);
     return json({
@@ -220,10 +243,11 @@ async function adminState(db: D1Database) {
       tutors: tutors.results.map(rowToTutor),
       requests: requests.results.map(rowToRequest),
       posts: posts.results.map(rowToPost),
+      prices: prices.results.map(rowToPrice),
       submissions: submissions.results.map((row) => ({ ...row, payload: parseJson(row.payload, {}) })),
     });
   } catch {
-    return json({ needsSetup: true, classes: [], tutors: [], requests: [], posts: [], submissions: [] });
+    return json({ needsSetup: true, classes: [], tutors: [], requests: [], posts: [], prices: [], submissions: [] });
   }
 }
 
@@ -409,6 +433,32 @@ async function mutatePost(request: Request, db: D1Database, id: string) {
   return json({ success: true });
 }
 
+async function createPrice(request: Request, db: D1Database) {
+  if (request.method !== "POST") return json({ error: "Thao tác không được hỗ trợ." }, 405);
+  const body = await readJson(request);
+  const id = String(body.id || crypto.randomUUID());
+  const stamp = now();
+  const orderRow = await db.prepare("SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_order FROM prices").first<{ next_order: number }>();
+  await db.prepare(`INSERT INTO prices
+    (id,category,subject_or_grade,student_tutor_price,teacher_tutor_price,sessions_per_week,duration,note,sort_order,created_at,updated_at)
+    VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)`)
+    .bind(id,String(body.category),String(body.subjectOrGrade),String(body.studentTutorPrice||""),String(body.teacherTutorPrice||""),String(body.sessionsPerWeek),String(body.duration),optional(body.note),number(orderRow?.next_order,0),stamp,stamp).run();
+  return json({ success: true, id }, 201);
+}
+
+async function mutatePrice(request: Request, db: D1Database, id: string) {
+  if (request.method === "DELETE") {
+    await db.prepare("DELETE FROM prices WHERE id=?1").bind(id).run();
+    return json({ success: true });
+  }
+  if (request.method !== "PUT") return json({ error: "Thao tác không được hỗ trợ." }, 405);
+  const body = await readJson(request);
+  await db.prepare(`UPDATE prices SET category=?1,subject_or_grade=?2,student_tutor_price=?3,teacher_tutor_price=?4,
+    sessions_per_week=?5,duration=?6,note=?7,updated_at=?8 WHERE id=?9`)
+    .bind(String(body.category),String(body.subjectOrGrade),String(body.studentTutorPrice||""),String(body.teacherTutorPrice||""),String(body.sessionsPerWeek),String(body.duration),optional(body.note),now(),id).run();
+  return json({ success: true });
+}
+
 async function saveTutorRequest(request: Request, db: D1Database) {
   const body = await readJson(request);
   const id = crypto.randomUUID();
@@ -453,6 +503,14 @@ function rowToTutor(row: JsonRecord): Tutor {
 
 function rowToPost(row: JsonRecord) {
   return { id: row.id, slug: row.slug, title: row.title, excerpt: row.excerpt, category: row.category, thumbnail: row.thumbnail, date: row.date, content: row.content };
+}
+
+function rowToPrice(row: JsonRecord): PriceItem {
+  return {
+    id: text(row.id), category: text(row.category), subjectOrGrade: text(row.subject_or_grade),
+    studentTutorPrice: text(row.student_tutor_price), teacherTutorPrice: text(row.teacher_tutor_price),
+    sessionsPerWeek: text(row.sessions_per_week), duration: text(row.duration), note: textOrUndefined(row.note),
+  };
 }
 
 function rowToRequest(row: JsonRecord): TutorRequest {

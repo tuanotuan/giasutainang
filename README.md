@@ -105,6 +105,7 @@ Public:
 - `GET /api/classes/:id`
 - `GET /api/tutors`
 - `GET /api/posts`
+- `GET /api/prices`
 - `POST /api/requests/find-tutor`
 - `POST /api/requests/register-tutor`
 - `POST /api/requests/receive-class`
@@ -120,6 +121,7 @@ Admin:
 - CRUD `/api/admin/classes`
 - CRUD `/api/admin/tutors`
 - CRUD `/api/admin/posts`
+- CRUD `/api/admin/prices`
 - `PATCH /api/admin/requests/:id`
 
 ## Cấu trúc thư mục
@@ -175,6 +177,7 @@ Trong `/admin`:
 - Xem yêu cầu tìm gia sư từ form phụ huynh.
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
 - Thêm/sửa/xóa nhanh gia sư và bài viết.
+- Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 
 ## Lưu ý
 

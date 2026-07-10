@@ -1,6 +1,19 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { priceItems } from "@/data/prices";
+import type { PriceItem } from "@/types";
 
 export function PricingTable() {
+  const [items, setItems] = useState<PriceItem[]>(priceItems);
+
+  useEffect(() => {
+    fetch("/api/prices")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data: { items?: PriceItem[] }) => data.items?.length && setItems(data.items))
+      .catch(() => undefined);
+  }, []);
+
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card">
       <div className="overflow-x-auto">
@@ -11,7 +24,7 @@ export function PricingTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {priceItems.map((item) => (
+            {items.map((item) => (
               <tr key={item.id} className="transition hover:bg-primary-50/50">
                 <td className="px-5 py-4"><strong className="block text-ink">{item.category}</strong><span className="mt-1 block text-xs text-slate-500">{item.subjectOrGrade}</span></td>
                 <td className="px-5 py-4 font-semibold text-primary-700">{item.studentTutorPrice}</td>

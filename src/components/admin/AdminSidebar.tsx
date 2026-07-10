@@ -1,14 +1,15 @@
 "use client";
 
-import { BookOpenText, GraduationCap, LayoutDashboard, School, UserRoundSearch } from "lucide-react";
+import { BadgeDollarSign, BookOpenText, GraduationCap, LayoutDashboard, School, UserRoundSearch } from "lucide-react";
 
-export type AdminSection = "dashboard" | "classes" | "tutors" | "requests" | "posts";
+export type AdminSection = "dashboard" | "classes" | "tutors" | "requests" | "pricing" | "posts";
 
 const items = [
   { id: "dashboard" as const, label: "Tổng quan", icon: LayoutDashboard },
   { id: "classes" as const, label: "Quản lý lớp", icon: School },
   { id: "tutors" as const, label: "Quản lý gia sư", icon: GraduationCap },
   { id: "requests" as const, label: "Yêu cầu tìm gia sư", icon: UserRoundSearch },
+  { id: "pricing" as const, label: "Quản lý bảng giá", icon: BadgeDollarSign },
   { id: "posts" as const, label: "Quản lý bài viết", icon: BookOpenText },
 ];
 

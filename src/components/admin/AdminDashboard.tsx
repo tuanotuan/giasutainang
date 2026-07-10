@@ -15,10 +15,11 @@ import {
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { classes as initialClasses } from "@/data/classes";
 import { posts as initialPosts } from "@/data/posts";
+import { priceItems as initialPrices } from "@/data/prices";
 import { tutors as initialTutors } from "@/data/tutors";
 import { apiRequest } from "@/lib/api";
 import { formatCurrency } from "@/lib/utils";
-import type { ClassItem, Post, Tutor, TutorRequest } from "@/types";
+import type { ClassItem, Post, PriceItem, Tutor, TutorRequest } from "@/types";
 import { AdminSidebar, type AdminSection } from "./AdminSidebar";
 import { AdminStats } from "./AdminStats";
 
@@ -40,6 +41,7 @@ type AdminState = {
   tutors: Tutor[];
   requests: TutorRequest[];
   posts: Post[];
+  prices: PriceItem[];
   submissions: SubmissionRecord[];
 };
 
@@ -66,6 +68,7 @@ const fallbackState: AdminState = {
   tutors: initialTutors.slice(0, 12),
   requests: [],
   posts: initialPosts.slice(0, 8),
+  prices: initialPrices,
   submissions: [],
 };
 
@@ -74,6 +77,7 @@ const sectionTitle: Record<AdminSection, string> = {
   classes: "Quản lý lớp mới",
   tutors: "Quản lý gia sư",
   requests: "Yêu cầu & liên hệ",
+  pricing: "Quản lý bảng giá",
   posts: "Quản lý bài viết",
 };
 
@@ -202,6 +206,7 @@ export function AdminDashboard() {
             {section === "classes" && <ClassManager items={state.classes} onRefresh={loadState} />}
             {section === "tutors" && <TutorManager items={state.tutors} onRefresh={loadState} />}
             {section === "requests" && <RequestManager items={state.requests} submissions={state.submissions} onRefresh={loadState} />}
+            {section === "pricing" && <PriceManager items={state.prices} onRefresh={loadState} />}
             {section === "posts" && <PostManager items={state.posts} onRefresh={loadState} />}
           </>
         )}
@@ -768,6 +773,122 @@ function SuggestionPanel({ value, onClose }: { value: TutorSuggestion; onClose: 
   );
 }
 
+function PriceManager({ items, onRefresh }: { items: PriceItem[]; onRefresh: () => Promise<void> }) {
+  const [editing, setEditing] = useState<PriceItem | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const savePrice = async (item: PriceItem) => {
+    if (!item.studentTutorPrice.trim() && !item.teacherTutorPrice.trim()) {
+      setMessage("Cần nhập ít nhất một mức giá sinh viên hoặc giáo viên.");
+      return;
+    }
+    setSaving(true);
+    setMessage("");
+    const exists = items.some((entry) => entry.id === item.id);
+    try {
+      await apiRequest<{ success: boolean }>(
+        exists ? `/api/admin/prices/${encodeURIComponent(item.id)}` : "/api/admin/prices",
+        { method: exists ? "PUT" : "POST", body: JSON.stringify(item) },
+      );
+      setEditing(null);
+      await onRefresh();
+      setMessage(exists ? "Đã cập nhật mức học phí." : "Đã thêm mức học phí mới.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể lưu mức học phí.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const removePrice = async (item: PriceItem) => {
+    if (!confirm(`Xóa mức giá “${item.category}”?`)) return;
+    setSaving(true);
+    setMessage("");
+    try {
+      await apiRequest<{ success: boolean }>(`/api/admin/prices/${encodeURIComponent(item.id)}`, { method: "DELETE" });
+      await onRefresh();
+      setMessage("Đã xóa mức học phí.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể xóa mức học phí.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <ManagerShell onAdd={() => setEditing(makePriceDraft())} label="Thêm mức giá">
+      {message && <Notice tone={message.startsWith("Đã") ? "success" : "error"} className="mb-4">{message}</Notice>}
+      {editing && (
+        <PriceForm
+          key={editing.id}
+          value={editing}
+          saving={saving}
+          onCancel={() => setEditing(null)}
+          onSubmit={(item) => void savePrice(item)}
+        />
+      )}
+      <AdminTable headers={["Nhóm học", "Môn / cấp học", "Gia sư sinh viên", "Gia sư giáo viên", "Lịch học", "Thao tác"]}>
+        {items.map((item) => (
+          <tr key={item.id}>
+            <Cell strong>{item.category}</Cell>
+            <Cell>{item.subjectOrGrade}</Cell>
+            <Cell>{item.studentTutorPrice || "—"}</Cell>
+            <Cell>{item.teacherTutorPrice || "—"}</Cell>
+            <Cell>{item.sessionsPerWeek} · {item.duration}</Cell>
+            <Actions onEdit={() => setEditing(item)} onDelete={() => void removePrice(item)} disabled={saving} />
+          </tr>
+        ))}
+      </AdminTable>
+    </ManagerShell>
+  );
+}
+
+function PriceForm({
+  value,
+  saving,
+  onCancel,
+  onSubmit,
+}: {
+  value: PriceItem;
+  saving: boolean;
+  onCancel: () => void;
+  onSubmit: (item: PriceItem) => void;
+}) {
+  const [form, setForm] = useState<PriceItem>(value);
+  const update = <K extends keyof PriceItem>(key: K, next: PriceItem[K]) => setForm((current) => ({ ...current, [key]: next }));
+
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit(form);
+      }}
+      className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card"
+    >
+      <div className="mb-4">
+        <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Thêm mức giá mới" : `Sửa giá ${value.category}`}</h2>
+        <p className="mt-1 text-sm text-slate-500">Sau khi lưu, mức giá mới sẽ hiển thị trên trang bảng giá và trang chủ.</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <Input label="Nhóm học / dịch vụ" value={form.category} onChange={(next) => update("category", next)} required />
+        <Input label="Môn học / cấp học" value={form.subjectOrGrade} onChange={(next) => update("subjectOrGrade", next)} required className="xl:col-span-2" />
+        <Input label="Giá gia sư sinh viên" value={form.studentTutorPrice} onChange={(next) => update("studentTutorPrice", next)} />
+        <Input label="Giá gia sư giáo viên" value={form.teacherTutorPrice} onChange={(next) => update("teacherTutorPrice", next)} />
+        <Input label="Số buổi mỗi tuần" value={form.sessionsPerWeek} onChange={(next) => update("sessionsPerWeek", next)} required />
+        <Input label="Thời lượng mỗi buổi" value={form.duration} onChange={(next) => update("duration", next)} required />
+        <Textarea label="Ghi chú" value={form.note ?? ""} onChange={(next) => update("note", next)} className="md:col-span-2 xl:col-span-3" />
+      </div>
+      <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <button type="button" onClick={onCancel} className="button-secondary justify-center" disabled={saving}>Hủy</button>
+        <button type="submit" className="button-primary justify-center" disabled={saving}>
+          {saving && <Loader2 className="h-4 w-4 animate-spin" />} Lưu bảng giá
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function PostManager({ items, onRefresh }: { items: Post[]; onRefresh: () => Promise<void> }) {
   const [message, setMessage] = useState("");
 
@@ -1033,6 +1154,19 @@ function makeTutorDraft(): Tutor {
     expectedSalary: "",
     rating: 5,
     reviewCount: 0,
+  };
+}
+
+function makePriceDraft(): PriceItem {
+  return {
+    id: `new-${crypto.randomUUID()}`,
+    category: "",
+    subjectOrGrade: "",
+    studentTutorPrice: "",
+    teacherTutorPrice: "",
+    sessionsPerWeek: "2-3 buổi",
+    duration: "90 phút",
+    note: "",
   };
 }
 
