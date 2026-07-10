@@ -2,6 +2,7 @@
 
 import {
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   ShieldCheck,
   Edit3,
@@ -372,7 +373,6 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
   };
 
   const deleteClass = async (item: ClassItem) => {
-    if (!confirm(`Xóa lớp ${item.code}?`)) return;
     setSaving(true);
     setMessage("");
     try {
@@ -431,6 +431,7 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
             <Actions onEdit={() => setEditing(item)} onDelete={() => void deleteClass(item)} disabled={saving} />
           </tr>
         ))}
+        {visible.length === 0 && <EmptyRow colSpan={6} text="Chưa có lớp phù hợp với bộ lọc." />}
       </AdminTable>
     </ManagerShell>
   );
@@ -539,7 +540,6 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
   };
 
   const remove = async (item: Tutor) => {
-    if (!confirm(`Xóa gia sư ${item.code}?`)) return;
     setSaving(true);
     setMessage("");
     try {
@@ -580,6 +580,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
             <Actions onEdit={() => setEditing(item)} onDelete={() => void remove(item)} disabled={saving} />
           </tr>
         ))}
+        {visible.length === 0 && <EmptyRow colSpan={6} text="Chưa có hồ sơ gia sư phù hợp." />}
       </AdminTable>
     </ManagerShell>
   );
@@ -725,6 +726,7 @@ function RequestManager({
               </Cell>
             </tr>
           ))}
+          {items.length === 0 && <EmptyRow colSpan={7} text="Chưa có yêu cầu tìm gia sư mới." />}
         </AdminTable>
       </section>
       <section>
@@ -740,6 +742,7 @@ function RequestManager({
               <Cell>{formatDate(item.created_at)}</Cell>
             </tr>
           ))}
+          {submissions.length === 0 && <EmptyRow colSpan={6} text="Chưa có đăng ký hoặc liên hệ mới." />}
         </AdminTable>
       </section>
     </div>
@@ -805,7 +808,6 @@ function PriceManager({ items, onRefresh }: { items: PriceItem[]; onRefresh: () 
   };
 
   const removePrice = async (item: PriceItem) => {
-    if (!confirm(`Xóa mức giá “${item.category}”?`)) return;
     setSaving(true);
     setMessage("");
     try {
@@ -842,6 +844,7 @@ function PriceManager({ items, onRefresh }: { items: PriceItem[]; onRefresh: () 
             <Actions onEdit={() => setEditing(item)} onDelete={() => void removePrice(item)} disabled={saving} />
           </tr>
         ))}
+        {items.length === 0 && <EmptyRow colSpan={6} text="Chưa có mức học phí nào." />}
       </AdminTable>
     </ManagerShell>
   );
@@ -894,45 +897,83 @@ function PriceForm({
 
 function PostManager({ items, onRefresh }: { items: Post[]; onRefresh: () => Promise<void> }) {
   const [message, setMessage] = useState("");
+  const [editing, setEditing] = useState<Post | null>(null);
+  const [saving, setSaving] = useState(false);
 
-  const add = async () => {
-    const source = initialPosts[0];
-    const stamp = Date.now();
-    const post: Post = {
-      ...source,
-      id: crypto.randomUUID(),
-      slug: `bai-viet-moi-${stamp}`,
-      title: "Bài viết mới",
-      date: new Date().toLocaleDateString("vi-VN"),
-    };
-    await mutateSimple("/api/admin/posts", "POST", post, "Đã thêm bài viết.", setMessage, onRefresh);
-  };
-
-  const edit = async (item: Post) => {
-    const title = prompt("Tiêu đề bài viết", item.title);
-    if (!title) return;
-    await mutateSimple(`/api/admin/posts/${encodeURIComponent(item.id)}`, "PUT", { ...item, title }, "Đã cập nhật bài viết.", setMessage, onRefresh);
+  const savePost = async (item: Post) => {
+    setSaving(true);
+    setMessage("");
+    const exists = items.some((entry) => entry.id === item.id);
+    const post = { ...item, slug: item.slug || createSlug(item.title) };
+    try {
+      await apiRequest<{ success: boolean }>(exists ? `/api/admin/posts/${encodeURIComponent(item.id)}` : "/api/admin/posts", {
+        method: exists ? "PUT" : "POST",
+        body: JSON.stringify(post),
+      });
+      setEditing(null);
+      await onRefresh();
+      setMessage(exists ? "Đã cập nhật bài viết." : "Đã đăng bài viết mới.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể lưu bài viết.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const remove = async (item: Post) => {
-    if (!confirm(`Xóa bài "${item.title}"?`)) return;
-    await mutateSimple(`/api/admin/posts/${encodeURIComponent(item.id)}`, "DELETE", undefined, "Đã xóa bài viết.", setMessage, onRefresh);
+    setSaving(true);
+    setMessage("");
+    try {
+      await apiRequest<{ success: boolean }>(`/api/admin/posts/${encodeURIComponent(item.id)}`, { method: "DELETE" });
+      await onRefresh();
+      setMessage("Đã xóa bài viết.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Chưa thể xóa bài viết.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
-    <ManagerShell onAdd={() => void add()} label="Thêm bài viết">
-      {message && <Notice tone={message.includes("Không") ? "error" : "success"} className="mb-4">{message}</Notice>}
+    <ManagerShell onAdd={() => setEditing(makePostDraft())} label="Thêm bài viết">
+      {message && <Notice tone={message.startsWith("Đã") ? "success" : "error"} className="mb-4">{message}</Notice>}
+      {editing && <PostForm key={editing.id} value={editing} saving={saving} onCancel={() => setEditing(null)} onSubmit={(item) => void savePost(item)} />}
       <AdminTable headers={["Tiêu đề", "Danh mục", "Ngày", "Thao tác"]}>
         {items.map((item) => (
           <tr key={item.id}>
             <Cell strong>{item.title}</Cell>
             <Cell>{item.category}</Cell>
             <Cell>{item.date}</Cell>
-            <Actions onEdit={() => void edit(item)} onDelete={() => void remove(item)} />
+            <Actions onEdit={() => setEditing(item)} onDelete={() => void remove(item)} disabled={saving} />
           </tr>
         ))}
+        {items.length === 0 && <EmptyRow colSpan={4} text="Chưa có bài viết nào." />}
       </AdminTable>
     </ManagerShell>
+  );
+}
+
+function PostForm({ value, saving, onCancel, onSubmit }: { value: Post; saving: boolean; onCancel: () => void; onSubmit: (item: Post) => void }) {
+  const [form, setForm] = useState<Post>(value);
+  const update = <K extends keyof Post>(key: K, next: Post[K]) => setForm((current) => ({ ...current, [key]: next }));
+  return (
+    <form onSubmit={(event) => { event.preventDefault(); onSubmit(form); }} className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card">
+      <div className="mb-4">
+        <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Viết bài mới" : "Chỉnh sửa bài viết"}</h2>
+        <p className="mt-1 text-sm text-slate-500">Điền đủ tiêu đề, phần giới thiệu và nội dung trước khi lưu.</p>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Input label="Tiêu đề bài viết" value={form.title} onChange={(next) => update("title", next)} required className="md:col-span-2" />
+        <Input label="Danh mục" value={form.category} onChange={(next) => update("category", next)} required />
+        <Input label="Ngày đăng" value={form.date} onChange={(next) => update("date", next)} required />
+        <Textarea label="Giới thiệu ngắn" value={form.excerpt} onChange={(next) => update("excerpt", next)} required className="md:col-span-2" />
+        <Textarea label="Nội dung bài viết" value={form.content} onChange={(next) => update("content", next)} required className="md:col-span-2" />
+      </div>
+      <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <button type="button" onClick={onCancel} className="button-secondary justify-center" disabled={saving}>Hủy</button>
+        <button type="submit" className="button-primary justify-center" disabled={saving}>{saving && <Loader2 className="h-4 w-4 animate-spin" />} Lưu bài viết</button>
+      </div>
+    </form>
   );
 }
 
@@ -982,17 +1023,35 @@ function Cell({ children, strong = false }: { children: ReactNode; strong?: bool
   return <td className={`px-4 py-3 text-xs ${strong ? "font-bold text-ink" : "text-slate-600"}`}>{children}</td>;
 }
 
+function EmptyRow({ colSpan, text }: { colSpan: number; text: string }) {
+  return <tr><td colSpan={colSpan} className="px-5 py-10 text-center text-sm text-slate-500">{text}</td></tr>;
+}
+
 function Actions({ onEdit, onDelete, disabled = false }: { onEdit: () => void; onDelete: () => void; disabled?: boolean }) {
+  const [confirming, setConfirming] = useState(false);
   return (
     <td className="px-4 py-3">
       <div className="flex gap-2">
         <button type="button" onClick={onEdit} aria-label="Sửa" disabled={disabled} className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 disabled:opacity-50">
           <Edit3 className="h-4 w-4" />
         </button>
-        <button type="button" onClick={onDelete} aria-label="Xóa" disabled={disabled} className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 disabled:opacity-50">
+        <button type="button" onClick={() => setConfirming(true)} aria-label="Xóa" disabled={disabled} className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-50 text-rose-600 disabled:opacity-50">
           <Trash2 className="h-4 w-4" />
         </button>
       </div>
+      {confirming && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="xac-nhan-xoa">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-6 text-center shadow-2xl">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-rose-600"><AlertTriangle className="h-6 w-6" /></span>
+            <h2 id="xac-nhan-xoa" className="mt-4 text-lg font-extrabold text-ink">Xác nhận xóa?</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Thông tin đã xóa sẽ không còn hiển thị trên website.</p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => setConfirming(false)} className="button-secondary min-h-11 px-4 py-2">Giữ lại</button>
+              <button type="button" onClick={() => { setConfirming(false); onDelete(); }} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-rose-700">Xóa</button>
+            </div>
+          </div>
+        </div>
+      )}
     </td>
   );
 }
@@ -1094,27 +1153,6 @@ function Textarea({
   );
 }
 
-async function mutateSimple(
-  path: string,
-  method: "POST" | "PUT" | "DELETE",
-  body: unknown,
-  successMessage: string,
-  setMessage: (message: string) => void,
-  onRefresh: () => Promise<void>,
-) {
-  setMessage("");
-  try {
-    await apiRequest<{ success: boolean }>(path, {
-      method,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    await onRefresh();
-    setMessage(successMessage);
-  } catch (error) {
-    setMessage(error instanceof Error ? error.message : "Không thao tác được.");
-  }
-}
-
 function makeClassDraft(): ClassItem {
   const stamp = Date.now().toString().slice(-6);
   return {
@@ -1171,6 +1209,24 @@ function makePriceDraft(): PriceItem {
     duration: "90 phút",
     note: "",
   };
+}
+
+function makePostDraft(): Post {
+  return {
+    id: `new-${crypto.randomUUID()}`,
+    slug: "",
+    title: "",
+    excerpt: "",
+    category: "Kinh nghiệm học tập",
+    thumbnail: "",
+    date: new Date().toLocaleDateString("vi-VN"),
+    content: "",
+  };
+}
+
+function createSlug(value: string) {
+  const base = value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return `${base || "bai-viet"}-${Date.now().toString().slice(-6)}`;
 }
 
 function splitList(value: string) {

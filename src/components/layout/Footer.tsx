@@ -43,8 +43,8 @@ export function Footer() {
           </p>
           <div className="mt-6 space-y-3 text-sm">
             <p className="flex gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-primary-400" />{siteConfig.address}</p>
-            <p className="flex gap-3"><Phone className="h-4 w-4 shrink-0 text-primary-400" />{siteConfig.phone}</p>
-            <p className="flex gap-3"><Mail className="h-4 w-4 shrink-0 text-primary-400" />{siteConfig.email}</p>
+            <a className="flex gap-3 transition hover:text-white" href={`tel:${siteConfig.phone.replace(/\s/g, "")}`}><Phone className="h-4 w-4 shrink-0 text-primary-400" />{siteConfig.phone}</a>
+            <a className="flex gap-3 transition hover:text-white" href={`mailto:${siteConfig.email}`}><Mail className="h-4 w-4 shrink-0 text-primary-400" />{siteConfig.email}</a>
           </div>
         </div>
         <div className="grid gap-8 sm:grid-cols-3">

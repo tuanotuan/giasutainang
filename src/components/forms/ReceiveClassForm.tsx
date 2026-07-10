@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Send } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -20,7 +20,7 @@ type Values = z.infer<typeof schema>;
 
 export function ReceiveClassForm({ classCode }: { classCode: string }) {
   const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { fullName: "", phone: "", email: "", experience: "", message: "" } });
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { fullName: "", phone: "", email: "", experience: "", message: "" } });
   const onSubmit = async (data: Values) => {
     try {
       await apiRequest("/api/requests/receive-class", { method: "POST", body: JSON.stringify({ classCode, ...data }) });
@@ -42,7 +42,9 @@ export function ReceiveClassForm({ classCode }: { classCode: string }) {
           <FormField label="Email" required error={errors.email?.message}><input {...register("email")} className={fieldClass} type="email" /></FormField>
           <FormField label="Kinh nghiệm" required error={errors.experience?.message}><textarea {...register("experience")} className={textAreaClass} /></FormField>
           <FormField label="Lời nhắn" error={errors.message?.message}><textarea {...register("message")} className={textAreaClass} /></FormField>
-          <button className="button-primary w-full" type="submit"><Send className="h-4 w-4" /> Gửi đăng ký nhận lớp</button>
+          <button className="button-primary w-full disabled:cursor-wait disabled:opacity-70" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" /> Đang gửi...</> : <><Send className="h-4 w-4" /> Gửi đăng ký nhận lớp</>}
+          </button>
         </div>
       </form>
     </>

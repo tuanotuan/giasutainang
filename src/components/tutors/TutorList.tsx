@@ -30,6 +30,16 @@ export function TutorList() {
       .then((data: { items: Tutor[] }) => setItems(data.items))
       .catch(() => undefined);
   }, []);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get("mode") ?? "";
+    setFilters((current) => ({
+      ...current,
+      subject: params.get("subject") ?? "",
+      grade: params.get("grade") ?? "",
+      area: params.get("area") || (mode === "Online" ? "Online" : ""),
+    }));
+  }, []);
   const filteredTutors = useMemo(() => filterTutors(items, filters), [filters, items]);
   const totalPages = Math.ceil(filteredTutors.length / PAGE_SIZE);
   const visibleTutors = filteredTutors.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);

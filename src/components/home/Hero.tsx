@@ -88,8 +88,8 @@ export function Hero() {
                   </div>
                   <div>
                     <Users className="mb-2 h-7 w-7" />
-                    <strong className="block text-3xl">500+</strong>
-                    <span className="text-xs font-semibold">Gia sư tận tâm</span>
+                    <strong className="block text-2xl">Đa dạng</strong>
+                    <span className="text-xs font-semibold">Môn học & cấp lớp</span>
                   </div>
                 </div>
                 <div className="grid gap-3">
@@ -97,8 +97,8 @@ export function Hero() {
                     <div className="flex items-center gap-1 text-accent-500">
                       {[1, 2, 3, 4, 5].map((item) => <Star key={item} className="h-3.5 w-3.5 fill-current" />)}
                     </div>
-                    <strong className="mt-3 block text-xl text-ink">4.9/5</strong>
-                    <span className="text-xs text-slate-500">Mức độ hài lòng</span>
+                    <strong className="mt-3 block text-xl text-ink">Sát nhu cầu</strong>
+                    <span className="text-xs text-slate-500">Tư vấn theo từng gia đình</span>
                   </div>
                   <div className="flex items-center gap-3 rounded-3xl bg-primary-600 p-4 text-white">
                     <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15">
@@ -118,8 +118,8 @@ export function Hero() {
               <Check className="h-5 w-5" />
             </span>
             <div>
-              <strong className="block text-sm text-ink">Kết nối thành công</strong>
-              <span className="text-xs text-slate-500">Hồ sơ phù hợp trong 24h</span>
+              <strong className="block text-sm text-ink">Tiếp nhận nhanh chóng</strong>
+              <span className="text-xs text-slate-500">Trao đổi rõ nhu cầu trước khi ghép</span>
             </div>
           </div>
         </div>

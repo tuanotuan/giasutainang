@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ChevronDown, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { navigation, siteConfig } from "@/data/site";
 import { MobileMenu } from "./MobileMenu";
 
@@ -20,15 +20,14 @@ export function Header() {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-5 xl:flex" aria-label="Điều hướng chính">
-          {navigation.slice(0, 8).map((item, index) => (
+        <nav className="hidden items-center gap-4 xl:flex" aria-label="Điều hướng chính">
+          {navigation.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               className="flex items-center gap-1 py-7 text-[13px] font-semibold text-slate-700 transition hover:text-primary-600"
             >
               {item.label}
-              {[2, 3, 5, 6, 7].includes(index) && <ChevronDown className="h-3.5 w-3.5" />}
             </Link>
           ))}
         </nav>

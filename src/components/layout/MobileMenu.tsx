@@ -2,11 +2,25 @@
 
 import Link from "next/link";
 import { Menu, Phone, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { navigation, siteConfig } from "@/data/site";
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
 
   return (
     <div className="xl:hidden">
@@ -15,6 +29,8 @@ export function MobileMenu() {
         onClick={() => setOpen(true)}
         className="flex h-11 w-11 items-center justify-center rounded-xl border border-slate-200 text-slate-700"
         aria-label="Mở menu"
+        aria-expanded={open}
+        aria-controls="menu-di-dong"
       >
         <Menu className="h-6 w-6" />
       </button>
@@ -27,7 +43,7 @@ export function MobileMenu() {
             className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 top-0 flex h-full w-[min(88%,360px)] flex-col bg-white p-5 shadow-2xl">
+          <div id="menu-di-dong" role="dialog" aria-modal="true" aria-label="Danh mục điều hướng" className="absolute right-0 top-0 flex h-full w-[min(88%,360px)] flex-col bg-white p-5 shadow-2xl">
             <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-5">
               <span className="font-bold text-primary-800">Danh mục</span>
               <button

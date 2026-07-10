@@ -78,16 +78,16 @@ export function TutorFilter({ value, onChange }: TutorFilterProps) {
       </aside>
       {mobileOpen && (
         <div className="fixed inset-0 z-[90] lg:hidden">
-          <button className="absolute inset-0 bg-slate-950/40" onClick={() => setMobileOpen(false)} aria-label="Đóng bộ lọc" />
+          <button type="button" className="absolute inset-0 bg-slate-950/40" onClick={() => setMobileOpen(false)} aria-label="Đóng bộ lọc" />
           <aside className="absolute bottom-0 left-0 right-0 max-h-[88vh] overflow-y-auto rounded-t-3xl bg-white p-5">
             <div className="mb-5 flex items-center justify-between border-b border-slate-100 pb-4">
               <h2 className="flex items-center gap-2 font-bold"><SlidersHorizontal className="h-5 w-5 text-primary-600" /> Lọc gia sư</h2>
-              <button onClick={() => setMobileOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100" aria-label="Đóng">
+              <button type="button" onClick={() => setMobileOpen(false)} className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100" aria-label="Đóng">
                 <X className="h-4 w-4" />
               </button>
             </div>
             <div className="space-y-4">{fields}</div>
-            <button onClick={() => setMobileOpen(false)} className="button-primary mt-5 w-full">Xem kết quả</button>
+            <button type="button" onClick={() => setMobileOpen(false)} className="button-primary mt-5 w-full">Xem kết quả</button>
           </aside>
         </div>
       )}

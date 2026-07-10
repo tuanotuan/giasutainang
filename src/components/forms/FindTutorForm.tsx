@@ -73,7 +73,6 @@ export function FindTutorForm() {
       });
       setNotice({ message: "Đã gửi yêu cầu. Trung tâm sẽ liên hệ tư vấn.", variant: "success" });
       reset();
-      window.setTimeout(() => setNotice(null), 5000);
     } catch (error) {
       setNotice({ message: error instanceof Error ? error.message : "Không thể gửi yêu cầu.", variant: "error" });
     }
@@ -210,7 +209,7 @@ export function FindTutorForm() {
             </span>
           </label>
           {errors.agreement && <p className="mt-2 text-xs font-medium text-rose-600">{errors.agreement.message}</p>}
-          <button type="submit" disabled={isSubmitting} className="button-primary mt-5 w-full">
+          <button type="submit" disabled={isSubmitting} className="button-primary mt-5 w-full disabled:cursor-wait disabled:opacity-70">
             {isSubmitting ? "Đang gửi..." : <><Send className="h-4 w-4" /> Đăng ký tìm gia sư</>}
           </button>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-slate-400">

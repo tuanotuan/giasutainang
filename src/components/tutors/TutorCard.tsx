@@ -31,7 +31,7 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
           <p className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />{tutor.areas.join(", ")}</p>
         </div>
         <div className="mt-5 flex gap-2 border-t border-slate-100 pt-4">
-          <Link href={`/gia-su-tieu-bieu/${tutor.id}`} className="flex h-10 flex-1 items-center justify-center rounded-xl border border-primary-200 text-xs font-bold text-primary-700 transition hover:bg-primary-50">
+          <Link href={`/gia-su-tieu-bieu/chi-tiet/?id=${encodeURIComponent(tutor.id)}`} className="flex h-10 flex-1 items-center justify-center rounded-xl border border-primary-200 text-xs font-bold text-primary-700 transition hover:bg-primary-50">
             Xem hồ sơ
           </Link>
           <Link href={`/dang-ky-tim-gia-su?tutor=${tutor.code}`} className="flex h-10 flex-1 items-center justify-center rounded-xl bg-primary-600 text-xs font-bold text-white transition hover:bg-primary-700">

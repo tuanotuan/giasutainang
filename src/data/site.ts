@@ -60,10 +60,10 @@ export const areas = [
 ];
 
 export const stats = [
-  { value: "1.000+", label: "Học sinh đã kết nối", icon: Users },
-  { value: "500+", label: "Gia sư trong hệ thống", icon: GraduationCap },
-  { value: "700+", label: "Học sinh tiến bộ", icon: Medal },
-  { value: "500+", label: "Phụ huynh quay lại", icon: RefreshCcw },
+  { value: "1-1", label: "Lộ trình theo từng học sinh", icon: Users },
+  { value: "30+", label: "Môn học và kỹ năng", icon: GraduationCap },
+  { value: "7 ngày", label: "Hỗ trợ trong tuần", icon: Medal },
+  { value: "Toàn quốc", label: "Tư vấn học trực tuyến", icon: RefreshCcw },
 ];
 
 export const learningGroups = [

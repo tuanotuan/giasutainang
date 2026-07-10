@@ -104,7 +104,9 @@ Public:
 - `GET /api/classes`
 - `GET /api/classes/:id`
 - `GET /api/tutors`
+- `GET /api/tutors/:id`
 - `GET /api/posts`
+- `GET /api/posts/:slug`
 - `GET /api/prices`
 - `POST /api/requests/find-tutor`
 - `POST /api/requests/register-tutor`
@@ -155,6 +157,7 @@ src/
 | `/gioi-thieu` | Giới thiệu trung tâm |
 | `/gia-su-tieu-bieu` | Danh sách và bộ lọc gia sư |
 | `/gia-su-tieu-bieu/[id]` | Hồ sơ gia sư seed |
+| `/gia-su-tieu-bieu/chi-tiet/?id=...` | Hồ sơ gia sư từ API/D1, gồm cả hồ sơ thêm trong admin |
 | `/lop-moi` | Danh sách và bộ lọc lớp, ưu tiên dữ liệu API |
 | `/lop-moi/chi-tiet/?id=...` | Chi tiết lớp từ API/D1, dùng cho lớp thêm mới |
 | `/lop-moi/[id]` | Chi tiết lớp seed cũ |
@@ -165,6 +168,7 @@ src/
 | `/dich-vu/[slug]` | Trang SEO dịch vụ |
 | `/tin-tuc` | Blog |
 | `/tin-tuc/[slug]` | Chi tiết bài viết seed |
+| `/tin-tuc/chi-tiet/?slug=...` | Chi tiết bài viết từ API/D1, gồm cả bài thêm trong admin |
 | `/lien-he` | Liên hệ |
 | `/admin` | Dashboard quản trị |
 
@@ -177,7 +181,8 @@ Trong `/admin`:
 - Xem yêu cầu tìm gia sư từ form phụ huynh.
 - Form phụ huynh lưu số điện thoại dùng Zalo và địa chỉ toàn quốc theo 34 tỉnh/thành phố, khu vực, phường/xã/đặc khu, số nhà/tên đường.
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
-- Thêm/sửa/xóa nhanh gia sư và bài viết.
+- Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
+- Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 
 ## Lưu ý

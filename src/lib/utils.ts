@@ -9,3 +9,8 @@ export function formatCurrency(value: number) {
     maximumFractionDigits: 0,
   }).format(value);
 }
+
+export function formatDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("vi-VN").format(date);
+}

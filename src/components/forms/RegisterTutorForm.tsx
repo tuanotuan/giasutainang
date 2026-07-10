@@ -58,7 +58,6 @@ export function RegisterTutorForm() {
       await apiRequest("/api/requests/register-tutor", { method: "POST", body: JSON.stringify(payload) });
       setNotice({ message: "Đăng ký thành công. Tài Năng sẽ liên hệ sau khi xem hồ sơ.", variant: "success" });
       reset();
-      window.setTimeout(() => setNotice(null), 5000);
     } catch (error) {
       setNotice({ message: error instanceof Error ? error.message : "Không thể gửi hồ sơ.", variant: "error" });
     }
@@ -193,7 +192,7 @@ export function RegisterTutorForm() {
             </span>
           </label>
           {errors.agreement && <p className="mt-2 text-xs font-medium text-rose-600">{errors.agreement.message}</p>}
-          <button type="submit" disabled={isSubmitting} className="button-primary mt-5 w-full">
+          <button type="submit" disabled={isSubmitting} className="button-primary mt-5 w-full disabled:cursor-wait disabled:opacity-70">
             {isSubmitting ? "Đang gửi..." : <><Send className="h-4 w-4" /> Đăng ký làm gia sư</>}
           </button>
           <p className="mt-3 flex items-center justify-center gap-1.5 text-center text-xs text-slate-400">

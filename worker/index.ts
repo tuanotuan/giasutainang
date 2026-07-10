@@ -149,9 +149,19 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     const result = await env.DB.prepare("SELECT * FROM tutors ORDER BY rating DESC, created_at DESC").all<JsonRecord>();
     return json({ items: result.results.map(rowToTutor) });
   }
+  if (pathname.startsWith("/api/tutors/") && request.method === "GET") {
+    const id = decodeURIComponent(pathname.split("/").pop() ?? "");
+    const row = await env.DB.prepare("SELECT * FROM tutors WHERE id = ?1").bind(id).first<JsonRecord>();
+    return row ? json({ item: rowToTutor(row) }) : json({ error: "Không tìm thấy hồ sơ gia sư." }, 404);
+  }
   if (pathname === "/api/posts" && request.method === "GET") {
     const result = await env.DB.prepare("SELECT * FROM posts ORDER BY created_at DESC").all<JsonRecord>();
     return json({ items: result.results.map(rowToPost) });
+  }
+  if (pathname.startsWith("/api/posts/") && request.method === "GET") {
+    const slug = decodeURIComponent(pathname.split("/").pop() ?? "");
+    const row = await env.DB.prepare("SELECT * FROM posts WHERE slug = ?1").bind(slug).first<JsonRecord>();
+    return row ? json({ item: rowToPost(row) }) : json({ error: "Không tìm thấy bài viết." }, 404);
   }
   if (pathname === "/api/prices" && request.method === "GET") {
     const result = await env.DB.prepare("SELECT * FROM prices ORDER BY sort_order ASC, created_at ASC").all<JsonRecord>();
@@ -208,6 +218,11 @@ async function setupDatabase(db: D1Database) {
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11)`)
       .bind(item.id,item.category,item.subjectOrGrade,item.studentTutorPrice,item.teacherTutorPrice,item.sessionsPerWeek,item.duration,item.note ?? null,index,stamp,stamp));
   }
+  const classDatesFixed = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'class_dates_fixed_v1'").first<{ value: string }>();
+  if (!classDatesFixed?.value) for (const item of seedClasses.filter((entry) => Number(entry.id) >= 7 && Number(entry.id) <= 30)) {
+    statements.push(db.prepare("UPDATE classes SET created_at=?1,updated_at=?2 WHERE id=?3 AND code=?4")
+      .bind(item.createdAt,stamp,item.id,item.code));
+  }
   for (let index = 0; index < statements.length; index += 50) {
     await db.batch(statements.slice(index, index + 50));
   }
@@ -217,6 +232,10 @@ async function setupDatabase(db: D1Database) {
   }
   if (!pricesSeeded?.value) {
     await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('prices_seeded_at', ?1, ?2)")
+      .bind(stamp, stamp).run();
+  }
+  if (!classDatesFixed?.value) {
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('class_dates_fixed_v1', ?1, ?2)")
       .bind(stamp, stamp).run();
   }
 }
@@ -363,7 +382,7 @@ function sameText(left: string, right: string) {
 }
 
 async function createClass(request: Request, db: D1Database) {
-  if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
+  if (request.method !== "POST") return json({ error: "Thao tác không được hỗ trợ." }, 405);
   const body = await readJson(request);
   const id = String(body.id || crypto.randomUUID());
   const stamp = now();
@@ -379,7 +398,7 @@ async function mutateClass(request: Request, db: D1Database, id: string) {
     await db.prepare("DELETE FROM classes WHERE id = ?1").bind(id).run();
     return json({ success: true });
   }
-  if (request.method !== "PUT") return json({ error: "Method not allowed." }, 405);
+  if (request.method !== "PUT") return json({ error: "Thao tác không được hỗ trợ." }, 405);
   const body = await readJson(request);
   await db.prepare(`UPDATE classes SET code=?1,status=?2,title=?3,subject=?4,grade=?5,student_count=?6,
     student_level=?7,area=?8,address=?9,learning_mode=?10,sessions_per_week=?11,duration=?12,
@@ -389,7 +408,7 @@ async function mutateClass(request: Request, db: D1Database, id: string) {
 }
 
 async function createTutor(request: Request, db: D1Database) {
-  if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
+  if (request.method !== "POST") return json({ error: "Thao tác không được hỗ trợ." }, 405);
   const body = await readJson(request);
   const id = String(body.id || crypto.randomUUID());
   const stamp = now();
@@ -405,7 +424,7 @@ async function mutateTutor(request: Request, db: D1Database, id: string) {
     await db.prepare("DELETE FROM tutors WHERE id=?1").bind(id).run();
     return json({ success: true });
   }
-  if (request.method !== "PUT") return json({ error: "Method not allowed." }, 405);
+  if (request.method !== "PUT") return json({ error: "Thao tác không được hỗ trợ." }, 405);
   const body = await readJson(request);
   await db.prepare(`UPDATE tutors SET code=?1,name=?2,birth_year=?3,gender=?4,avatar=?5,school=?6,major=?7,
     level=?8,subjects=?9,grades=?10,areas=?11,available_times=?12,experience=?13,achievements=?14,
@@ -415,7 +434,7 @@ async function mutateTutor(request: Request, db: D1Database, id: string) {
 }
 
 async function createPost(request: Request, db: D1Database) {
-  if (request.method !== "POST") return json({ error: "Method not allowed." }, 405);
+  if (request.method !== "POST") return json({ error: "Thao tác không được hỗ trợ." }, 405);
   const body = await readJson(request);
   const id = String(body.id || crypto.randomUUID());
   const stamp = now();
@@ -430,7 +449,7 @@ async function mutatePost(request: Request, db: D1Database, id: string) {
     await db.prepare("DELETE FROM posts WHERE id=?1").bind(id).run();
     return json({ success: true });
   }
-  if (request.method !== "PUT") return json({ error: "Method not allowed." }, 405);
+  if (request.method !== "PUT") return json({ error: "Thao tác không được hỗ trợ." }, 405);
   const body = await readJson(request);
   await db.prepare(`UPDATE posts SET slug=?1,title=?2,excerpt=?3,category=?4,thumbnail=?5,date=?6,content=?7,updated_at=?8 WHERE id=?9`)
     .bind(String(body.slug),String(body.title),String(body.excerpt||""),String(body.category),String(body.thumbnail||""),String(body.date),String(body.content||""),now(),id).run();

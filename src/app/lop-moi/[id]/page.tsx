@@ -5,6 +5,7 @@ import { BookOpen, CalendarDays, ChevronRight, Clock3, Home, MapPin, UserCheck, 
 import { classes } from "@/data/classes";
 import { formatCurrency } from "@/lib/utils";
 import { ReceiveClassForm } from "@/components/forms/ReceiveClassForm";
+import { formatDate } from "@/lib/utils";
 import { ClassCard } from "@/components/classes/ClassCard";
 
 interface PageProps { params: Promise<{ id: string }> }
@@ -23,7 +24,7 @@ export default async function ClassDetailPage({ params }: PageProps) {
   return (
     <>
       <section className="bg-primary-800 py-12 text-white">
-        <div className="container-page"><nav className="mb-6 flex items-center gap-2 text-xs text-primary-100"><Link href="/" className="flex items-center gap-1"><Home className="h-3.5 w-3.5" /> Trang chủ</Link><ChevronRight className="h-3.5 w-3.5" /><Link href="/lop-moi">Lớp mới</Link></nav><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">{item.status === "assigned" ? "Đã giao" : "Đang tuyển"}</span><h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">{item.title}</h1><p className="mt-3 text-primary-100">{item.code} · Đăng ngày {item.createdAt}</p></div>
+        <div className="container-page"><nav className="mb-6 flex items-center gap-2 text-xs text-primary-100"><Link href="/" className="flex items-center gap-1"><Home className="h-3.5 w-3.5" /> Trang chủ</Link><ChevronRight className="h-3.5 w-3.5" /><Link href="/lop-moi">Lớp mới</Link></nav><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-bold text-emerald-300">{item.status === "assigned" ? "Đã giao" : "Đang tuyển"}</span><h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">{item.title}</h1><p className="mt-3 text-primary-100">{item.code} · Đăng ngày {formatDate(item.createdAt)}</p></div>
       </section>
       <section className="section-space bg-slate-50/70">
         <div className="container-page grid items-start gap-7 lg:grid-cols-[1fr_360px]">

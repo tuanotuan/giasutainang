@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { BookOpen, CalendarDays, ChevronRight, Clock3, Home, Loader2, MapPin, SearchX, UserCheck, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { classes as initialClasses } from "@/data/classes";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import type { ClassItem } from "@/types";
 import { ReceiveClassForm } from "@/components/forms/ReceiveClassForm";
 import { ClassCard } from "./ClassCard";
@@ -78,7 +78,7 @@ export function ClassDetailClient() {
             {item.status === "assigned" ? "Đã giao" : "Đang tuyển"}
           </span>
           <h1 className="mt-4 text-3xl font-extrabold sm:text-4xl">{item.title}</h1>
-          <p className="mt-3 text-primary-100">{item.code} · Đăng ngày {item.createdAt}</p>
+          <p className="mt-3 text-primary-100">{item.code} · Đăng ngày {formatDate(item.createdAt)}</p>
         </div>
       </section>
       <section className="section-space bg-slate-50/70">

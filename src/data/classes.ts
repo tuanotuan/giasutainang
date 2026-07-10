@@ -21,6 +21,7 @@ const generatedClasses: ClassItem[] = Array.from({ length: 24 }, (_, index) => {
   const grade = `Lớp ${1 + (index % 12)}`;
   const area = classAreas[index % classAreas.length];
   const mode = area === "Online" ? "Online" : learningModes[index % learningModes.length];
+  const createdDate = new Date(Date.UTC(2026, 6, 9 - index));
   return {
     id: String(id),
     code: `LMT-${String(2600 + id)}`,
@@ -39,7 +40,7 @@ const generatedClasses: ClassItem[] = Array.from({ length: 24 }, (_, index) => {
     tutorRequirement: index % 3 === 0 ? "Giáo viên có kinh nghiệm" : "Sinh viên hoặc giáo viên phù hợp",
     salary: 160000 + (index % 8) * 30000,
     note: "Trao đổi thêm về lộ trình trong buổi đầu.",
-    createdAt: `2026-07-${String(Math.max(1, 31 - index)).padStart(2, "0")}`,
+    createdAt: createdDate.toISOString().slice(0, 10),
   };
 });
 

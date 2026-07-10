@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Search, SearchX } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { posts as initialPosts } from "@/data/posts";
 import type { Post } from "@/types";
@@ -64,9 +64,17 @@ export function BlogList() {
           </div>
         </div>
         <p className="mb-5 text-sm text-slate-500">Có <strong className="text-ink">{filtered.length}</strong> bài viết</p>
-        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {visible.map((post, index) => <PostCard key={post.id} post={post} index={index} />)}
-        </div>
+        {visible.length > 0 ? (
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {visible.map((post, index) => <PostCard key={post.id} post={post} index={index} />)}
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-14 text-center">
+            <SearchX className="mx-auto h-11 w-11 text-slate-300" />
+            <h2 className="mt-4 text-lg font-bold text-ink">Chưa tìm thấy bài viết</h2>
+            <p className="mt-2 text-sm text-slate-500">Thử từ khóa khác hoặc chọn lại danh mục.</p>
+          </div>
+        )}
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </section>

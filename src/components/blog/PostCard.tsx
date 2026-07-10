@@ -21,7 +21,7 @@ export function PostCard({ post, index = 0 }: { post: Post; index?: number }) {
         </div>
         <h3 className="mt-4 text-lg font-bold leading-7 text-ink transition group-hover:text-primary-600">{post.title}</h3>
         <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-500">{post.excerpt}</p>
-        <Link href={`/tin-tuc/${post.slug}`} className="mt-5 inline-flex items-center gap-2 text-xs font-bold text-primary-600">
+        <Link href={`/tin-tuc/chi-tiet/?slug=${encodeURIComponent(post.slug)}`} className="mt-5 inline-flex items-center gap-2 text-xs font-bold text-primary-600">
           Đọc bài viết <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-1" />
         </Link>
       </div>
