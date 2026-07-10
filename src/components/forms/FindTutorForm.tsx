@@ -39,7 +39,10 @@ export function FindTutorForm() {
       parentName: "",
       phone: "",
       email: "",
+      province: "Thành phố Hồ Chí Minh",
       area: "",
+      ward: "",
+      address: "",
       learningMode: "Tại nhà",
       grade: "",
       subject: "",
@@ -63,9 +66,10 @@ export function FindTutorForm() {
 
   const onSubmit = async (data: FindTutorFormValues) => {
     try {
+      const fullAddress = [data.address, data.ward, data.area, data.province].filter(Boolean).join(", ");
       await apiRequest("/api/requests/find-tutor", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, address: fullAddress }),
       });
       setNotice({ message: "Đã gửi yêu cầu. Trung tâm sẽ liên hệ tư vấn.", variant: "success" });
       reset();
@@ -94,17 +98,28 @@ export function FindTutorForm() {
             <FormField label="Họ tên phụ huynh" required error={errors.parentName?.message}>
               <input {...register("parentName")} className={fieldClass} placeholder="Ví dụ: Nguyễn Minh Anh" autoComplete="name" />
             </FormField>
-            <FormField label="Số điện thoại" required error={errors.phone?.message}>
-              <input {...register("phone")} className={fieldClass} placeholder="Chỉ nhập 9-11 chữ số" inputMode="numeric" autoComplete="tel" />
+            <FormField label="Số điện thoại (có dùng Zalo)" required error={errors.phone?.message}>
+              <input {...register("phone")} className={fieldClass} placeholder="Số điện thoại dùng để gọi và nhắn Zalo" inputMode="numeric" autoComplete="tel" />
             </FormField>
             <FormField label="Email" error={errors.email?.message}>
               <input {...register("email")} className={fieldClass} placeholder="phuhuynh@example.com" type="email" autoComplete="email" />
             </FormField>
-            <FormField label="Địa chỉ / khu vực" required error={errors.area?.message}>
-              <select {...register("area")} className={fieldClass}>
-                <option value="">Chọn khu vực</option>
-                {areaOptions.map((item) => <option key={item}>{item}</option>)}
+            <FormField label="Tỉnh / Thành phố" required error={errors.province?.message}>
+              <select {...register("province")} className={fieldClass}>
+                <option value="Thành phố Hồ Chí Minh">Thành phố Hồ Chí Minh</option>
               </select>
+            </FormField>
+            <FormField label="Quận / Huyện / Thành phố Thủ Đức" required error={errors.area?.message}>
+              <select {...register("area")} className={fieldClass}>
+                <option value="">Chọn quận hoặc huyện</option>
+                {areaOptions.filter((item) => item !== "Online").map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </FormField>
+            <FormField label="Phường / Xã" required error={errors.ward?.message}>
+              <input {...register("ward")} className={fieldClass} placeholder="Ví dụ: Phường 22" autoComplete="address-level3" />
+            </FormField>
+            <FormField label="Số nhà, tên đường" required error={errors.address?.message} className="sm:col-span-2">
+              <input {...register("address")} className={fieldClass} placeholder="Ví dụ: 135/1 Nguyễn Hữu Cảnh" autoComplete="street-address" />
             </FormField>
           </div>
         </FormSection>

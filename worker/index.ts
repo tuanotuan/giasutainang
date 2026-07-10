@@ -41,7 +41,7 @@ const SCHEMA_STATEMENTS = [
   "CREATE TABLE IF NOT EXISTS tutors (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, birth_year INTEGER NOT NULL, gender TEXT NOT NULL, avatar TEXT NOT NULL DEFAULT '', school TEXT NOT NULL, major TEXT NOT NULL, level TEXT NOT NULL, subjects TEXT NOT NULL, grades TEXT NOT NULL, areas TEXT NOT NULL, available_times TEXT NOT NULL, experience TEXT NOT NULL, achievements TEXT NOT NULL, teaching_style TEXT NOT NULL, expected_salary TEXT NOT NULL, rating REAL NOT NULL DEFAULT 5, review_count INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS posts (id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, excerpt TEXT NOT NULL, category TEXT NOT NULL, thumbnail TEXT NOT NULL DEFAULT '', date TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS prices (id TEXT PRIMARY KEY, category TEXT NOT NULL, subject_or_grade TEXT NOT NULL, student_tutor_price TEXT NOT NULL DEFAULT '', teacher_tutor_price TEXT NOT NULL DEFAULT '', sessions_per_week TEXT NOT NULL, duration TEXT NOT NULL, note TEXT, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS tutor_requests (id TEXT PRIMARY KEY, parent_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, area TEXT NOT NULL, learning_mode TEXT NOT NULL, grade TEXT NOT NULL, subjects TEXT NOT NULL, student_count INTEGER NOT NULL, student_level TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, schedule TEXT NOT NULL, tutor_level TEXT NOT NULL, tutor_gender TEXT NOT NULL, selected_tutor_code TEXT, budget TEXT NOT NULL, note TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS tutor_requests (id TEXT PRIMARY KEY, parent_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, area TEXT NOT NULL, address TEXT NOT NULL DEFAULT '', learning_mode TEXT NOT NULL, grade TEXT NOT NULL, subjects TEXT NOT NULL, student_count INTEGER NOT NULL, student_level TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, schedule TEXT NOT NULL, tutor_level TEXT NOT NULL, tutor_gender TEXT NOT NULL, selected_tutor_code TEXT, budget TEXT NOT NULL, note TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS submissions (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, reference_code TEXT, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_classes_status_created ON classes(status, created_at DESC)",
   "CREATE INDEX IF NOT EXISTS idx_requests_status_created ON tutor_requests(status, created_at DESC)",
@@ -175,6 +175,10 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
 async function setupDatabase(db: D1Database) {
   for (const statement of SCHEMA_STATEMENTS) {
     await db.exec(statement);
+  }
+  const requestColumns = await db.prepare("PRAGMA table_info(tutor_requests)").all<{ name: string }>();
+  if (!requestColumns.results.some((column) => column.name === "address")) {
+    await db.exec("ALTER TABLE tutor_requests ADD COLUMN address TEXT NOT NULL DEFAULT ''");
   }
   const seeded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'seeded_at'").first<{ value: string }>();
   const stamp = now();
@@ -464,9 +468,9 @@ async function saveTutorRequest(request: Request, db: D1Database) {
   const id = crypto.randomUUID();
   const stamp = now();
   await db.prepare(`INSERT INTO tutor_requests
-    (id,parent_name,phone,email,area,learning_mode,grade,subjects,student_count,student_level,sessions_per_week,schedule,tutor_level,tutor_gender,selected_tutor_code,budget,note,status,created_at,updated_at)
-    VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,'new',?18,?19)`)
-    .bind(id,String(body.parentName),String(body.phone),optional(body.email),String(body.area),String(body.learningMode),String(body.grade),JSON.stringify(body.subjects || [body.subject]),number(body.studentCount,1),String(body.studentLevel),number(body.sessionsPerWeek,2),String(body.schedule),String(body.tutorLevel),String(body.tutorGender),optional(body.selectedTutorCode),String(body.budget),optional(body.note),stamp,stamp).run();
+    (id,parent_name,phone,email,area,address,learning_mode,grade,subjects,student_count,student_level,sessions_per_week,schedule,tutor_level,tutor_gender,selected_tutor_code,budget,note,status,created_at,updated_at)
+    VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,'new',?19,?20)`)
+    .bind(id,String(body.parentName),String(body.phone),optional(body.email),String(body.area),String(body.address||""),String(body.learningMode),String(body.grade),JSON.stringify(body.subjects || [body.subject]),number(body.studentCount,1),String(body.studentLevel),number(body.sessionsPerWeek,2),String(body.schedule),String(body.tutorLevel),String(body.tutorGender),optional(body.selectedTutorCode),String(body.budget),optional(body.note),stamp,stamp).run();
   return json({ success: true, id }, 201);
 }
 
@@ -516,7 +520,7 @@ function rowToPrice(row: JsonRecord): PriceItem {
 function rowToRequest(row: JsonRecord): TutorRequest {
   return {
     id: text(row.id), parentName: text(row.parent_name), phone: text(row.phone), email: textOrUndefined(row.email),
-    area: text(row.area), learningMode: text(row.learning_mode) as TutorRequest["learningMode"], grade: text(row.grade),
+    area: text(row.area), address: textOrUndefined(row.address), learningMode: text(row.learning_mode) as TutorRequest["learningMode"], grade: text(row.grade),
     subjects: stringList(row.subjects), studentCount: number(row.student_count, 1), studentLevel: text(row.student_level),
     sessionsPerWeek: number(row.sessions_per_week, 1), schedule: text(row.schedule), tutorLevel: text(row.tutor_level),
     tutorGender: text(row.tutor_gender), selectedTutorCode: textOrUndefined(row.selected_tutor_code), budget: text(row.budget),

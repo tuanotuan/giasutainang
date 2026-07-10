@@ -693,13 +693,16 @@ function RequestManager({
           </div>
         </div>
         {suggestion && <SuggestionPanel value={suggestion} onClose={() => setSuggestion(null)} />}
-        <AdminTable headers={["Mã", "Phụ huynh", "Điện thoại", "Nhu cầu", "Ngày gửi", "Trạng thái", "Gợi ý"]}>
+        <AdminTable headers={["Mã", "Phụ huynh", "Điện thoại / Zalo", "Nhu cầu & địa chỉ", "Ngày gửi", "Trạng thái", "Gợi ý"]}>
           {items.map((item) => (
             <tr key={item.id}>
               <Cell strong>{shortId(item.id)}</Cell>
               <Cell>{item.parentName}</Cell>
               <Cell>{item.phone}</Cell>
-              <Cell>{item.grade} · {item.subjects.join(", ")}</Cell>
+              <Cell>
+                <span className="block">{item.grade} · {item.subjects.join(", ")}</span>
+                <span className="mt-1 block max-w-xs text-xs leading-5 text-slate-500">{item.address || item.area}</span>
+              </Cell>
               <Cell>{formatDate(item.createdAt)}</Cell>
               <Cell>
                 <select value={item.status} onChange={(event) => void updateStatus(item, event.target.value as TutorRequest["status"])} className="rounded-lg border p-2 text-xs">
