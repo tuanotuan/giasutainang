@@ -44,7 +44,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="vi">
-      <body className={beVietnamPro.variable}>
+      <body className={beVietnamPro.variable} data-site-version="2026-07-smart-tools">
         <a href="#noi-dung-chinh" className="fixed left-4 top-3 z-[110] -translate-y-20 rounded-lg bg-primary-800 px-4 py-2 text-sm font-bold text-white transition focus:translate-y-0">
           Chuyển đến nội dung chính
         </a>
