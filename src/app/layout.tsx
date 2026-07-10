@@ -16,6 +16,11 @@ const beVietnamPro = Be_Vietnam_Pro({
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
+  icons: {
+    icon: [{ url: `${siteConfig.logo}?v=2`, type: "image/jpeg" }],
+    shortcut: [`${siteConfig.logo}?v=2`],
+    apple: [{ url: `${siteConfig.logo}?v=2`, type: "image/jpeg" }],
+  },
   title: {
     default: "Gia Sư Tài Năng | Dạy kèm tại nhà và online",
     template: "%s | Gia Sư Tài Năng",
