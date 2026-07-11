@@ -153,9 +153,9 @@ export function FindTutorForm() {
             <FormField label="Số lượng học sinh" required error={errors.studentCount?.message}>
               <input {...register("studentCount")} className={fieldClass} type="number" min={1} max={20} />
             </FormField>
-            <FormField label="Học lực hiện tại" required error={errors.studentLevel?.message}>
+            <FormField label="Học lực kỳ học gần nhất" required error={errors.studentLevel?.message}>
               <select {...register("studentLevel")} className={fieldClass}>
-                <option value="">Chọn học lực</option>
+                <option value="">Chọn học lực kỳ gần nhất</option>
                 {studentLevels.map((item) => <option key={item}>{item}</option>)}
               </select>
             </FormField>

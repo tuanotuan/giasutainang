@@ -34,6 +34,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep touch targets at least 44px, prevent horizontal overflow, respect mobile safe areas, and ensure fixed elements do not cover content or form controls.
 - Avoid hardcoding repeated data inside components.
 - Preserve the existing Cloudflare Worker, D1 database, admin authentication, and Workers AI integration.
+- Use `Học lực kỳ học gần nhất` (not `Học lực hiện tại`) in the parent tutor-request form.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -47,4 +48,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-11 — documentation synchronized after simplifying parent learning-mode choices.
+Last updated: 2026-07-11 — documentation synchronized after clarifying the student-performance reference period.

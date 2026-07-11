@@ -14,12 +14,13 @@ This section is the source of truth for the current production system and overri
 - Address form: province/city → district/area → ward/commune cascading selectors; only house number/street is typed manually.
 - Form validation UX: changing cascading selections must not show required-field errors. Errors appear only after submit; invalid submit smoothly scrolls to and focuses the first missing field.
 - Parent tutor requests offer only `Tại nhà` and `Online`; group size is inferred from the student-count field instead of a redundant `Học nhóm` option.
+- The parent request form labels student performance as `Học lực kỳ học gần nhất` to give families a clear reference period.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
 
 ## Session handoff
 
-- Latest completed change: removed the redundant `Học nhóm` option from the parent request form; student count now represents individual versus group needs.
+- Latest completed change: clarified the student-performance field as `Học lực kỳ học gần nhất`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
 - Last updated: 2026-07-11.
@@ -235,7 +236,7 @@ Form gồm:
   * Guitar
   * Khác
 * Số lượng học sinh
-* Học lực hiện tại:
+* Học lực kỳ học gần nhất:
 
   * Giỏi
   * Khá
