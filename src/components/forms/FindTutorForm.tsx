@@ -194,7 +194,7 @@ export function FindTutorForm() {
             </FormField>
             <FormField label="Ngân sách dự kiến" required error={errors.budget?.message}>
               <input {...register("budget")} className={fieldClass} placeholder="Ví dụ: 2 triệu/tháng" />
-              <Link href="/bang-gia-gia-su" className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-primary-700 underline decoration-primary-200 underline-offset-4 transition hover:text-primary-900">
+              <Link href="/bang-gia-gia-su" target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex min-h-11 items-center text-xs font-bold text-primary-700 underline decoration-primary-200 underline-offset-4 transition hover:text-primary-900">
                 Tham khảo bảng giá gia sư
               </Link>
             </FormField>

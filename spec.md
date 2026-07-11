@@ -15,13 +15,13 @@ This section is the source of truth for the current production system and overri
 - Form validation UX: changing cascading selections must not show required-field errors. Errors appear only after submit; invalid submit smoothly scrolls to and focuses the first missing field.
 - Parent tutor requests offer only `Tại nhà` and `Online`; group size is inferred from the student-count field instead of a redundant `Học nhóm` option.
 - The parent request form labels student performance as `Học lực kỳ học gần nhất` to give families a clear reference period.
-- The expected-budget field uses a natural-language example (`2 triệu/tháng`) and provides an immediate link to the public tutor pricing page.
+- The expected-budget field uses a natural-language example (`2 triệu/tháng`) and provides an immediate pricing-page link that opens in a new tab so form progress is preserved.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
 
 ## Session handoff
 
-- Latest completed change: clarified expected-budget input with a natural-language example and an adjacent pricing reference link.
+- Latest completed change: pricing reference opens in a new tab so the in-progress tutor request remains intact.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
 - Last updated: 2026-07-11.
