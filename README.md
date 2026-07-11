@@ -201,6 +201,7 @@ Trong `/admin`:
 - Khung “Hỏi nhanh” ngoài website trả lời thông tin học phí, quy trình, lịch học và học trực tuyến; không yêu cầu khách cung cấp dữ liệu cá nhân.
 - Mọi tính năng tạo nội dung đều có câu trả lời dự phòng nếu Workers AI tạm thời không khả dụng.
 - Giao diện điện thoại có thanh liên hệ cố định, vùng bấm tối thiểu 44px, form không tự phóng to trên iPhone, bộ lọc dạng bảng kéo và bảng giá dạng thẻ dễ đọc.
+- Hero trang chủ nhấn mạnh “Miễn phí tư vấn & kết nối”, nói rõ phụ huynh không trả phí giới thiệu gia sư và dùng CTA “Tìm gia sư miễn phí”.
 - Trang quản trị trên mobile có thanh mục cuộn ngang, hướng dẫn vuốt bảng, cột mã cố định và ẩn các nút liên hệ công khai.
 - Khi nhấn thêm hoặc sửa lớp, gia sư, bảng giá hay bài viết, trang tự cuộn tới biểu mẫu và đặt con trỏ vào ô đầu tiên.
 
@@ -225,4 +226,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-11 — synchronized all official contact surfaces to `0365002142`.
+Last updated: 2026-07-11 — synchronized stronger homepage emphasis for free parent consultation and connection.

@@ -3,6 +3,7 @@ import {
   ArrowRight,
   BookOpenCheck,
   Check,
+  Gift,
   MapPin,
   Play,
   Search,
@@ -38,9 +39,18 @@ export function Hero() {
           <p className="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:mt-7 sm:text-lg sm:leading-8">
             Kết nối phụ huynh với gia sư phù hợp theo môn học, khu vực, trình độ và ngân sách.
           </p>
+          <div className="mt-5 flex max-w-xl items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900 shadow-sm sm:px-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20">
+              <Gift className="h-5 w-5" />
+            </span>
+            <p className="text-sm leading-5">
+              <strong className="block text-base font-extrabold uppercase tracking-wide text-emerald-700 sm:text-lg">Miễn phí tư vấn & kết nối</strong>
+              Phụ huynh không trả phí giới thiệu gia sư.
+            </p>
+          </div>
           <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:flex-row">
             <Link href="/dang-ky-tim-gia-su" className="button-primary">
-              Đăng ký tìm gia sư
+              Tìm gia sư miễn phí
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link href="/gia-su-tieu-bieu" className="button-secondary">
@@ -49,7 +59,7 @@ export function Hero() {
             </Link>
           </div>
           <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
-            {["Tư vấn miễn phí", "Hồ sơ minh bạch", "Hỗ trợ xuyên suốt"].map((item) => (
+            {["Không phí kết nối", "Hồ sơ minh bạch", "Hỗ trợ xuyên suốt"].map((item) => (
               <span key={item} className="flex items-center gap-2">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                   <Check className="h-3.5 w-3.5" />

@@ -17,12 +17,13 @@ This section is the source of truth for the current production system and overri
 - The parent request form labels student performance as `Học lực kỳ học gần nhất` to give families a clear reference period.
 - The expected-budget field uses a natural-language example (`2 triệu/tháng`) and provides an immediate pricing-page link that opens in a new tab so form progress is preserved.
 - Admin add/edit actions for classes, tutors, prices, and posts smoothly reveal the editor and focus its first field, with sticky-header offset on mobile.
+- Homepage hero prominently states `Miễn phí tư vấn & kết nối`, clarifies that parents pay no tutor-introduction fee, and uses the CTA `Tìm gia sư miễn phí`.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
 
 ## Session handoff
 
-- Latest completed change: all official hotline and Zalo contact surfaces now use `0365002142`.
+- Latest completed change: homepage hero now gives the free parent consultation/connection benefit stronger visual and CTA emphasis.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
 - Last updated: 2026-07-11.
