@@ -85,8 +85,8 @@ export function CascadingAddressFields({
                 const selected = event.target.selectedOptions[0];
                 setProvinceCode(Number(selected?.dataset.code) || null);
                 setDistrictCode(null); setDistricts([]); setWards([]);
-                setValue("district", "", { shouldValidate: true });
-                setValue("ward", "", { shouldValidate: true });
+                setValue("district", "", { shouldDirty: true, shouldValidate: false });
+                setValue("ward", "", { shouldDirty: true, shouldValidate: false });
               },
             })}
             className={fieldClass}
@@ -106,7 +106,7 @@ export function CascadingAddressFields({
               onChange: (event) => {
                 const selected = event.target.selectedOptions[0];
                 setDistrictCode(Number(selected?.dataset.code) || null); setWards([]);
-                setValue("ward", "", { shouldValidate: true });
+                setValue("ward", "", { shouldDirty: true, shouldValidate: false });
               },
             })}
             className={fieldClass}

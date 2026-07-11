@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Send } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type FieldErrors } from "react-hook-form";
 import {
   genderOptions,
   gradeOptions,
@@ -78,6 +78,16 @@ export function FindTutorForm() {
     }
   };
 
+  const onInvalid = (formErrors: FieldErrors<FindTutorFormValues>) => {
+    const firstField = Object.keys(formErrors)[0];
+    if (!firstField) return;
+    window.requestAnimationFrame(() => {
+      const element = document.querySelector<HTMLElement>(`[data-find-tutor-form] [name="${firstField}"]`);
+      element?.scrollIntoView({ behavior: "smooth", block: "center" });
+      window.setTimeout(() => element?.focus({ preventScroll: true }), 350);
+    });
+  };
+
   return (
     <>
       {notice && (
@@ -87,7 +97,7 @@ export function FindTutorForm() {
           onClose={() => setNotice(null)}
         />
       )}
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <form data-find-tutor-form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate className="space-y-5">
         <FormSection
           number="01"
           title="Thông tin liên hệ"
