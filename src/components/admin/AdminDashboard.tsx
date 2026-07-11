@@ -358,6 +358,7 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
   const [classPost, setClassPost] = useState("");
   const [preparingPostFor, setPreparingPostFor] = useState("");
   const visible = statusFilter ? items.filter((item) => item.status === statusFilter) : items;
+  const openEditor = (item: ClassItem) => { setEditing(item); revealEditor("class-editor"); };
 
   const saveClass = async (item: ClassItem) => {
     setSaving(true);
@@ -404,7 +405,7 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
 
   return (
     <ManagerShell
-      onAdd={() => setEditing(makeClassDraft())}
+      onAdd={() => openEditor(makeClassDraft())}
       label="Thêm lớp"
       toolbar={(
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm">
@@ -446,7 +447,7 @@ function ClassManager({ items, onRefresh }: { items: ClassItem[]; onRefresh: () 
               </select>
             </Cell>
             <Cell><button type="button" onClick={() => void prepareClassPost(item)} disabled={Boolean(preparingPostFor)} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 disabled:opacity-60">{preparingPostFor === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} Soạn bài</button></Cell>
-            <Actions onEdit={() => setEditing(item)} onDelete={() => void deleteClass(item)} disabled={saving} />
+            <Actions onEdit={() => openEditor(item)} onDelete={() => void deleteClass(item)} disabled={saving} />
           </tr>
         ))}
         {visible.length === 0 && <EmptyRow colSpan={7} text="Chưa có lớp phù hợp với bộ lọc." />}
@@ -474,11 +475,12 @@ function ClassForm({
 
   return (
     <form
+      id="class-editor"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit(form);
       }}
-      className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card"
+      className="mb-5 scroll-mt-28 rounded-2xl border border-primary-100 bg-white p-5 shadow-card lg:scroll-mt-6"
     >
       <div className="mb-4 flex flex-col gap-1">
         <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Thêm lớp mới" : `Sửa lớp ${value.code}`}</h2>
@@ -539,6 +541,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
   const [audit, setAudit] = useState<{ score: number; issues: string[]; strengths: string[]; summary: string } | null>(null);
   const normalized = keyword.toLocaleLowerCase("vi");
   const visible = items.filter((item) => !normalized || `${item.name} ${item.subjects.join(" ")} ${item.areas.join(" ")}`.toLocaleLowerCase("vi").includes(normalized));
+  const openEditor = (item: Tutor) => { setEditing(item); revealEditor("tutor-editor"); };
 
   const saveTutor = async (tutor: Tutor) => {
     setSaving(true);
@@ -583,7 +586,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
 
   return (
     <ManagerShell
-      onAdd={() => setEditing(makeTutorDraft())}
+      onAdd={() => openEditor(makeTutorDraft())}
       label="Thêm gia sư"
       toolbar={<input value={keyword} onChange={(event) => setKeyword(event.target.value)} placeholder="Lọc môn hoặc khu vực..." className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm sm:w-64" />}
     >
@@ -607,7 +610,7 @@ function TutorManager({ items, onRefresh }: { items: Tutor[]; onRefresh: () => P
             <Cell>{item.subjects.join(", ")}</Cell>
             <Cell>{item.rating}</Cell>
             <Cell><button type="button" onClick={() => void auditProfile(item)} disabled={Boolean(auditing)} className="inline-flex items-center gap-1.5 rounded-lg bg-violet-50 px-3 py-2 text-xs font-bold text-violet-700 disabled:opacity-60">{auditing === item.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />} Kiểm tra</button></Cell>
-            <Actions onEdit={() => setEditing(item)} onDelete={() => void remove(item)} disabled={saving} />
+            <Actions onEdit={() => openEditor(item)} onDelete={() => void remove(item)} disabled={saving} />
           </tr>
         ))}
         {visible.length === 0 && <EmptyRow colSpan={7} text="Chưa có hồ sơ gia sư phù hợp." />}
@@ -633,11 +636,12 @@ function TutorForm({
 
   return (
     <form
+      id="tutor-editor"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit(form);
       }}
-      className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card"
+      className="mb-5 scroll-mt-28 rounded-2xl border border-primary-100 bg-white p-5 shadow-card lg:scroll-mt-6"
     >
       <div className="mb-4 flex flex-col gap-1">
         <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Thêm gia sư mới" : `Chỉnh sửa ${value.name}`}</h2>
@@ -849,6 +853,7 @@ function TutorAuditPanel({ value, onClose }: { value: { score: number; issues: s
 function PriceManager({ items, onRefresh }: { items: PriceItem[]; onRefresh: () => Promise<void> }) {
   const [editing, setEditing] = useState<PriceItem | null>(null);
   const [saving, setSaving] = useState(false);
+  const openEditor = (item: PriceItem) => { setEditing(item); revealEditor("price-editor"); };
   const [message, setMessage] = useState("");
 
   const savePrice = async (item: PriceItem) => {
@@ -889,7 +894,7 @@ function PriceManager({ items, onRefresh }: { items: PriceItem[]; onRefresh: () 
   };
 
   return (
-    <ManagerShell onAdd={() => setEditing(makePriceDraft())} label="Thêm mức giá">
+    <ManagerShell onAdd={() => openEditor(makePriceDraft())} label="Thêm mức giá">
       {message && <Notice tone={message.startsWith("Đã") ? "success" : "error"} className="mb-4">{message}</Notice>}
       {editing && (
         <PriceForm
@@ -908,7 +913,7 @@ function PriceManager({ items, onRefresh }: { items: PriceItem[]; onRefresh: () 
             <Cell>{item.studentTutorPrice || "—"}</Cell>
             <Cell>{item.teacherTutorPrice || "—"}</Cell>
             <Cell>{item.sessionsPerWeek} · {item.duration}</Cell>
-            <Actions onEdit={() => setEditing(item)} onDelete={() => void removePrice(item)} disabled={saving} />
+            <Actions onEdit={() => openEditor(item)} onDelete={() => void removePrice(item)} disabled={saving} />
           </tr>
         ))}
         {items.length === 0 && <EmptyRow colSpan={6} text="Chưa có mức học phí nào." />}
@@ -933,11 +938,12 @@ function PriceForm({
 
   return (
     <form
+      id="price-editor"
       onSubmit={(event) => {
         event.preventDefault();
         onSubmit(form);
       }}
-      className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card"
+      className="mb-5 scroll-mt-28 rounded-2xl border border-primary-100 bg-white p-5 shadow-card lg:scroll-mt-6"
     >
       <div className="mb-4">
         <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Thêm mức giá mới" : `Sửa giá ${value.category}`}</h2>
@@ -966,6 +972,7 @@ function PostManager({ items, onRefresh }: { items: Post[]; onRefresh: () => Pro
   const [message, setMessage] = useState("");
   const [editing, setEditing] = useState<Post | null>(null);
   const [saving, setSaving] = useState(false);
+  const openEditor = (item: Post) => { setEditing(item); revealEditor("post-editor"); };
 
   const savePost = async (item: Post) => {
     setSaving(true);
@@ -1002,7 +1009,7 @@ function PostManager({ items, onRefresh }: { items: Post[]; onRefresh: () => Pro
   };
 
   return (
-    <ManagerShell onAdd={() => setEditing(makePostDraft())} label="Thêm bài viết">
+    <ManagerShell onAdd={() => openEditor(makePostDraft())} label="Thêm bài viết">
       {message && <Notice tone={message.startsWith("Đã") ? "success" : "error"} className="mb-4">{message}</Notice>}
       {editing && <PostForm key={editing.id} value={editing} saving={saving} onCancel={() => setEditing(null)} onSubmit={(item) => void savePost(item)} />}
       <AdminTable headers={["Tiêu đề", "Danh mục", "Ngày", "Thao tác"]}>
@@ -1011,7 +1018,7 @@ function PostManager({ items, onRefresh }: { items: Post[]; onRefresh: () => Pro
             <Cell strong>{item.title}</Cell>
             <Cell>{item.category}</Cell>
             <Cell>{item.date}</Cell>
-            <Actions onEdit={() => setEditing(item)} onDelete={() => void remove(item)} disabled={saving} />
+            <Actions onEdit={() => openEditor(item)} onDelete={() => void remove(item)} disabled={saving} />
           </tr>
         ))}
         {items.length === 0 && <EmptyRow colSpan={4} text="Chưa có bài viết nào." />}
@@ -1024,7 +1031,7 @@ function PostForm({ value, saving, onCancel, onSubmit }: { value: Post; saving: 
   const [form, setForm] = useState<Post>(value);
   const update = <K extends keyof Post>(key: K, next: Post[K]) => setForm((current) => ({ ...current, [key]: next }));
   return (
-    <form onSubmit={(event) => { event.preventDefault(); onSubmit(form); }} className="mb-5 rounded-2xl border border-primary-100 bg-white p-5 shadow-card">
+    <form id="post-editor" onSubmit={(event) => { event.preventDefault(); onSubmit(form); }} className="mb-5 scroll-mt-28 rounded-2xl border border-primary-100 bg-white p-5 shadow-card lg:scroll-mt-6">
       <div className="mb-4">
         <h2 className="text-lg font-extrabold text-ink">{value.id.startsWith("new-") ? "Viết bài mới" : "Chỉnh sửa bài viết"}</h2>
         <p className="mt-1 text-sm text-slate-500">Điền đủ tiêu đề, phần giới thiệu và nội dung trước khi lưu.</p>
@@ -1069,6 +1076,19 @@ function ManagerShell({
       {children}
     </div>
   );
+}
+
+function revealEditor(id: string) {
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      const editor = document.getElementById(id);
+      if (!editor) return;
+      editor.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => {
+        editor.querySelector<HTMLElement>("input:not([type='hidden']), select, textarea")?.focus({ preventScroll: true });
+      }, 450);
+    });
+  });
 }
 
 function AdminTable({ headers, children }: { headers: string[]; children: ReactNode }) {

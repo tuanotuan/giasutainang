@@ -202,6 +202,7 @@ Trong `/admin`:
 - Mọi tính năng tạo nội dung đều có câu trả lời dự phòng nếu Workers AI tạm thời không khả dụng.
 - Giao diện điện thoại có thanh liên hệ cố định, vùng bấm tối thiểu 44px, form không tự phóng to trên iPhone, bộ lọc dạng bảng kéo và bảng giá dạng thẻ dễ đọc.
 - Trang quản trị trên mobile có thanh mục cuộn ngang, hướng dẫn vuốt bảng, cột mã cố định và ẩn các nút liên hệ công khai.
+- Khi nhấn thêm hoặc sửa lớp, gia sư, bảng giá hay bài viết, trang tự cuộn tới biểu mẫu và đặt con trỏ vào ô đầu tiên.
 
 ## Lưu ý
 
@@ -224,4 +225,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-11 — synchronized new-tab pricing guidance that preserves form progress.
+Last updated: 2026-07-11 — synchronized automatic admin editor reveal and focus behavior.
