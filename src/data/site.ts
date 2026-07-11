@@ -22,11 +22,11 @@ import {
 export const siteConfig = {
   name: "Gia Sư Tài Năng",
   tagline: "Kết nối tri thức",
-  phone: "0357570667",
+  phone: "0365002142",
   email: "tuan.hcmus77@gmail.com",
   hours: "06:00 - 22:00, hằng ngày",
   address: "135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh, Việt Nam",
-  zalo: "https://zalo.me/0357570667",
+  zalo: "https://zalo.me/0365002142",
   facebook: "https://www.facebook.com/gstainang",
   logo: "/images/gia-su-tai-nang-logo.jpg",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://giasutainang.online",

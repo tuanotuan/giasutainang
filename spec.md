@@ -6,7 +6,7 @@ This section is the source of truth for the current production system and overri
 
 - Production brand: **Gia Sư Tài Năng**; tagline: **Kết nối tri thức**.
 - Production domain: `https://giasutainang.online` and `www.giasutainang.online`.
-- Contact: hotline/Zalo `0357570667`, email `tuan.hcmus77@gmail.com`, Facebook `https://www.facebook.com/gstainang`.
+- Contact: hotline/Zalo `0365002142`, email `tuan.hcmus77@gmail.com`, Facebook `https://www.facebook.com/gstainang`.
 - Address: `135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh, Việt Nam`; hours: `06:00 - 22:00` daily.
 - Hosting/deployment: GitHub `tuanotuan/giasutainang` → automatic Cloudflare Workers deployment from `main`.
 - Backend: Cloudflare Worker API + D1 database, real admin login, CRUD for classes/tutors/posts/prices, and persisted public submissions.
@@ -22,7 +22,7 @@ This section is the source of truth for the current production system and overri
 
 ## Session handoff
 
-- Latest completed change: admin add/edit actions automatically move the viewport to the relevant editor form.
+- Latest completed change: all official hotline and Zalo contact surfaces now use `0365002142`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
 - Last updated: 2026-07-11.

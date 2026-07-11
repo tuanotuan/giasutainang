@@ -1,6 +1,6 @@
 # Gia Sư Tài Năng
 
-> Current handoff: production full-stack site with D1/admin/Workers AI, mobile polish, cascading address selectors, and simplified tutor-request choices. Last reviewed: **2026-07-11**.
+> Current handoff: production full-stack site with D1/admin/Workers AI, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-11**.
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
@@ -225,4 +225,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-11 — synchronized automatic admin editor reveal and focus behavior.
+Last updated: 2026-07-11 — synchronized all official contact surfaces to `0365002142`.

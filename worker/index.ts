@@ -33,6 +33,7 @@ type JsonRecord = Record<string, unknown>;
 
 const SESSION_COOKIE = "gstn_admin";
 const SESSION_AGE = 60 * 60 * 12;
+const CONTACT_PHONE = "0365002142";
 let setupPromise: Promise<void> | null = null;
 
 const SCHEMA_STATEMENTS = [
@@ -438,7 +439,7 @@ async function createClassPost(db: D1Database, ai: AiBinding | undefined, classI
   const row = await db.prepare("SELECT * FROM classes WHERE id = ?1").bind(classId).first<JsonRecord>();
   if (!row) return json({ error: "Không tìm thấy lớp này." }, 404);
   const item = rowToClass(row);
-  const fallback = `TUYỂN GIA SƯ - ${item.code}\n\nMôn học: ${item.subject} - ${item.grade}\nHình thức: ${item.learningMode}\nKhu vực: ${item.area}\nLịch học: ${item.schedule}, ${item.sessionsPerWeek} buổi/tuần, ${item.duration}/buổi\nMức phí: ${new Intl.NumberFormat("vi-VN").format(Number(item.salary))}đ/buổi\nYêu cầu: ${item.tutorRequirement}\n\nGia sư quan tâm vui lòng liên hệ Gia Sư Tài Năng qua hotline/Zalo 0357570667 và gửi kèm mã lớp ${item.code}.`;
+  const fallback = `TUYỂN GIA SƯ - ${item.code}\n\nMôn học: ${item.subject} - ${item.grade}\nHình thức: ${item.learningMode}\nKhu vực: ${item.area}\nLịch học: ${item.schedule}, ${item.sessionsPerWeek} buổi/tuần, ${item.duration}/buổi\nMức phí: ${new Intl.NumberFormat("vi-VN").format(Number(item.salary))}đ/buổi\nYêu cầu: ${item.tutorRequirement}\n\nGia sư quan tâm vui lòng liên hệ Gia Sư Tài Năng qua hotline/Zalo ${CONTACT_PHONE} và gửi kèm mã lớp ${item.code}.`;
   const safe = {
     maLop: item.code, mon: item.subject, lop: item.grade, hinhThuc: item.learningMode,
     khuVuc: item.area, lich: item.schedule, soBuoi: item.sessionsPerWeek,
@@ -447,7 +448,7 @@ async function createClassPost(db: D1Database, ai: AiBinding | undefined, classI
   const content = await runAiText(ai, [
     "Soạn bài đăng tuyển gia sư bằng tiếng Việt cho Facebook/Zalo, dễ đọc, tối đa 130 từ.",
     "Giữ nguyên mã lớp, lịch, mức phí và yêu cầu. Không nêu địa chỉ chi tiết, không hứa hẹn, không bịa thông tin.",
-    "Kết bài bằng hotline/Zalo 0357570667. Có thể dùng tối đa 4 emoji phù hợp.",
+    `Kết bài bằng hotline/Zalo ${CONTACT_PHONE}. Có thể dùng tối đa 4 emoji phù hợp.`,
     JSON.stringify(safe),
   ].join("\n"), fallback);
   return json({ content });
@@ -539,7 +540,7 @@ async function answerPublicQuestion(request: Request, db: D1Database, ai: AiBind
   if (question.length < 3) return json({ error: "Bạn hãy nhập câu hỏi rõ hơn một chút." }, 400);
   const normalized = question.toLocaleLowerCase("vi");
   const direct = normalized.includes("số điện thoại") || normalized.includes("hotline") || normalized.includes("zalo")
-    ? "Bạn có thể gọi hoặc nhắn Zalo Gia Sư Tài Năng qua số 0357570667. Trung tâm hỗ trợ từ 06:00 đến 22:00 hằng ngày."
+    ? `Bạn có thể gọi hoặc nhắn Zalo Gia Sư Tài Năng qua số ${CONTACT_PHONE}. Trung tâm hỗ trợ từ 06:00 đến 22:00 hằng ngày.`
     : normalized.includes("địa chỉ")
       ? "Gia Sư Tài Năng tại 135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh. Trung tâm cũng tư vấn học trực tuyến trên toàn quốc."
       : normalized.includes("đăng ký") || normalized.includes("tìm gia sư")
@@ -551,11 +552,11 @@ async function answerPublicQuestion(request: Request, db: D1Database, ai: AiBind
     nhom: row.subject_or_grade, sinhVien: row.student_tutor_price, giaoVien: row.teacher_tutor_price,
     soBuoi: row.sessions_per_week, thoiLuong: row.duration,
   }));
-  const fallback = "Mức học phí và cách sắp xếp gia sư phụ thuộc môn học, khối lớp, hình thức và lịch học. Bạn có thể để lại nhu cầu tại mục “Tìm gia sư” hoặc gọi/Zalo 0357570667 để được tư vấn chính xác.";
+  const fallback = `Mức học phí và cách sắp xếp gia sư phụ thuộc môn học, khối lớp, hình thức và lịch học. Bạn có thể để lại nhu cầu tại mục “Tìm gia sư” hoặc gọi/Zalo ${CONTACT_PHONE} để được tư vấn chính xác.`;
   const answer = await runAiText(ai, [
     "Bạn là trợ lý hỏi đáp của Gia Sư Tài Năng. Trả lời tiếng Việt thân thiện trong tối đa 4 câu.",
     "Chỉ trả lời về tìm gia sư, đăng ký làm gia sư, học phí, lịch học, học online và quy trình của trung tâm.",
-    "Nếu ngoài phạm vi hoặc thiếu dữ liệu, hướng người dùng gọi/Zalo 0357570667. Không yêu cầu hay lặp lại dữ liệu cá nhân, không hứa kết quả học tập.",
+    `Nếu ngoài phạm vi hoặc thiếu dữ liệu, hướng người dùng gọi/Zalo ${CONTACT_PHONE}. Không yêu cầu hay lặp lại dữ liệu cá nhân, không hứa kết quả học tập.`,
     "Thông tin cố định: hỗ trợ 06:00-22:00 hằng ngày; tư vấn miễn phí; dạy tại nhà chủ yếu TP.HCM; học online toàn quốc.",
     `Bảng giá tham khảo: ${JSON.stringify(context)}`,
     `Câu hỏi: ${question}`,

@@ -4,6 +4,7 @@ import { Loader2, MessageCircleQuestion, Send, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/api";
+import { siteConfig } from "@/data/site";
 
 type ChatMessage = { role: "visitor" | "assistant"; text: string };
 const quickQuestions = ["Học phí khoảng bao nhiêu?", "Quy trình tìm gia sư thế nào?", "Có dạy online không?"];
@@ -26,7 +27,7 @@ export function ConsultingChat() {
       const result = await apiRequest<{ answer: string }>("/api/ai/chat", { method: "POST", body: JSON.stringify({ question: clean }) });
       setMessages((current) => [...current, { role: "assistant", text: result.answer }]);
     } catch {
-      setMessages((current) => [...current, { role: "assistant", text: "Mình chưa trả lời được lúc này. Bạn vui lòng gọi hoặc nhắn Zalo 0357570667 để được hỗ trợ nhé." }]);
+      setMessages((current) => [...current, { role: "assistant", text: `Mình chưa trả lời được lúc này. Bạn vui lòng gọi hoặc nhắn Zalo ${siteConfig.phone} để được hỗ trợ nhé.` }]);
     } finally { setLoading(false); }
   };
 
