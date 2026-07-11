@@ -1,5 +1,7 @@
 # Gia Sư Tài Năng
 
+> Current handoff: production full-stack site with D1/admin/Workers AI, mobile polish, and cascading address selectors. Last reviewed: **2026-07-11**, after commit `e71d70d`.
+
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
 Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API để nâng cấp sang dữ liệu thật bằng Cloudflare D1.
@@ -202,3 +204,20 @@ Trong `/admin`:
 - Tên trung tâm, logo, hotline, email, Zalo/Facebook và địa chỉ là thông tin do chủ trung tâm cung cấp.
 - Dữ liệu gia sư, lớp, bài viết ban đầu vẫn là seed/fallback để site không bị trắng khi DB chưa sẵn sàng.
 - Không commit `ADMIN_PASSWORD`, `SESSION_SECRET` hoặc thông tin bí mật vào repo.
+
+## Workflow bàn giao cho session mới
+
+Trước khi bắt đầu chỉnh sửa, đọc theo thứ tự:
+
+1. `spec.md` — quyết định sản phẩm và trạng thái bàn giao hiện tại.
+2. `agents.md` — quy tắc làm việc, mobile và tài liệu bắt buộc.
+3. `README.md` — kiến trúc, cách chạy, deploy, route và API đang có.
+
+Sau **mọi** thay đổi:
+
+1. Chạy kiểm tra phù hợp (`npm run lint`, `npm run build`, và Worker dry-run nếu liên quan).
+2. Rà soát và cập nhật tất cả file `.md` trong repository.
+3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
+4. Commit và push code cùng tài liệu lên `main`.
+
+Last updated: 2026-07-11 — synchronized mandatory documentation workflow.

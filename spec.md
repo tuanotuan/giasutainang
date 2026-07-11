@@ -1,3 +1,29 @@
+# Gia Sư Tài Năng — Product Specification
+
+## Current implementation override
+
+This section is the source of truth for the current production system and overrides obsolete phase-one requirements below.
+
+- Production brand: **Gia Sư Tài Năng**; tagline: **Kết nối tri thức**.
+- Production domain: `https://giasutainang.online` and `www.giasutainang.online`.
+- Contact: hotline/Zalo `0357570667`, email `tuan.hcmus77@gmail.com`, Facebook `https://www.facebook.com/gstainang`.
+- Address: `135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh, Việt Nam`; hours: `06:00 - 22:00` daily.
+- Hosting/deployment: GitHub `tuanotuan/giasutainang` → automatic Cloudflare Workers deployment from `main`.
+- Backend: Cloudflare Worker API + D1 database, real admin login, CRUD for classes/tutors/posts/prices, and persisted public submissions.
+- Smart features: tutor matching, Zalo draft, class-post draft, tutor-profile audit, learning roadmap, operations report, and public quick-answer assistant via Workers AI with non-AI fallbacks.
+- Address form: province/city → district/area → ward/commune cascading selectors; only house number/street is typed manually.
+- Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
+- Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
+
+## Session handoff
+
+- Latest completed feature: cascading address selection, commit `e71d70d`.
+- Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
+- After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
+- Last updated: 2026-07-11.
+
+## Original phase-one brief (historical reference)
+
 Tôi muốn bạn build một website trung tâm gia sư lấy cảm hứng từ mô hình website giasumienphi.edu.vn, nhưng KHÔNG sao chép logo, tên thương hiệu, hình ảnh, nội dung bài viết, số điện thoại, địa chỉ, dữ liệu thật hoặc nhận diện thương hiệu của website gốc.
 
 Hãy tạo một thương hiệu giả tên: “Gia Sư Minh Tâm”.

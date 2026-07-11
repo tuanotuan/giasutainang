@@ -1,11 +1,11 @@
 # AGENTS.md
 
 ## Project Goal
-Build a Vietnamese tutoring center website named "Gia Sư Minh Tâm".
+Build and maintain the production Vietnamese tutoring center website "Gia Sư Tài Năng" at `https://giasutainang.online`.
 
 ## Important Rules
 - Do not copy real branding, logo, images, phone numbers, addresses, articles, or private data from any reference website.
-- Use only mock data.
+- Use mock/seed data only for demo tutor and class profiles; real form submissions and admin changes are stored in Cloudflare D1.
 - UI should be inspired by Vietnamese tutoring service websites, but all content must be original.
 - Prioritize clean code, reusable components, and responsive design.
 
@@ -18,6 +18,8 @@ Build a Vietnamese tutoring center website named "Gia Sư Minh Tâm".
 - Mock data in `/src/data`
 - Types in `/src/types`
 - Utilities in `/src/lib`
+- Cloudflare Worker API in `/worker`
+- Cloudflare D1 database and Workers AI
 
 ## Coding Rules
 - Use reusable components.
@@ -29,9 +31,18 @@ Build a Vietnamese tutoring center website named "Gia Sư Minh Tâm".
 - Test common phone widths (320px, 375px, 390px, and 430px) before considering UI work complete.
 - Keep touch targets at least 44px, prevent horizontal overflow, respect mobile safe areas, and ensure fixed elements do not cover content or form controls.
 - Avoid hardcoding repeated data inside components.
-- Do not add a real backend unless requested.
-- Do not add real authentication unless requested.
+- Preserve the existing Cloudflare Worker, D1 database, admin authentication, and Workers AI integration.
+
+## Documentation Workflow
+- After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
+- `spec.md` must describe current product decisions, completed capabilities, constraints, and the latest handoff state.
+- `README.md` must describe the actual setup, deployment, routes, APIs, project structure, and user-visible features.
+- `agents.md` must keep durable workflow rules and current architectural constraints for future sessions.
+- Even when a Markdown file needs no factual change, update its `Last updated` / handoff note so a new session can confirm it was reviewed.
+- A task is not complete until documentation changes are committed and pushed with the implementation.
 
 ## Task Rule
-Before coding, read `SPEC.md` carefully and follow it.
-After coding, update `README.md` with run instructions and project structure.
+Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
+After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
+
+Last updated: 2026-07-11 — documentation workflow synchronized after cascading address selectors (`e71d70d`).
