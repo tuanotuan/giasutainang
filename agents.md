@@ -35,6 +35,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Avoid hardcoding repeated data inside components.
 - Preserve the existing Cloudflare Worker, D1 database, admin authentication, and Workers AI integration.
 - Use `Học lực kỳ học gần nhất` (not `Học lực hiện tại`) in the parent tutor-request form.
+- Keep the expected-budget example human-readable (`2 triệu/tháng`) and retain the nearby link to `/bang-gia-gia-su`.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -48,4 +49,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-11 — documentation synchronized after clarifying the student-performance reference period.
+Last updated: 2026-07-11 — documentation synchronized after improving budget guidance and pricing access.
