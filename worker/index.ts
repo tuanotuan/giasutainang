@@ -43,7 +43,7 @@ const SCHEMA_STATEMENTS = [
   "CREATE TABLE IF NOT EXISTS posts (id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, excerpt TEXT NOT NULL, category TEXT NOT NULL, thumbnail TEXT NOT NULL DEFAULT '', date TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS prices (id TEXT PRIMARY KEY, category TEXT NOT NULL, subject_or_grade TEXT NOT NULL, student_tutor_price TEXT NOT NULL DEFAULT '', teacher_tutor_price TEXT NOT NULL DEFAULT '', sessions_per_week TEXT NOT NULL, duration TEXT NOT NULL, note TEXT, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS tutor_requests (id TEXT PRIMARY KEY, parent_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, area TEXT NOT NULL, address TEXT NOT NULL DEFAULT '', learning_mode TEXT NOT NULL, grade TEXT NOT NULL, subjects TEXT NOT NULL, student_count INTEGER NOT NULL, student_level TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, schedule TEXT NOT NULL, tutor_level TEXT NOT NULL, tutor_gender TEXT NOT NULL, selected_tutor_code TEXT, budget TEXT NOT NULL, note TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS submissions (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, reference_code TEXT, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS submissions (id TEXT PRIMARY KEY, type TEXT NOT NULL, name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, reference_code TEXT, payload TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'new', admin_note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE INDEX IF NOT EXISTS idx_classes_status_created ON classes(status, created_at DESC)",
   "CREATE INDEX IF NOT EXISTS idx_requests_status_created ON tutor_requests(status, created_at DESC)",
   "CREATE INDEX IF NOT EXISTS idx_submissions_type_created ON submissions(type, created_at DESC)",
@@ -149,6 +149,14 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
         .bind(String(body.status), now(), id).run();
       return json({ success: true });
     }
+    if (pathname.startsWith("/api/admin/submissions/") && pathname.endsWith("/approve") && request.method === "POST") {
+      const id = decodeURIComponent(pathname.split("/").at(-2) ?? "");
+      return approveTutorApplication(env.DB, id);
+    }
+    if (pathname.startsWith("/api/admin/submissions/") && request.method === "PATCH") {
+      const id = decodeURIComponent(pathname.split("/").pop() ?? "");
+      return updateSubmission(request, env.DB, id);
+    }
     return json({ error: "Không tìm thấy mục bạn cần." }, 404);
   }
 
@@ -211,6 +219,10 @@ async function setupDatabase(db: D1Database) {
   const requestColumns = await db.prepare("PRAGMA table_info(tutor_requests)").all<{ name: string }>();
   if (!requestColumns.results.some((column) => column.name === "address")) {
     await db.exec("ALTER TABLE tutor_requests ADD COLUMN address TEXT NOT NULL DEFAULT ''");
+  }
+  const submissionColumns = await db.prepare("PRAGMA table_info(submissions)").all<{ name: string }>();
+  if (!submissionColumns.results.some((column) => column.name === "admin_note")) {
+    await db.exec("ALTER TABLE submissions ADD COLUMN admin_note TEXT NOT NULL DEFAULT ''");
   }
   const seeded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'seeded_at'").first<{ value: string }>();
   const stamp = now();
@@ -669,6 +681,59 @@ async function mutatePrice(request: Request, db: D1Database, id: string) {
   return json({ success: true });
 }
 
+const SUBMISSION_STATUSES = new Set(["new", "reviewing", "needs_info", "approved", "rejected"]);
+
+async function updateSubmission(request: Request, db: D1Database, id: string) {
+  const existing = await db.prepare("SELECT id FROM submissions WHERE id=?1").bind(id).first<{ id: string }>();
+  if (!existing) return json({ error: "Không tìm thấy hồ sơ đăng ký." }, 404);
+  const body = await readJson(request);
+  const status = String(body.status ?? "");
+  if (!SUBMISSION_STATUSES.has(status)) return json({ error: "Trạng thái hồ sơ chưa hợp lệ." }, 400);
+  const adminNote = String(body.adminNote ?? "").trim().slice(0, 2000);
+  await db.prepare("UPDATE submissions SET status=?1,admin_note=?2,updated_at=?3 WHERE id=?4")
+    .bind(status, adminNote, now(), id).run();
+  return json({ success: true });
+}
+
+async function approveTutorApplication(db: D1Database, id: string) {
+  const row = await db.prepare("SELECT * FROM submissions WHERE id=?1").bind(id).first<JsonRecord>();
+  if (!row) return json({ error: "Không tìm thấy hồ sơ đăng ký." }, 404);
+  if (text(row.type) !== "tutor_application") return json({ error: "Mục này không phải hồ sơ đăng ký gia sư." }, 400);
+  if (text(row.status) === "approved" && text(row.reference_code)) {
+    const tutor = await db.prepare("SELECT id,code FROM tutors WHERE code=?1").bind(text(row.reference_code)).first<{ id: string; code: string }>();
+    return json({ success: true, tutorId: tutor?.id, code: tutor?.code ?? text(row.reference_code), alreadyApproved: true });
+  }
+
+  const payload = parseJson(row.payload, {}) as JsonRecord;
+  const fullName = text(payload.fullName).trim();
+  const subjects = stringList(payload.subjects);
+  const grades = stringList(payload.grades);
+  if (!fullName || !subjects.length || !grades.length) {
+    return json({ error: "Hồ sơ còn thiếu họ tên, môn dạy hoặc lớp dạy. Hãy yêu cầu ứng viên bổ sung trước khi duyệt." }, 400);
+  }
+
+  let code = `GST-${Math.floor(100000 + Math.random() * 900000)}`;
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const duplicate = await db.prepare("SELECT id FROM tutors WHERE code=?1").bind(code).first<{ id: string }>();
+    if (!duplicate) break;
+    code = `GST-${Math.floor(100000 + Math.random() * 900000)}`;
+  }
+  const tutorId = `tutor-${crypto.randomUUID()}`;
+  const occupation = text(payload.occupation);
+  const level = ["Sinh viên", "Giáo viên", "Cử nhân", "Thạc sĩ"].includes(occupation) ? occupation : "Cử nhân";
+  const stamp = now();
+  await db.batch([
+    db.prepare(`INSERT INTO tutors
+      (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,created_at,updated_at)
+      VALUES (?1,?2,?3,?4,?5,'',?6,?7,?8,?9,?10,?11,?12,?13,'[]',?14,?15,5,0,?16,?17)`)
+      .bind(tutorId, code, fullName, number(payload.birthYear, 2000), text(payload.gender) || "Nữ", text(payload.school), text(payload.major), level,
+        JSON.stringify(subjects), JSON.stringify(grades), JSON.stringify(stringList(payload.areas)), JSON.stringify(stringList(payload.availableTimes)),
+        text(payload.experience), text(payload.note) || "Trao đổi rõ mục tiêu và theo sát tiến độ học tập.", text(payload.minimumSalary), stamp, stamp),
+    db.prepare("UPDATE submissions SET status='approved',reference_code=?1,updated_at=?2 WHERE id=?3").bind(code, stamp, id),
+  ]);
+  return json({ success: true, tutorId, code });
+}
+
 async function saveTutorRequest(request: Request, db: D1Database) {
   const body = await readJson(request);
   const id = crypto.randomUUID();
@@ -800,7 +865,8 @@ function parseJson<T>(value: unknown, fallback: T): T {
 }
 
 function stringList(value: unknown) {
-  return parseJson<unknown[]>(value, []).filter((item): item is string => typeof item === "string");
+  const items = Array.isArray(value) ? value : parseJson<unknown[]>(value, []);
+  return items.filter((item): item is string => typeof item === "string");
 }
 
 function text(value: unknown) {

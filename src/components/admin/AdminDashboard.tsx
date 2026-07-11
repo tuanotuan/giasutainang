@@ -7,12 +7,14 @@ import {
   Copy,
   ShieldCheck,
   Edit3,
+  Eye,
   Loader2,
   LogOut,
   Plus,
   RefreshCw,
   Sparkles,
   Trash2,
+  UserCheck,
 } from "lucide-react";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { classes as initialClasses } from "@/data/classes";
@@ -35,6 +37,7 @@ type SubmissionRecord = {
   reference_code?: string | null;
   payload: Record<string, unknown>;
   status: string;
+  admin_note?: string;
   created_at: string;
 };
 
@@ -693,6 +696,9 @@ function RequestManager({
   const [zaloDraft, setZaloDraft] = useState("");
   const [zaloPhone, setZaloPhone] = useState("");
   const [zaloFor, setZaloFor] = useState("");
+  const [selectedApplication, setSelectedApplication] = useState<SubmissionRecord | null>(null);
+  const tutorApplications = submissions.filter((item) => item.type === "tutor_application");
+  const otherSubmissions = submissions.filter((item) => item.type !== "tutor_application");
 
   const updateStatus = async (item: TutorRequest, status: TutorRequest["status"]) => {
     try {
@@ -727,6 +733,27 @@ function RequestManager({
       setZaloDraft(result.message); setZaloPhone(result.phone);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Chưa thể soạn tin nhắn."); }
     finally { setZaloFor(""); }
+  };
+
+  const updateApplication = async (item: SubmissionRecord, status: string, adminNote: string) => {
+    await apiRequest<{ success: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}`, {
+      method: "PATCH", body: JSON.stringify({ status, adminNote }),
+    });
+    await onRefresh();
+    setSelectedApplication((current) => current?.id === item.id ? { ...current, status, admin_note: adminNote } : current);
+    setMessage("Đã cập nhật hồ sơ ứng viên.");
+  };
+
+  const approveApplication = async (item: SubmissionRecord, adminNote: string) => {
+    if (item.admin_note !== adminNote) {
+      await apiRequest<{ success: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}`, {
+        method: "PATCH", body: JSON.stringify({ status: "reviewing", adminNote }),
+      });
+    }
+    const result = await apiRequest<{ success: boolean; code: string; alreadyApproved?: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}/approve`, { method: "POST" });
+    await onRefresh();
+    setSelectedApplication(null);
+    setMessage(result.alreadyApproved ? `Hồ sơ đã được duyệt trước đó với mã ${result.code}.` : `Đã duyệt và tạo hồ sơ gia sư ${result.code}.`);
   };
 
   return (
@@ -778,9 +805,26 @@ function RequestManager({
         </AdminTable>
       </section>
       <section>
-        <h2 className="mb-3 text-lg font-extrabold text-ink">Đăng ký nhận lớp / liên hệ / ứng tuyển gia sư</h2>
+        <div className="mb-3"><h2 className="text-lg font-extrabold text-ink">Hồ sơ ứng tuyển gia sư</h2><p className="mt-1 text-sm text-slate-500">Xem thông tin, ghi chú và duyệt ứng viên trước khi hồ sơ xuất hiện công khai.</p></div>
+        <AdminTable headers={["Ứng viên", "Học vấn", "Nhận dạy", "Ngày gửi", "Trạng thái", "Xử lý"]}>
+          {tutorApplications.map((item) => (
+            <tr key={item.id}>
+              <Cell strong><span className="block">{item.name || "Chưa có tên"}</span><span className="mt-1 block font-normal text-slate-500">{item.phone}</span></Cell>
+              <Cell><span className="block">{getPayloadText(item.payload, "school") || "Chưa cập nhật trường"}</span><span className="mt-1 block text-slate-500">{getPayloadText(item.payload, "major")}</span></Cell>
+              <Cell>{getPayloadList(item.payload, "subjects").join(", ") || "Chưa cập nhật"}</Cell>
+              <Cell>{formatDate(item.created_at)}</Cell>
+              <Cell><ApplicationStatus status={item.status} /></Cell>
+              <Cell><button type="button" onClick={() => setSelectedApplication(item)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-50 px-3 text-xs font-bold text-primary-700 transition hover:bg-primary-100"><Eye className="h-4 w-4" /> Xem hồ sơ</button></Cell>
+            </tr>
+          ))}
+          {tutorApplications.length === 0 && <EmptyRow colSpan={6} text="Chưa có hồ sơ ứng tuyển gia sư." />}
+        </AdminTable>
+        {selectedApplication && <TutorApplicationDialog key={selectedApplication.id} item={selectedApplication} onClose={() => setSelectedApplication(null)} onUpdate={updateApplication} onApprove={approveApplication} />}
+      </section>
+      <section>
+        <h2 className="mb-3 text-lg font-extrabold text-ink">Đăng ký nhận lớp và liên hệ</h2>
         <AdminTable headers={["Loại", "Tên", "Điện thoại", "Email", "Mã lớp", "Ngày gửi"]}>
-          {submissions.map((item) => (
+          {otherSubmissions.map((item) => (
             <tr key={item.id}>
               <Cell strong>{submissionLabel(item.type)}</Cell>
               <Cell>{item.name || getPayloadText(item.payload, "parentName") || "Chưa có tên"}</Cell>
@@ -790,11 +834,89 @@ function RequestManager({
               <Cell>{formatDate(item.created_at)}</Cell>
             </tr>
           ))}
-          {submissions.length === 0 && <EmptyRow colSpan={6} text="Chưa có đăng ký hoặc liên hệ mới." />}
+          {otherSubmissions.length === 0 && <EmptyRow colSpan={6} text="Chưa có đăng ký nhận lớp hoặc liên hệ mới." />}
         </AdminTable>
       </section>
     </div>
   );
+}
+
+const applicationStatusMap: Record<string, { label: string; className: string }> = {
+  new: { label: "Mới", className: "bg-blue-50 text-blue-700" },
+  reviewing: { label: "Đang xem", className: "bg-amber-50 text-amber-700" },
+  needs_info: { label: "Cần bổ sung", className: "bg-orange-50 text-orange-700" },
+  approved: { label: "Đã duyệt", className: "bg-emerald-50 text-emerald-700" },
+  rejected: { label: "Từ chối", className: "bg-rose-50 text-rose-700" },
+};
+
+function ApplicationStatus({ status }: { status: string }) {
+  const value = applicationStatusMap[status] ?? applicationStatusMap.new;
+  return <span className={`inline-flex rounded-full px-2.5 py-1 text-[11px] font-bold ${value.className}`}>{value.label}</span>;
+}
+
+function TutorApplicationDialog({
+  item,
+  onClose,
+  onUpdate,
+  onApprove,
+}: {
+  item: SubmissionRecord;
+  onClose: () => void;
+  onUpdate: (item: SubmissionRecord, status: string, note: string) => Promise<void>;
+  onApprove: (item: SubmissionRecord, note: string) => Promise<void>;
+}) {
+  const [note, setNote] = useState(item.admin_note ?? "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [confirmReject, setConfirmReject] = useState(false);
+  const run = async (action: () => Promise<void>) => {
+    setSaving(true); setError("");
+    try { await action(); }
+    catch (reason) { setError(reason instanceof Error ? reason.message : "Chưa thể cập nhật hồ sơ."); }
+    finally { setSaving(false); }
+  };
+  const fields = [
+    ["Họ tên", item.name || getPayloadText(item.payload, "fullName")],
+    ["Điện thoại / Zalo", item.phone],
+    ["Email", item.email || "Chưa cung cấp"],
+    ["Năm sinh", getPayloadText(item.payload, "birthYear")],
+    ["Giới tính", getPayloadText(item.payload, "gender")],
+    ["Nghề nghiệp", getPayloadText(item.payload, "occupation")],
+    ["Trường / đơn vị", getPayloadText(item.payload, "school")],
+    ["Chuyên ngành", getPayloadText(item.payload, "major")],
+    ["Mức phí mong muốn", getPayloadText(item.payload, "minimumSalary")],
+  ];
+  return (
+    <div className="fixed inset-0 z-[120] flex items-end justify-center bg-slate-950/55 p-0 sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="ho-so-ung-vien">
+      <section className="flex max-h-[94dvh] w-full max-w-4xl flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:max-h-[90vh] sm:rounded-3xl">
+        <header className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-100 px-5 py-4 sm:px-6">
+          <div><div className="flex flex-wrap items-center gap-2"><h2 id="ho-so-ung-vien" className="text-lg font-extrabold text-ink">Hồ sơ {item.name || "ứng viên"}</h2><ApplicationStatus status={item.status} /></div><p className="mt-1 text-xs text-slate-500">Gửi ngày {formatDate(item.created_at)}{item.reference_code ? ` · Mã gia sư ${item.reference_code}` : ""}</p></div>
+          <button type="button" onClick={onClose} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-lg font-bold text-slate-600" aria-label="Đóng">×</button>
+        </header>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-6">
+          {error && <Notice tone="error">{error}</Notice>}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{fields.map(([label, value]) => <div key={label} className="rounded-xl bg-slate-50 p-3"><p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">{label}</p><p className="mt-1 break-words text-sm font-semibold text-slate-700">{value || "Chưa cung cấp"}</p></div>)}</div>
+          <ApplicationList label="Môn có thể dạy" values={getPayloadList(item.payload, "subjects")} />
+          <ApplicationList label="Lớp có thể dạy" values={getPayloadList(item.payload, "grades")} />
+          <ApplicationList label="Khu vực nhận lớp" values={getPayloadList(item.payload, "areas")} />
+          <ApplicationList label="Thời gian có thể dạy" values={getPayloadList(item.payload, "availableTimes")} />
+          <div className="mt-4 grid gap-4 md:grid-cols-2"><ApplicationText label="Kinh nghiệm" value={getPayloadText(item.payload, "experience")} /><ApplicationText label="Chia sẻ thêm" value={getPayloadText(item.payload, "note")} /></div>
+          <label className="mt-5 block"><span className="text-sm font-extrabold text-ink">Ghi chú nội bộ</span><span className="mt-1 block text-xs text-slate-500">Chỉ người quản trị nhìn thấy nội dung này.</span><textarea value={note} onChange={(event) => setNote(event.target.value.slice(0, 2000))} rows={3} placeholder="Ví dụ: Đã gọi xác minh trường học, cần bổ sung ảnh thẻ..." className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100" /></label>
+        </div>
+        <footer className="shrink-0 border-t bg-white px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">
+          {confirmReject ? <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm font-semibold text-rose-700">Xác nhận từ chối hồ sơ này?</p><div className="flex gap-2"><button type="button" onClick={() => setConfirmReject(false)} className="button-secondary min-h-11 flex-1 px-4 py-2">Quay lại</button><button type="button" disabled={saving} onClick={() => void run(() => onUpdate(item, "rejected", note).then(() => onClose()))} className="min-h-11 flex-1 rounded-xl bg-rose-600 px-4 text-sm font-bold text-white disabled:opacity-60">Xác nhận từ chối</button></div></div> : <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-end"><button type="button" disabled={saving} onClick={() => void run(() => onUpdate(item, item.status, note))} className="button-secondary min-h-11 px-3 py-2">Lưu ghi chú</button><button type="button" disabled={saving} onClick={() => void run(() => onUpdate(item, "needs_info", note))} className="min-h-11 rounded-xl bg-orange-50 px-3 text-sm font-bold text-orange-700 disabled:opacity-60">Cần bổ sung</button><button type="button" disabled={saving || item.status === "approved"} onClick={() => setConfirmReject(true)} className="min-h-11 rounded-xl bg-rose-50 px-3 text-sm font-bold text-rose-700 disabled:opacity-50">Từ chối</button><button type="button" disabled={saving || item.status === "approved"} onClick={() => void run(() => onApprove(item, note))} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 text-sm font-bold text-white shadow-lg shadow-emerald-600/20 disabled:opacity-50">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserCheck className="h-4 w-4" />} {item.status === "approved" ? "Đã duyệt" : "Duyệt hồ sơ"}</button></div>}
+        </footer>
+      </section>
+    </div>
+  );
+}
+
+function ApplicationList({ label, values }: { label: string; values: string[] }) {
+  return <div className="mt-4"><h3 className="text-xs font-extrabold text-slate-500">{label}</h3><div className="mt-2 flex flex-wrap gap-2">{values.length ? values.map((value) => <span key={value} className="rounded-full bg-primary-50 px-3 py-1.5 text-xs font-semibold text-primary-700">{value}</span>) : <span className="text-sm text-slate-400">Chưa cung cấp</span>}</div></div>;
+}
+
+function ApplicationText({ label, value }: { label: string; value: string }) {
+  return <div className="rounded-xl border border-slate-100 p-4"><h3 className="text-xs font-extrabold text-slate-500">{label}</h3><p className="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">{value || "Chưa cung cấp"}</p></div>;
 }
 
 function SuggestionPanel({ value, onClose }: { value: TutorSuggestion; onClose: () => void }) {
@@ -1341,5 +1463,12 @@ function submissionLabel(type: string) {
 
 function getPayloadText(payload: Record<string, unknown>, key: string) {
   const value = payload[key];
-  return typeof value === "string" ? value : "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number") return String(value);
+  return "";
+}
+
+function getPayloadList(payload: Record<string, unknown>, key: string) {
+  const value = payload[key];
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
