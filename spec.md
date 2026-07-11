@@ -13,12 +13,13 @@ This section is the source of truth for the current production system and overri
 - Smart features: tutor matching, Zalo draft, class-post draft, tutor-profile audit, learning roadmap, operations report, and public quick-answer assistant via Workers AI with non-AI fallbacks.
 - Address form: province/city → district/area → ward/commune cascading selectors; only house number/street is typed manually.
 - Form validation UX: changing cascading selections must not show required-field errors. Errors appear only after submit; invalid submit smoothly scrolls to and focuses the first missing field.
+- Parent tutor requests offer only `Tại nhà` and `Online`; group size is inferred from the student-count field instead of a redundant `Học nhóm` option.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
 
 ## Session handoff
 
-- Latest completed change: friendly form validation for cascading addresses; errors wait for submit and the first missing field receives focus.
+- Latest completed change: removed the redundant `Học nhóm` option from the parent request form; student count now represents individual versus group needs.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
 - Last updated: 2026-07-11.

@@ -1,6 +1,6 @@
 # Gia Sư Tài Năng
 
-> Current handoff: production full-stack site with D1/admin/Workers AI, mobile polish, cascading address selectors, and submit-only validation errors. Last reviewed: **2026-07-11**.
+> Current handoff: production full-stack site with D1/admin/Workers AI, mobile polish, cascading address selectors, and simplified tutor-request choices. Last reviewed: **2026-07-11**.
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
@@ -190,6 +190,7 @@ Trong `/admin`:
 - Xem yêu cầu tìm gia sư từ form phụ huynh.
 - Form phụ huynh lưu số điện thoại dùng Zalo; địa chỉ được chọn lần lượt theo tỉnh/thành phố → quận/huyện/khu vực → phường/xã, sau đó chỉ cần nhập số nhà và tên đường.
 - Việc đổi tỉnh/khu vực không báo lỗi sớm; lỗi bắt buộc chỉ hiện sau khi gửi form và trang tự cuộn tới ô thiếu đầu tiên.
+- Form phụ huynh chỉ chọn “Tại nhà” hoặc “Online”; nhu cầu học một hay nhiều học sinh được xác định bằng trường số lượng học sinh.
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
@@ -221,4 +222,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-11 — synchronized friendly submit-only validation behavior.
+Last updated: 2026-07-11 — synchronized removal of the redundant group-learning choice.

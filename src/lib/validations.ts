@@ -19,7 +19,7 @@ export const findTutorSchema = z.object({
   district: z.string().trim().min(2, "Vui lòng chọn quận, huyện hoặc khu vực"),
   ward: z.string().trim().min(2, "Vui lòng chọn phường hoặc xã"),
   address: z.string().trim().min(3, "Vui lòng nhập số nhà và tên đường"),
-  learningMode: z.enum(["Tại nhà", "Online", "Học nhóm"]),
+  learningMode: z.enum(["Tại nhà", "Online"]),
   grade: z.string().min(1, "Vui lòng chọn lớp học"),
   subject: z.string().min(1, "Vui lòng chọn môn học"),
   studentCount: z.coerce.number().min(1, "Số học sinh tối thiểu là 1").max(20, "Số học sinh tối đa là 20"),

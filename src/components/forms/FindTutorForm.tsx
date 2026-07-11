@@ -127,8 +127,8 @@ export function FindTutorForm() {
         >
           <div className="grid gap-5 sm:grid-cols-2">
             <FormField label="Hình thức học" required error={errors.learningMode?.message} className="sm:col-span-2">
-              <div className="grid grid-cols-3 gap-2">
-                {["Tại nhà", "Online", "Học nhóm"].map((item) => (
+              <div className="grid grid-cols-2 gap-2">
+                {["Tại nhà", "Online"].map((item) => (
                   <label key={item} className="cursor-pointer">
                     <input {...register("learningMode")} type="radio" value={item} className="peer sr-only" />
                     <span className="flex h-12 items-center justify-center rounded-xl border border-slate-200 px-2 text-center text-xs font-bold text-slate-600 transition peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700">

@@ -27,6 +27,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep data separate from UI.
 - Validate forms.
 - Do not show required-field errors while users are still making dependent selections. Validate on submit, then scroll/focus the first invalid field with a clear friendly message.
+- Keep the parent learning-mode choice limited to `Tại nhà` and `Online`; use student count to represent group needs.
 - Make layout responsive.
 - Treat mobile usability as a required acceptance criterion for every UI change.
 - Test common phone widths (320px, 375px, 390px, and 430px) before considering UI work complete.
@@ -46,4 +47,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-11 — documentation synchronized after submit-only validation and first-error focus behavior.
+Last updated: 2026-07-11 — documentation synchronized after simplifying parent learning-mode choices.
