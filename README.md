@@ -1,14 +1,14 @@
 # Gia Sư Tài Năng
 
-> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, professional responsive footer, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-12**.
+> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, layered API/browser security, professional responsive footer, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-12**.
 
-Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
+Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js 16 App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
 Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API để nâng cấp sang dữ liệu thật bằng Cloudflare D1.
 
 ## Cài đặt
 
-Yêu cầu Node.js 20 trở lên.
+Yêu cầu Node.js 20.9 trở lên.
 
 ```bash
 npm install
@@ -92,6 +92,8 @@ ADMIN_PASSWORD=mat-khau-admin-cua-ban
 SESSION_SECRET=chuoi-random-dai-de-ky-cookie
 ```
 
+Dùng mật khẩu quản trị riêng, dài ít nhất 14 ký tự; `SESSION_SECRET` nên là chuỗi ngẫu nhiên tối thiểu 32 byte. Không lưu hai giá trị này trong Git hoặc biến public `NEXT_PUBLIC_*`.
+
 Tạo R2 bucket riêng tư tên `giasutainang-files`, sau đó thêm binding vào `wrangler.jsonc` khi bucket đã tồn tại:
 
 ```jsonc
@@ -109,6 +111,18 @@ Sau khi deploy có DB binding:
 2. Đăng nhập bằng `ADMIN_PASSWORD`.
 3. Nếu thấy thông báo database chưa khởi tạo, bấm “Khởi tạo database”.
 4. Hệ thống sẽ tạo bảng D1 và nạp dữ liệu ban đầu từ `src/data`.
+
+## Bảo mật vận hành
+
+- Mọi request production chạy qua Worker; HTTP được chuyển sang HTTPS và phản hồi có HSTS, CSP, chống clickjacking, MIME sniffing và chính sách quyền trình duyệt.
+- Cookie admin dùng tiền tố `__Host-`, `HttpOnly`, `Secure`, `SameSite=Strict`, chữ ký HMAC và tự hết hạn sau 8 giờ. Sau lần triển khai bảo mật đầu tiên, admin cần đăng nhập lại một lần.
+- Login, form công khai, trợ lý hỏi đáp và công cụ AI quản trị có rate limit trong Worker. Request khác nguồn bị chặn trước các thao tác ghi.
+- JSON tối đa 64KB; multipart tối đa 16MB. Dữ liệu được Zod kiểm tra lại tại server, không tin validation phía trình duyệt.
+- API lớp công khai không trả địa chỉ chi tiết hoặc lời nhắn riêng của gia đình.
+- R2 giữ bucket riêng tư; file được kiểm tra dung lượng, MIME và chữ ký đầu file. Admin tải file bằng endpoint đã xác thực ở chế độ `attachment`, `nosniff`, CSP sandbox.
+- Next.js đang cố định ở `16.2.10`; PostCSS lồng trong Next được override lên bản đã vá. `npm audit` hiện trả về 0 lỗ hổng đã biết.
+- Chạy `npm run security:check` sau deploy để kiểm tra HTTPS redirect, security headers, chống request khác nguồn, ẩn địa chỉ lớp và `security.txt`.
+- Xem checklist Cloudflare, giới hạn còn lại và quy trình ứng phó tại [`SECURITY.md`](./SECURITY.md).
 
 ## API hiện có
 
@@ -141,7 +155,7 @@ Admin:
 - `PATCH /api/admin/requests/:id`
 - `PATCH /api/admin/submissions/:id` (trạng thái và ghi chú hồ sơ ứng viên)
 - `POST /api/admin/submissions/:id/approve` (duyệt và tạo hồ sơ gia sư, chống tạo trùng)
-- `GET /api/admin/files?key=...` (xem file ứng viên; yêu cầu đăng nhập admin và R2 binding `FILES`)
+- `GET /api/admin/files?key=...` (tải file ứng viên riêng tư; yêu cầu đăng nhập admin, tham chiếu D1 hợp lệ và R2 binding `FILES`)
 - `POST /api/admin/ai/request/:id` (gợi ý ghép gia sư)
 - `POST /api/admin/ai/zalo/:id` (soạn tin xác nhận Zalo)
 - `POST /api/admin/ai/class-post/:id` (soạn bài đăng lớp)
@@ -154,6 +168,9 @@ Admin:
 ```text
 worker/
 └── index.ts             # Cloudflare Worker API, auth cookie, D1 schema và CRUD
+
+scripts/
+└── security-smoke.mjs   # Kiểm tra bảo mật production sau deploy
 
 src/
 ├── app/                 # App Router, metadata và các trang
@@ -211,7 +228,7 @@ Trong `/admin`:
 - Hồ sơ ứng tuyển được tách thành mục quản trị riêng **Duyệt ứng viên**, có bộ lọc trạng thái, màn hình chi tiết, ghi chú nội bộ và nút duyệt để tạo hồ sơ gia sư công khai.
 - Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
-- Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin mở file ở tab mới trong màn hình duyệt.
+- Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
@@ -236,6 +253,7 @@ Trước khi bắt đầu chỉnh sửa, đọc theo thứ tự:
 1. `spec.md` — quyết định sản phẩm và trạng thái bàn giao hiện tại.
 2. `agents.md` — quy tắc làm việc, mobile và tài liệu bắt buộc.
 3. `README.md` — kiến trúc, cách chạy, deploy, route và API đang có.
+4. `SECURITY.md` — security baseline, checklist Cloudflare và xử lý sự cố.
 
 Sau **mọi** thay đổi:
 
@@ -244,4 +262,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — professional footer now automatically clears floating contact/chat controls when visible; awaiting owner acceptance.
+Last updated: 2026-07-12 — full security hardening implemented; awaiting production deploy verification and owner completion of the manual Cloudflare/account checklist.

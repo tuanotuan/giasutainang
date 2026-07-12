@@ -9,27 +9,33 @@ const phoneSchema = z
 const optionalEmail = z
   .string()
   .trim()
+  .max(254, "Email tối đa 254 ký tự")
   .refine((value) => !value || z.string().email().safeParse(value).success, "Email chưa đúng định dạng");
 
+const shortRequiredText = (message: string, max = 120) =>
+  z.string().trim().min(2, message).max(max, `Nội dung tối đa ${max} ký tự`);
+
+const shortList = (message: string) => z.array(z.string().trim().min(1).max(100)).min(1, message).max(30);
+
 export const findTutorSchema = z.object({
-  parentName: z.string().trim().min(2, "Vui lòng nhập họ tên phụ huynh"),
+  parentName: shortRequiredText("Vui lòng nhập họ tên phụ huynh"),
   phone: phoneSchema,
   email: optionalEmail,
-  province: z.string().min(1, "Vui lòng chọn tỉnh hoặc thành phố"),
-  district: z.string().trim().min(2, "Vui lòng chọn quận, huyện hoặc khu vực"),
-  ward: z.string().trim().min(2, "Vui lòng chọn phường hoặc xã"),
-  address: z.string().trim().min(3, "Vui lòng nhập số nhà và tên đường"),
+  province: z.string().trim().min(1, "Vui lòng chọn tỉnh hoặc thành phố").max(100),
+  district: shortRequiredText("Vui lòng chọn quận, huyện hoặc khu vực", 100),
+  ward: shortRequiredText("Vui lòng chọn phường hoặc xã", 100),
+  address: z.string().trim().min(3, "Vui lòng nhập số nhà và tên đường").max(250),
   learningMode: z.enum(["Tại nhà", "Online"]),
-  grade: z.string().min(1, "Vui lòng chọn lớp học"),
-  subject: z.string().min(1, "Vui lòng chọn môn học"),
+  grade: z.string().trim().min(1, "Vui lòng chọn lớp học").max(100),
+  subject: z.string().trim().min(1, "Vui lòng chọn môn học").max(100),
   studentCount: z.coerce.number().min(1, "Số học sinh tối thiểu là 1").max(20, "Số học sinh tối đa là 20"),
-  studentLevel: z.string().min(1, "Vui lòng chọn học lực"),
+  studentLevel: z.string().trim().min(1, "Vui lòng chọn học lực").max(100),
   sessionsPerWeek: z.coerce.number().min(1, "Vui lòng chọn số buổi").max(7),
-  schedule: z.string().trim().min(3, "Vui lòng nhập thời gian học mong muốn"),
-  tutorLevel: z.string().min(1, "Vui lòng chọn trình độ gia sư"),
-  tutorGender: z.string().min(1, "Vui lòng chọn yêu cầu giới tính"),
-  selectedTutorCode: z.string().trim().optional(),
-  budget: z.string().trim().min(1, "Vui lòng nhập ngân sách dự kiến"),
+  schedule: z.string().trim().min(3, "Vui lòng nhập thời gian học mong muốn").max(300),
+  tutorLevel: z.string().trim().min(1, "Vui lòng chọn trình độ gia sư").max(100),
+  tutorGender: z.string().trim().min(1, "Vui lòng chọn yêu cầu giới tính").max(50),
+  selectedTutorCode: z.string().trim().max(50).optional(),
+  budget: z.string().trim().min(1, "Vui lòng nhập ngân sách dự kiến").max(100),
   note: z.string().trim().max(1000, "Yêu cầu khác tối đa 1000 ký tự").optional(),
   agreement: z
     .boolean()
@@ -39,23 +45,23 @@ export const findTutorSchema = z.object({
 export type FindTutorFormValues = z.infer<typeof findTutorSchema>;
 
 export const registerTutorSchema = z.object({
-  fullName: z.string().trim().min(2, "Vui lòng nhập họ tên"),
+  fullName: shortRequiredText("Vui lòng nhập họ tên"),
   phone: phoneSchema,
-  email: z.string().trim().email("Email chưa đúng định dạng"),
+  email: z.string().trim().email("Email chưa đúng định dạng").max(254),
   birthYear: z.coerce
     .number()
     .min(1960, "Năm sinh chưa hợp lệ")
     .max(new Date().getFullYear() - 18, "Ứng viên cần đủ 18 tuổi"),
   gender: z.enum(["Nam", "Nữ"]),
-  school: z.string().trim().min(2, "Vui lòng nhập trường học hoặc nơi đã tốt nghiệp"),
-  major: z.string().trim().min(2, "Vui lòng nhập chuyên ngành"),
-  occupation: z.string().min(1, "Vui lòng chọn nghề nghiệp"),
-  experience: z.string().trim().min(10, "Vui lòng mô tả kinh nghiệm ít nhất 10 ký tự"),
-  subjects: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một môn có thể dạy"),
-  grades: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một lớp có thể dạy"),
-  areas: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một khu vực"),
-  availableTimes: z.array(z.string()).min(1, "Vui lòng chọn ít nhất một thời gian"),
-  minimumSalary: z.string().trim().min(1, "Vui lòng nhập mức lương mong muốn"),
+  school: shortRequiredText("Vui lòng nhập trường học hoặc nơi đã tốt nghiệp", 200),
+  major: shortRequiredText("Vui lòng nhập chuyên ngành", 200),
+  occupation: z.string().trim().min(1, "Vui lòng chọn nghề nghiệp").max(100),
+  experience: z.string().trim().min(10, "Vui lòng mô tả kinh nghiệm ít nhất 10 ký tự").max(3000),
+  subjects: shortList("Vui lòng chọn ít nhất một môn có thể dạy"),
+  grades: shortList("Vui lòng chọn ít nhất một lớp có thể dạy"),
+  areas: shortList("Vui lòng chọn ít nhất một khu vực"),
+  availableTimes: shortList("Vui lòng chọn ít nhất một thời gian"),
+  minimumSalary: z.string().trim().min(1, "Vui lòng nhập mức lương mong muốn").max(100),
   avatar: z.any().optional(),
   profileFile: z.any().optional(),
   note: z.string().trim().max(1000, "Yêu cầu khác tối đa 1000 ký tự").optional(),
@@ -65,3 +71,24 @@ export const registerTutorSchema = z.object({
 });
 
 export type RegisterTutorFormValues = z.infer<typeof registerTutorSchema>;
+
+export const contactSchema = z.object({
+  fullName: shortRequiredText("Vui lòng nhập họ tên"),
+  phone: phoneSchema,
+  email: optionalEmail,
+  message: z.string().trim().min(10, "Nội dung cần có ít nhất 10 ký tự").max(2000, "Nội dung tối đa 2000 ký tự"),
+});
+export type ContactFormValues = z.infer<typeof contactSchema>;
+
+export const receiveClassFormSchema = z.object({
+  fullName: shortRequiredText("Vui lòng nhập họ tên"),
+  phone: phoneSchema,
+  email: z.string().trim().email("Email chưa đúng định dạng").max(254),
+  experience: z.string().trim().min(10, "Vui lòng mô tả kinh nghiệm ít nhất 10 ký tự").max(3000),
+  message: z.string().trim().max(1000, "Lời nhắn tối đa 1000 ký tự").optional(),
+});
+export type ReceiveClassFormValues = z.infer<typeof receiveClassFormSchema>;
+
+export const receiveClassSchema = receiveClassFormSchema.extend({
+  classCode: z.string().trim().min(2, "Mã lớp chưa hợp lệ").max(50),
+});

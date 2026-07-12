@@ -32,7 +32,7 @@ export default async function ClassDetailPage({ params }: PageProps) {
             <div className="grid gap-4 rounded-2xl bg-white p-6 shadow-card sm:grid-cols-2">
               <Detail icon={BookOpen} label="Môn / lớp" value={`${item.subject} · ${item.grade}`} />
               <Detail icon={Users} label="Học viên / học lực" value={`${item.studentCount} học viên · ${item.studentLevel}`} />
-              <Detail icon={MapPin} label="Khu vực" value={`${item.address}, ${item.area}`} />
+              <Detail icon={MapPin} label="Khu vực" value={item.area} />
               <Detail icon={CalendarDays} label="Lịch học" value={`${item.sessionsPerWeek} buổi/tuần · ${item.schedule}`} />
               <Detail icon={Clock3} label="Thời lượng" value={`${item.duration}/buổi`} />
               <Detail icon={UserCheck} label="Yêu cầu gia sư" value={item.tutorRequirement} />

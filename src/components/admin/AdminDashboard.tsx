@@ -260,7 +260,10 @@ function LoginPanel({ error, loading, onLogin }: { error: string; loading: boole
           <input
             value={password}
             onChange={(event) => setPassword(event.target.value)}
+            name="admin-password"
             type="password"
+            autoComplete="current-password"
+            maxLength={256}
             className="mt-2 h-12 w-full rounded-xl border border-slate-200 px-4 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100"
             placeholder="Nhập mật khẩu"
             required
@@ -917,7 +920,7 @@ function TutorApplicationDialog({
           <ApplicationList label="Khu vực nhận lớp" values={getPayloadList(item.payload, "areas")} />
           <ApplicationList label="Thời gian có thể dạy" values={getPayloadList(item.payload, "availableTimes")} />
           <div className="mt-4 grid gap-4 md:grid-cols-2"><ApplicationText label="Kinh nghiệm" value={getPayloadText(item.payload, "experience")} /><ApplicationText label="Chia sẻ thêm" value={getPayloadText(item.payload, "note")} /></div>
-          <div className="mt-5"><h3 className="text-sm font-extrabold text-ink">Ảnh và hồ sơ đính kèm</h3>{applicationFiles.length ? <div className="mt-2 grid gap-2 sm:grid-cols-2">{applicationFiles.map((file) => <a key={file.key} href={`/api/admin/files?key=${encodeURIComponent(file.key)}`} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-xl border border-primary-100 bg-primary-50 px-3 text-sm font-bold text-primary-700 transition hover:border-primary-300"><Paperclip className="h-4 w-4 shrink-0" /><span className="min-w-0"><span className="block truncate">{file.name}</span><span className="block text-[11px] font-normal text-slate-500">{formatFileSize(file.size)} · Mở ở tab mới</span></span></a>)}</div> : <p className="mt-2 rounded-xl bg-slate-50 p-3 text-sm text-slate-500">Ứng viên chưa gửi file đính kèm.</p>}</div>
+          <div className="mt-5"><h3 className="text-sm font-extrabold text-ink">Ảnh và hồ sơ đính kèm</h3>{applicationFiles.length ? <div className="mt-2 grid gap-2 sm:grid-cols-2">{applicationFiles.map((file) => <a key={file.key} href={`/api/admin/files?key=${encodeURIComponent(file.key)}`} target="_blank" rel="noopener noreferrer" className="flex min-h-12 items-center gap-3 rounded-xl border border-primary-100 bg-primary-50 px-3 text-sm font-bold text-primary-700 transition hover:border-primary-300"><Paperclip className="h-4 w-4 shrink-0" /><span className="min-w-0"><span className="block truncate">{file.name}</span><span className="block text-[11px] font-normal text-slate-500">{formatFileSize(file.size)} · Tải xuống an toàn</span></span></a>)}</div> : <p className="mt-2 rounded-xl bg-slate-50 p-3 text-sm text-slate-500">Ứng viên chưa gửi file đính kèm.</p>}</div>
           <label className="mt-5 block"><span className="text-sm font-extrabold text-ink">Ghi chú nội bộ</span><span className="mt-1 block text-xs text-slate-500">Chỉ người quản trị nhìn thấy nội dung này.</span><textarea value={note} onChange={(event) => setNote(event.target.value.slice(0, 2000))} rows={3} placeholder="Ví dụ: Đã gọi xác minh trường học, cần bổ sung ảnh thẻ..." className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-3 text-sm outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-100" /></label>
         </div>
         <footer className="shrink-0 border-t bg-white px-5 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-3 sm:px-6 sm:pb-4">

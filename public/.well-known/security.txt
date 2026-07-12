@@ -1,0 +1,4 @@
+Contact: mailto:tuan.hcmus77@gmail.com
+Canonical: https://giasutainang.online/.well-known/security.txt
+Preferred-Languages: vi, en
+Expires: 2027-07-12T00:00:00.000Z

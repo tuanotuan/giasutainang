@@ -4,24 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Toast } from "@/components/common/Toast";
 import { apiRequest } from "@/lib/api";
+import { receiveClassFormSchema, type ReceiveClassFormValues } from "@/lib/validations";
 import { fieldClass, FormField, textAreaClass } from "./FormControls";
-
-const schema = z.object({
-  fullName: z.string().trim().min(2, "Vui lòng nhập họ tên"),
-  phone: z.string().regex(/^\d{9,11}$/, "Số điện thoại phải gồm 9-11 chữ số"),
-  email: z.string().email("Email chưa đúng định dạng"),
-  experience: z.string().trim().min(10, "Vui lòng mô tả kinh nghiệm ít nhất 10 ký tự"),
-  message: z.string().trim().optional(),
-});
-type Values = z.infer<typeof schema>;
 
 export function ReceiveClassForm({ classCode }: { classCode: string }) {
   const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { fullName: "", phone: "", email: "", experience: "", message: "" } });
-  const onSubmit = async (data: Values) => {
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ReceiveClassFormValues>({ resolver: zodResolver(receiveClassFormSchema), defaultValues: { fullName: "", phone: "", email: "", experience: "", message: "" } });
+  const onSubmit = async (data: ReceiveClassFormValues) => {
     try {
       await apiRequest("/api/requests/receive-class", { method: "POST", body: JSON.stringify({ classCode, ...data }) });
       setNotice({ message: `Đã gửi đăng ký nhận lớp ${classCode}. Trung tâm sẽ liên hệ xác minh.`, variant: "success" });

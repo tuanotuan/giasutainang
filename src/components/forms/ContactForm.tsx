@@ -4,23 +4,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Send } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Toast } from "@/components/common/Toast";
 import { apiRequest } from "@/lib/api";
+import { contactSchema, type ContactFormValues } from "@/lib/validations";
 import { fieldClass, FormField, textAreaClass } from "./FormControls";
-
-const schema = z.object({
-  fullName: z.string().trim().min(2, "Vui lòng nhập họ tên"),
-  phone: z.string().regex(/^\d{9,11}$/, "Số điện thoại phải gồm 9-11 chữ số"),
-  email: z.string().trim().refine((value) => !value || z.string().email().safeParse(value).success, "Email chưa đúng định dạng"),
-  message: z.string().trim().min(10, "Nội dung cần có ít nhất 10 ký tự"),
-});
-type Values = z.infer<typeof schema>;
 
 export function ContactForm() {
   const [notice, setNotice] = useState<{ message: string; variant: "success" | "error" } | null>(null);
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { fullName: "", phone: "", email: "", message: "" } });
-  const onSubmit = async (data: Values) => {
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactFormValues>({ resolver: zodResolver(contactSchema), defaultValues: { fullName: "", phone: "", email: "", message: "" } });
+  const onSubmit = async (data: ContactFormValues) => {
     try {
       await apiRequest("/api/requests/contact", { method: "POST", body: JSON.stringify({ ...data, name: data.fullName }) });
       setNotice({ message: "Đã gửi lời nhắn. Tài Năng sẽ liên hệ trong thời gian sớm nhất.", variant: "success" });

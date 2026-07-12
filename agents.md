@@ -20,6 +20,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia SÆ° TÃ
 - Utilities in `/src/lib`
 - Cloudflare Worker API in `/worker`
 - Cloudflare D1 database and Workers AI
+- Cloudflare private R2 and Worker Rate Limiting bindings
 
 ## Coding Rules
 - Use reusable components.
@@ -45,6 +46,13 @@ Build and maintain the production Vietnamese tutoring center website "Gia SÆ° TÃ
 - Keep bucket `giasutainang-files` bound as `FILES`; private application upload has been deployed and owner-accepted.
 - Keep the public footer truthful: include clear contact, navigation, privacy, and legal-policy information, but never show a Ministry of Industry and Trade verification badge without an official verified registration link.
 - Floating contact and quick-chat controls must hide when the footer enters the viewport; they must never obscure footer links, social controls, or policy content.
+- Preserve the security baseline: Worker runs before every production asset, HTTP redirects to HTTPS, and security headers apply to both static and API responses.
+- Keep admin cookies `__Host-`, Secure, HttpOnly, SameSite=Strict, signed, time-limited, and never readable from browser JavaScript.
+- Reject cross-site unsafe requests; keep rate limits for admin login, public writes, and public/admin AI. Do not remove request-size caps or server-side Zod validation.
+- Never expose detailed family addresses or private notes from public class APIs. Public pages may show only the approximate area.
+- Keep R2 private; require authenticated admin plus a valid D1 reference, verify allowed file signatures, sanitize filenames, and force attachment downloads with nosniff/sandbox headers.
+- Run `npm audit --omit=dev`, `npm run lint`, `npm run build`, `npx wrangler deploy --dry-run`, and `npm run security:check` (after deployment) for security-sensitive changes.
+- Review `SECURITY.md` before changing auth, headers, rate limits, uploads, Cloudflare bindings, or incident-response guidance.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -58,4 +66,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia SÆ° TÃ
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-12 â€” footer/floating-control overlap fixed and awaiting owner acceptance.
+Last updated: 2026-07-12 â€” full security baseline documented after project-wide audit and hardening; production verification still required.
