@@ -43,6 +43,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep tutor applications in the standalone admin `Duyệt ứng viên` section; do not mix them back into parent `Yêu cầu tìm gia sư`.
 - Keep application files private in R2 binding `FILES`; allow only JPG/PNG/WebP up to 5MB and PDF/DOC/DOCX up to 10MB, and require authenticated admin access for downloads.
 - Keep bucket `giasutainang-files` bound as `FILES`; private application upload has been deployed and owner-accepted.
+- Keep the public footer truthful: include clear contact, navigation, privacy, and legal-policy information, but never show a Ministry of Industry and Trade verification badge without an official verified registration link.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -56,4 +57,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-12 — private application upload accepted; no next upgrade is active yet.
+Last updated: 2026-07-12 — professional public footer implemented and awaiting owner acceptance.
