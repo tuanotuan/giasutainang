@@ -31,10 +31,10 @@ This section is the source of truth for the current production system and overri
 ## Session handoff
 
 - Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
-- Current handoff: full security hardening is implemented and locally linted/built/dry-run validated. Deploy, run the production security smoke check, then guide the owner through remaining Cloudflare/account hardening before resuming feature work.
+- Current handoff: full security hardening is deployed. Production smoke check passed for HTTPS redirect, security headers, cross-site rejection, public address/note suppression, and `security.txt`. Guide the owner through remaining Cloudflare/account hardening before resuming feature work.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-12 — full-project security audit and hardening completed in code; awaiting production verification and manual account settings.
+- Last updated: 2026-07-12 — full-project security hardening deployed and production-smoke-tested; manual account/Cloudflare settings remain.
 
 ## Original phase-one brief (historical reference)
 

@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-12.
+Last updated: 2026-07-12. Production security smoke check passed after deployment of commit `01a717e`.
 
 ## Phạm vi
 

@@ -1,6 +1,6 @@
 # Gia Sư Tài Năng
 
-> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, layered API/browser security, professional responsive footer, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-12**.
+> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, production-verified API/browser security, professional responsive footer, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-12**.
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js 16 App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
@@ -262,4 +262,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — full security hardening implemented; awaiting production deploy verification and owner completion of the manual Cloudflare/account checklist.
+Last updated: 2026-07-12 — security hardening deployed; production smoke check passed for HTTPS, headers, cross-site blocking, public PII suppression, and security disclosure. Manual Cloudflare/account checklist remains for the owner.
