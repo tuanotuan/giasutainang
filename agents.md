@@ -68,4 +68,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-13 — tutor-request email notification code prepared; Email Routing verification/binding and owner acceptance remain.
+Last updated: 2026-07-13 — optional tutor-request email notification code deployed and security-smoke-tested; Email Routing verification/binding and owner acceptance remain.

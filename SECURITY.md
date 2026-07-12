@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production security smoke check passed after deployment of commit `01a717e`; private email notification setup is pending destination verification.
+Last updated: 2026-07-13. Production security smoke check passed after deployment of optional private email notification code; destination verification and binding remain pending.
 
 ## Phạm vi
 

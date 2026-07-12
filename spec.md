@@ -32,10 +32,10 @@ This section is the source of truth for the current production system and overri
 ## Session handoff
 
 - Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
-- Current feature in setup: Gmail notification for new parent tutor requests. Worker code is ready without exposing the private Gmail; owner must enable Cloudflare Email Routing and verify the destination before the `NOTIFY_EMAIL` binding can be added and live-tested. Do not start another feature yet.
+- Current feature in setup: Gmail notification for new parent tutor requests. Safe optional Worker code is deployed and the production security check passed without exposing the private Gmail; owner must enable Cloudflare Email Routing and verify the destination before the `NOTIFY_EMAIL` binding can be added and live-tested. Do not start another feature yet.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — safe background email notification prepared; waiting for verified Cloudflare Email Routing destination and production binding.
+- Last updated: 2026-07-13 — safe background email notification deployed; waiting for verified Cloudflare Email Routing destination and binding.
 
 ## Original phase-one brief (historical reference)
 
