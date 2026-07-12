@@ -196,7 +196,8 @@ Trong `/admin`:
 - Form dùng nhãn “Học lực kỳ học gần nhất” để phụ huynh dựa vào kết quả gần nhất, tránh cách hiểu mơ hồ.
 - Ô ngân sách dùng ví dụ dễ hiểu “2 triệu/tháng”; liên kết bảng giá mở ở tab mới để không làm mất nội dung form đang điền.
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
-- Hồ sơ ứng tuyển gia sư có màn hình chi tiết, trạng thái mới/đang xem/cần bổ sung/đã duyệt/từ chối, ghi chú nội bộ và nút duyệt để tạo hồ sơ gia sư công khai.
+- Hồ sơ ứng tuyển được tách thành mục quản trị riêng **Duyệt ứng viên**, có bộ lọc trạng thái, màn hình chi tiết, ghi chú nội bộ và nút duyệt để tạo hồ sơ gia sư công khai.
+- Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
@@ -230,4 +231,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — synchronized the tutor-application review and approval workflow. File upload remains a separate next feature.
+Last updated: 2026-07-12 — synchronized the standalone Duyệt ứng viên admin section. File upload remains a separate next feature.

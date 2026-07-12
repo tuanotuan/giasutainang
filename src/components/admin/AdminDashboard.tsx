@@ -83,6 +83,7 @@ const sectionTitle: Record<AdminSection, string> = {
   classes: "Quản lý lớp mới",
   tutors: "Quản lý gia sư",
   requests: "Yêu cầu & liên hệ",
+  applications: "Duyệt ứng viên gia sư",
   pricing: "Quản lý bảng giá",
   posts: "Quản lý bài viết",
   assistant: "Trợ lý thông minh",
@@ -213,6 +214,7 @@ export function AdminDashboard() {
             {section === "classes" && <ClassManager items={state.classes} onRefresh={loadState} />}
             {section === "tutors" && <TutorManager items={state.tutors} onRefresh={loadState} />}
             {section === "requests" && <RequestManager items={state.requests} submissions={state.submissions} onRefresh={loadState} />}
+            {section === "applications" && <TutorApplicationManager items={state.submissions.filter((item) => item.type === "tutor_application")} onRefresh={loadState} />}
             {section === "pricing" && <PriceManager items={state.prices} onRefresh={loadState} />}
             {section === "posts" && <PostManager items={state.posts} onRefresh={loadState} />}
             {section === "assistant" && <AdminAiTools />}
@@ -696,8 +698,6 @@ function RequestManager({
   const [zaloDraft, setZaloDraft] = useState("");
   const [zaloPhone, setZaloPhone] = useState("");
   const [zaloFor, setZaloFor] = useState("");
-  const [selectedApplication, setSelectedApplication] = useState<SubmissionRecord | null>(null);
-  const tutorApplications = submissions.filter((item) => item.type === "tutor_application");
   const otherSubmissions = submissions.filter((item) => item.type !== "tutor_application");
 
   const updateStatus = async (item: TutorRequest, status: TutorRequest["status"]) => {
@@ -733,27 +733,6 @@ function RequestManager({
       setZaloDraft(result.message); setZaloPhone(result.phone);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Chưa thể soạn tin nhắn."); }
     finally { setZaloFor(""); }
-  };
-
-  const updateApplication = async (item: SubmissionRecord, status: string, adminNote: string) => {
-    await apiRequest<{ success: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}`, {
-      method: "PATCH", body: JSON.stringify({ status, adminNote }),
-    });
-    await onRefresh();
-    setSelectedApplication((current) => current?.id === item.id ? { ...current, status, admin_note: adminNote } : current);
-    setMessage("Đã cập nhật hồ sơ ứng viên.");
-  };
-
-  const approveApplication = async (item: SubmissionRecord, adminNote: string) => {
-    if (item.admin_note !== adminNote) {
-      await apiRequest<{ success: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}`, {
-        method: "PATCH", body: JSON.stringify({ status: "reviewing", adminNote }),
-      });
-    }
-    const result = await apiRequest<{ success: boolean; code: string; alreadyApproved?: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}/approve`, { method: "POST" });
-    await onRefresh();
-    setSelectedApplication(null);
-    setMessage(result.alreadyApproved ? `Hồ sơ đã được duyệt trước đó với mã ${result.code}.` : `Đã duyệt và tạo hồ sơ gia sư ${result.code}.`);
   };
 
   return (
@@ -805,23 +784,6 @@ function RequestManager({
         </AdminTable>
       </section>
       <section>
-        <div className="mb-3"><h2 className="text-lg font-extrabold text-ink">Hồ sơ ứng tuyển gia sư</h2><p className="mt-1 text-sm text-slate-500">Xem thông tin, ghi chú và duyệt ứng viên trước khi hồ sơ xuất hiện công khai.</p></div>
-        <AdminTable headers={["Ứng viên", "Học vấn", "Nhận dạy", "Ngày gửi", "Trạng thái", "Xử lý"]}>
-          {tutorApplications.map((item) => (
-            <tr key={item.id}>
-              <Cell strong><span className="block">{item.name || "Chưa có tên"}</span><span className="mt-1 block font-normal text-slate-500">{item.phone}</span></Cell>
-              <Cell><span className="block">{getPayloadText(item.payload, "school") || "Chưa cập nhật trường"}</span><span className="mt-1 block text-slate-500">{getPayloadText(item.payload, "major")}</span></Cell>
-              <Cell>{getPayloadList(item.payload, "subjects").join(", ") || "Chưa cập nhật"}</Cell>
-              <Cell>{formatDate(item.created_at)}</Cell>
-              <Cell><ApplicationStatus status={item.status} /></Cell>
-              <Cell><button type="button" onClick={() => setSelectedApplication(item)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-50 px-3 text-xs font-bold text-primary-700 transition hover:bg-primary-100"><Eye className="h-4 w-4" /> Xem hồ sơ</button></Cell>
-            </tr>
-          ))}
-          {tutorApplications.length === 0 && <EmptyRow colSpan={6} text="Chưa có hồ sơ ứng tuyển gia sư." />}
-        </AdminTable>
-        {selectedApplication && <TutorApplicationDialog key={selectedApplication.id} item={selectedApplication} onClose={() => setSelectedApplication(null)} onUpdate={updateApplication} onApprove={approveApplication} />}
-      </section>
-      <section>
         <h2 className="mb-3 text-lg font-extrabold text-ink">Đăng ký nhận lớp và liên hệ</h2>
         <AdminTable headers={["Loại", "Tên", "Điện thoại", "Email", "Mã lớp", "Ngày gửi"]}>
           {otherSubmissions.map((item) => (
@@ -837,6 +799,58 @@ function RequestManager({
           {otherSubmissions.length === 0 && <EmptyRow colSpan={6} text="Chưa có đăng ký nhận lớp hoặc liên hệ mới." />}
         </AdminTable>
       </section>
+    </div>
+  );
+}
+
+function TutorApplicationManager({ items, onRefresh }: { items: SubmissionRecord[]; onRefresh: () => Promise<void> }) {
+  const [selectedApplication, setSelectedApplication] = useState<SubmissionRecord | null>(null);
+  const [message, setMessage] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const visible = statusFilter ? items.filter((item) => item.status === statusFilter) : items;
+
+  const updateApplication = async (item: SubmissionRecord, status: string, adminNote: string) => {
+    await apiRequest<{ success: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}`, {
+      method: "PATCH", body: JSON.stringify({ status, adminNote }),
+    });
+    await onRefresh();
+    setSelectedApplication((current) => current?.id === item.id ? { ...current, status, admin_note: adminNote } : current);
+    setMessage("Đã cập nhật hồ sơ ứng viên.");
+  };
+
+  const approveApplication = async (item: SubmissionRecord, adminNote: string) => {
+    if (item.admin_note !== adminNote) {
+      await apiRequest<{ success: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}`, {
+        method: "PATCH", body: JSON.stringify({ status: "reviewing", adminNote }),
+      });
+    }
+    const result = await apiRequest<{ success: boolean; code: string; alreadyApproved?: boolean }>(`/api/admin/submissions/${encodeURIComponent(item.id)}/approve`, { method: "POST" });
+    await onRefresh();
+    setSelectedApplication(null);
+    setMessage(result.alreadyApproved ? `Hồ sơ đã được duyệt trước đó với mã ${result.code}.` : `Đã duyệt và tạo hồ sơ gia sư ${result.code}.`);
+  };
+
+  return (
+    <div>
+      {message && <Notice>{message}</Notice>}
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div><h2 className="text-lg font-extrabold text-ink">Hồ sơ ứng tuyển gia sư</h2><p className="mt-1 text-sm text-slate-500">Xem thông tin, ghi chú và duyệt ứng viên trước khi hồ sơ xuất hiện công khai.</p></div>
+        <label className="text-xs font-bold text-slate-600"><span className="mb-2 block">Lọc trạng thái</span><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm sm:w-52"><option value="">Tất cả hồ sơ</option><option value="new">Mới</option><option value="reviewing">Đang xem</option><option value="needs_info">Cần bổ sung</option><option value="approved">Đã duyệt</option><option value="rejected">Từ chối</option></select></label>
+      </div>
+      <AdminTable headers={["Ứng viên", "Học vấn", "Nhận dạy", "Ngày gửi", "Trạng thái", "Xử lý"]}>
+        {visible.map((item) => (
+          <tr key={item.id}>
+            <Cell strong><span className="block">{item.name || "Chưa có tên"}</span><span className="mt-1 block font-normal text-slate-500">{item.phone}</span></Cell>
+            <Cell><span className="block">{getPayloadText(item.payload, "school") || "Chưa cập nhật trường"}</span><span className="mt-1 block text-slate-500">{getPayloadText(item.payload, "major")}</span></Cell>
+            <Cell>{getPayloadList(item.payload, "subjects").join(", ") || "Chưa cập nhật"}</Cell>
+            <Cell>{formatDate(item.created_at)}</Cell>
+            <Cell><ApplicationStatus status={item.status} /></Cell>
+            <Cell><button type="button" onClick={() => setSelectedApplication(item)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary-50 px-3 text-xs font-bold text-primary-700 transition hover:bg-primary-100"><Eye className="h-4 w-4" /> Xem hồ sơ</button></Cell>
+          </tr>
+        ))}
+        {visible.length === 0 && <EmptyRow colSpan={6} text={items.length ? "Không có hồ sơ ở trạng thái này." : "Chưa có hồ sơ ứng tuyển gia sư."} />}
+      </AdminTable>
+      {selectedApplication && <TutorApplicationDialog key={selectedApplication.id} item={selectedApplication} onClose={() => setSelectedApplication(null)} onUpdate={updateApplication} onApprove={approveApplication} />}
     </div>
   );
 }

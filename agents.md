@@ -40,6 +40,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep the official hotline and Zalo contact number synchronized as `0365002142` across site config, Worker prompts/fallbacks, public UI, and documentation.
 - Preserve the homepage promise wording: `Miễn phí tư vấn & kết nối`; clarify that parents pay no tutor-introduction fee without implying that tutoring itself is free.
 - Preserve the tutor-application lifecycle (`new`, `reviewing`, `needs_info`, `approved`, `rejected`), internal admin notes, and idempotent approval into a tutor profile.
+- Keep tutor applications in the standalone admin `Duyệt ứng viên` section; do not mix them back into parent `Yêu cầu tìm gia sư`.
 - Do not claim application files are uploaded until the separate storage/upload feature is implemented and tested.
 
 ## Documentation Workflow
@@ -54,4 +55,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-12 — documentation synchronized after tutor-application review/approval; waiting for owner testing before the next upgrade.
+Last updated: 2026-07-12 — documentation synchronized after separating Duyệt ứng viên; waiting for owner testing before the next upgrade.
