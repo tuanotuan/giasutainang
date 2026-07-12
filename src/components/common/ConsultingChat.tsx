@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { apiRequest } from "@/lib/api";
 import { siteConfig } from "@/data/site";
+import { useFooterVisibility } from "@/lib/useFooterVisibility";
 
 type ChatMessage = { role: "visitor" | "assistant"; text: string };
 const quickQuestions = ["Học phí khoảng bao nhiêu?", "Quy trình tìm gia sư thế nào?", "Có dạy online không?"];
 
 export function ConsultingChat() {
   const pathname = usePathname();
+  const footerVisible = useFooterVisibility();
   const [open, setOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -36,7 +38,7 @@ export function ConsultingChat() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <div className="fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-3 z-50 sm:bottom-7 sm:left-6">
+    <div className={`fixed bottom-[calc(4.75rem+env(safe-area-inset-bottom))] left-3 z-50 transition duration-200 sm:bottom-7 sm:left-6 ${footerVisible && !open ? "pointer-events-none translate-y-3 opacity-0" : "opacity-100"}`}>
       {open && (
         <section role="dialog" aria-label="Trợ lý tư vấn" className="mb-2 flex h-[min(560px,calc(100dvh-10rem))] w-[calc(100vw-1.5rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:mb-3 sm:h-[min(560px,72vh)] sm:w-[calc(100vw-2rem)]">
           <header className="flex items-center justify-between bg-primary-700 px-4 py-3 text-white"><div><h2 className="text-sm font-extrabold">Trợ lý tư vấn</h2><p className="text-[11px] text-primary-100">Thông tin tham khảo · Không cần cung cấp dữ liệu cá nhân</p></div><button type="button" onClick={() => setOpen(false)} aria-label="Đóng khung tư vấn" className="rounded-lg p-2 hover:bg-white/10"><X className="h-4 w-4" /></button></header>

@@ -44,6 +44,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep application files private in R2 binding `FILES`; allow only JPG/PNG/WebP up to 5MB and PDF/DOC/DOCX up to 10MB, and require authenticated admin access for downloads.
 - Keep bucket `giasutainang-files` bound as `FILES`; private application upload has been deployed and owner-accepted.
 - Keep the public footer truthful: include clear contact, navigation, privacy, and legal-policy information, but never show a Ministry of Industry and Trade verification badge without an official verified registration link.
+- Floating contact and quick-chat controls must hide when the footer enters the viewport; they must never obscure footer links, social controls, or policy content.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -57,4 +58,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-12 — professional public footer implemented and awaiting owner acceptance.
+Last updated: 2026-07-12 — footer/floating-control overlap fixed and awaiting owner acceptance.

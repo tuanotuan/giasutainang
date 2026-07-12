@@ -20,7 +20,7 @@ This section is the source of truth for the current production system and overri
 - Homepage hero prominently states `Miễn phí tư vấn & kết nối`, clarifies that parents pay no tutor-introduction fee, and uses the CTA `Tìm gia sư miễn phí`.
 - Tutor applications have a standalone `Duyệt ứng viên` admin section, separate from parent tutor requests, with status filters, full detail view, internal notes, review/needs-info/approved/rejected states, and idempotent approval that creates a public tutor profile.
 - Application upload accepts private avatar images (JPG/PNG/WebP, max 5MB) and profile documents (PDF/DOC/DOCX, max 10MB); only authenticated admin downloads are allowed. Private R2 bucket `giasutainang-files` is bound as `FILES` in production configuration.
-- The public footer uses a professional contact-and-navigation layout with a free-consultation CTA, privacy assurance, legal-policy links, business hours, and mobile-safe 44px social controls. Never display a Ministry of Industry and Trade verification badge without completed registration and an official verification link.
+- The public footer uses a professional contact-and-navigation layout with a free-consultation CTA, privacy assurance, legal-policy links, business hours, and mobile-safe 44px social controls. Floating desktop contact/chat controls automatically hide while the footer is visible so they never cover its content. Never display a Ministry of Industry and Trade verification badge without completed registration and an official verification link.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
 
@@ -30,7 +30,7 @@ This section is the source of truth for the current production system and overri
 - Current feature awaiting owner acceptance: redesigned professional public footer. Do not start tutor-request matching until this footer is owner-tested.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-12 — professional responsive footer implemented; awaiting owner acceptance.
+- Last updated: 2026-07-12 — footer overlap fixed by automatically hiding floating controls while the footer is visible; awaiting owner acceptance.
 
 ## Original phase-one brief (historical reference)
 

@@ -244,4 +244,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — professional responsive footer is implemented with contact, navigation, privacy, and legal-policy sections; awaiting owner acceptance.
+Last updated: 2026-07-12 — professional footer now automatically clears floating contact/chat controls when visible; awaiting owner acceptance.
