@@ -92,6 +92,17 @@ ADMIN_PASSWORD=mat-khau-admin-cua-ban
 SESSION_SECRET=chuoi-random-dai-de-ky-cookie
 ```
 
+Tạo R2 bucket riêng tư tên `giasutainang-files`, sau đó thêm binding vào `wrangler.jsonc` khi bucket đã tồn tại:
+
+```jsonc
+"r2_buckets": [
+  {
+    "binding": "FILES",
+    "bucket_name": "giasutainang-files"
+  }
+]
+```
+
 Sau khi deploy có DB binding:
 
 1. Vào `/admin`.
@@ -130,6 +141,7 @@ Admin:
 - `PATCH /api/admin/requests/:id`
 - `PATCH /api/admin/submissions/:id` (trạng thái và ghi chú hồ sơ ứng viên)
 - `POST /api/admin/submissions/:id/approve` (duyệt và tạo hồ sơ gia sư, chống tạo trùng)
+- `GET /api/admin/files?key=...` (xem file ứng viên; yêu cầu đăng nhập admin và R2 binding `FILES`)
 - `POST /api/admin/ai/request/:id` (gợi ý ghép gia sư)
 - `POST /api/admin/ai/zalo/:id` (soạn tin xác nhận Zalo)
 - `POST /api/admin/ai/class-post/:id` (soạn bài đăng lớp)
@@ -199,6 +211,7 @@ Trong `/admin`:
 - Hồ sơ ứng tuyển được tách thành mục quản trị riêng **Duyệt ứng viên**, có bộ lọc trạng thái, màn hình chi tiết, ghi chú nội bộ và nút duyệt để tạo hồ sơ gia sư công khai.
 - Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
+- Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin mở file ở tab mới trong màn hình duyệt.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
@@ -231,4 +244,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — synchronized the standalone Duyệt ứng viên admin section. File upload remains a separate next feature.
+Last updated: 2026-07-12 — private application upload code is ready; waiting for owner to create `giasutainang-files` and bind it as `FILES` before acceptance testing.

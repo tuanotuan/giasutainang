@@ -21,10 +21,23 @@ interface AiBinding {
   run(model: string, input: { prompt: string }): Promise<{ response?: string }>;
 }
 
+interface R2ObjectBody {
+  body: ReadableStream;
+  httpMetadata?: { contentType?: string };
+  customMetadata?: Record<string, string>;
+}
+
+interface R2Bucket {
+  put(key: string, value: ArrayBuffer, options?: { httpMetadata?: { contentType?: string }; customMetadata?: Record<string, string> }): Promise<unknown>;
+  get(key: string): Promise<R2ObjectBody | null>;
+  delete(key: string): Promise<void>;
+}
+
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   DB?: D1Database;
   AI?: AiBinding;
+  FILES?: R2Bucket;
   ADMIN_PASSWORD?: string;
   SESSION_SECRET?: string;
 }
@@ -103,6 +116,9 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     await ensureDatabase(env.DB);
     if (pathname === "/api/admin/state" && request.method === "GET") {
       return adminState(env.DB);
+    }
+    if (pathname === "/api/admin/files" && request.method === "GET") {
+      return downloadApplicationFile(env.FILES, url.searchParams.get("key") ?? "");
     }
     if (pathname === "/api/admin/classes") return createClass(request, env.DB);
     if (pathname.startsWith("/api/admin/classes/")) {
@@ -198,7 +214,7 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     return saveTutorRequest(request, env.DB);
   }
   if (pathname === "/api/requests/register-tutor" && request.method === "POST") {
-    return saveSubmission(request, env.DB, "tutor_application");
+    return saveTutorApplication(request, env.DB, env.FILES);
   }
   if (pathname === "/api/requests/receive-class" && request.method === "POST") {
     return saveSubmission(request, env.DB, "class_application");
@@ -743,6 +759,92 @@ async function saveTutorRequest(request: Request, db: D1Database) {
     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,'new',?19,?20)`)
     .bind(id,String(body.parentName),String(body.phone),optional(body.email),String(body.area),String(body.address||""),String(body.learningMode),String(body.grade),JSON.stringify(body.subjects || [body.subject]),number(body.studentCount,1),String(body.studentLevel),number(body.sessionsPerWeek,2),String(body.schedule),String(body.tutorLevel),String(body.tutorGender),optional(body.selectedTutorCode),String(body.budget),optional(body.note),stamp,stamp).run();
   return json({ success: true, id }, 201);
+}
+
+const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const PROFILE_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+
+async function saveTutorApplication(request: Request, db: D1Database, files: R2Bucket | undefined) {
+  if (!(request.headers.get("Content-Type") ?? "").includes("multipart/form-data")) {
+    return saveSubmission(request, db, "tutor_application");
+  }
+  const form = await request.formData();
+  let payload: JsonRecord;
+  try {
+    payload = JSON.parse(String(form.get("payload") ?? "{}")) as JsonRecord;
+  } catch {
+    return json({ error: "Thông tin hồ sơ chưa đúng định dạng." }, 400);
+  }
+  const avatar = form.get("avatar");
+  const profile = form.get("profileFile");
+  const avatarFile = avatar instanceof File && avatar.size > 0 ? avatar : null;
+  const profileFile = profile instanceof File && profile.size > 0 ? profile : null;
+  if (avatarFile && (!AVATAR_TYPES.has(avatarFile.type) || avatarFile.size > 5 * 1024 * 1024)) {
+    return json({ error: "Ảnh đại diện phải là JPG, PNG hoặc WebP và không quá 5MB." }, 400);
+  }
+  if (profileFile && (!PROFILE_TYPES.has(profileFile.type) || profileFile.size > 10 * 1024 * 1024)) {
+    return json({ error: "Hồ sơ phải là PDF, DOC hoặc DOCX và không quá 10MB." }, 400);
+  }
+  if ((avatarFile || profileFile) && !files) {
+    return json({ error: "Kho lưu hồ sơ chưa được kết nối. Vui lòng gửi không kèm file hoặc liên hệ trung tâm." }, 503);
+  }
+  const fullName = text(payload.fullName).trim();
+  const phone = text(payload.phone).trim();
+  if (fullName.length < 2 || !/^\d{9,11}$/.test(phone)) return json({ error: "Vui lòng kiểm tra họ tên và số điện thoại." }, 400);
+
+  const id = crypto.randomUUID();
+  const uploadedKeys: string[] = [];
+  const storedFiles: Record<string, unknown> = {};
+  try {
+    if (avatarFile && files) {
+      const key = `tutor-applications/${id}/avatar${extensionFor(avatarFile.type)}`;
+      await files.put(key, await avatarFile.arrayBuffer(), { httpMetadata: { contentType: avatarFile.type }, customMetadata: { originalName: avatarFile.name } });
+      uploadedKeys.push(key);
+      storedFiles.avatar = { key, name: avatarFile.name, type: avatarFile.type, size: avatarFile.size };
+    }
+    if (profileFile && files) {
+      const key = `tutor-applications/${id}/profile${extensionFor(profileFile.type)}`;
+      await files.put(key, await profileFile.arrayBuffer(), { httpMetadata: { contentType: profileFile.type }, customMetadata: { originalName: profileFile.name } });
+      uploadedKeys.push(key);
+      storedFiles.profile = { key, name: profileFile.name, type: profileFile.type, size: profileFile.size };
+    }
+    const stamp = now();
+    await db.prepare(`INSERT INTO submissions (id,type,name,phone,email,reference_code,payload,status,admin_note,created_at,updated_at)
+      VALUES (?1,'tutor_application',?2,?3,?4,NULL,?5,'new','',?6,?7)`)
+      .bind(id, fullName, phone, optional(payload.email), JSON.stringify({ ...payload, files: storedFiles }), stamp, stamp).run();
+    return json({ success: true, id }, 201);
+  } catch (error) {
+    if (files) await Promise.all(uploadedKeys.map((key) => files.delete(key).catch(() => undefined)));
+    throw error;
+  }
+}
+
+async function downloadApplicationFile(files: R2Bucket | undefined, key: string) {
+  if (!files) return json({ error: "Kho lưu hồ sơ chưa được kết nối." }, 503);
+  if (!key.startsWith("tutor-applications/") || key.includes("..")) return json({ error: "Đường dẫn file chưa hợp lệ." }, 400);
+  const object = await files.get(key);
+  if (!object) return json({ error: "Không tìm thấy file hồ sơ." }, 404);
+  const originalName = (object.customMetadata?.originalName || key.split("/").pop() || "ho-so").replace(/["\r\n]/g, "");
+  return new Response(object.body, {
+    headers: {
+      "Content-Type": object.httpMetadata?.contentType || "application/octet-stream",
+      "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(originalName)}`,
+      "Cache-Control": "private, no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
+function extensionFor(type: string) {
+  const extensions: Record<string, string> = {
+    "image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp", "application/pdf": ".pdf",
+    "application/msword": ".doc", "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+  };
+  return extensions[type] ?? "";
 }
 
 async function saveSubmission(request: Request, db: D1Database, type: string) {

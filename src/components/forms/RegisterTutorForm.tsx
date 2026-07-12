@@ -14,7 +14,6 @@ import {
   registerTutorSchema,
   type RegisterTutorFormValues,
 } from "@/lib/validations";
-import { apiRequest } from "@/lib/api";
 import { Toast } from "@/components/common/Toast";
 import {
   fieldClass,
@@ -29,6 +28,7 @@ export function RegisterTutorForm() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterTutorFormValues>({
     resolver: zodResolver(registerTutorSchema),
@@ -51,11 +51,21 @@ export function RegisterTutorForm() {
       agreement: false,
     },
   });
+  const avatarFiles = watch("avatar") as FileList | undefined;
+  const profileFiles = watch("profileFile") as FileList | undefined;
 
   const onSubmit = async (data: RegisterTutorFormValues) => {
     try {
-      const payload = { ...data, avatar: undefined, profileFile: undefined };
-      await apiRequest("/api/requests/register-tutor", { method: "POST", body: JSON.stringify(payload) });
+      const { avatar, profileFile, ...payload } = data;
+      const body = new FormData();
+      body.append("payload", JSON.stringify(payload));
+      const avatarFile = firstFile(avatar);
+      const profileDocument = firstFile(profileFile);
+      if (avatarFile) body.append("avatar", avatarFile);
+      if (profileDocument) body.append("profileFile", profileDocument);
+      const response = await fetch("/api/requests/register-tutor", { method: "POST", body });
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "Không thể gửi hồ sơ.");
       setNotice({ message: "Đăng ký thành công. Tài Năng sẽ liên hệ sau khi xem hồ sơ.", variant: "success" });
       reset();
     } catch (error) {
@@ -167,13 +177,13 @@ export function RegisterTutorForm() {
             <div className="grid gap-4 sm:grid-cols-2">
               <FileField
                 label="Ảnh đại diện"
-                description="Có thể gửi qua Zalo khi xác minh"
+                description={avatarFiles?.[0]?.name || "JPG, PNG hoặc WebP · tối đa 5MB"}
                 icon={<ImagePlus className="h-5 w-5" />}
                 input={<input {...register("avatar")} type="file" accept="image/*" className="absolute inset-0 cursor-pointer opacity-0" />}
               />
               <FileField
                 label="File hồ sơ"
-                description="Có thể gửi qua Zalo khi xác minh"
+                description={profileFiles?.[0]?.name || "PDF, DOC hoặc DOCX · tối đa 10MB"}
                 icon={<FileText className="h-5 w-5" />}
                 input={<input {...register("profileFile")} type="file" accept=".pdf,.doc,.docx" className="absolute inset-0 cursor-pointer opacity-0" />}
               />
@@ -202,6 +212,12 @@ export function RegisterTutorForm() {
       </form>
     </>
   );
+}
+
+function firstFile(value: unknown) {
+  if (typeof FileList !== "undefined" && value instanceof FileList) return value.item(0);
+  if (Array.isArray(value) && value[0] instanceof File) return value[0];
+  return null;
 }
 
 function CheckboxGroup({

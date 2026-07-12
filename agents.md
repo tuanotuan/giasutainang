@@ -41,7 +41,8 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Preserve the homepage promise wording: `Miễn phí tư vấn & kết nối`; clarify that parents pay no tutor-introduction fee without implying that tutoring itself is free.
 - Preserve the tutor-application lifecycle (`new`, `reviewing`, `needs_info`, `approved`, `rejected`), internal admin notes, and idempotent approval into a tutor profile.
 - Keep tutor applications in the standalone admin `Duyệt ứng viên` section; do not mix them back into parent `Yêu cầu tìm gia sư`.
-- Do not claim application files are uploaded until the separate storage/upload feature is implemented and tested.
+- Keep application files private in R2 binding `FILES`; allow only JPG/PNG/WebP up to 5MB and PDF/DOC/DOCX up to 10MB, and require authenticated admin access for downloads.
+- Treat file upload as pending until bucket `giasutainang-files` is created, added to `wrangler.jsonc`, deployed, and owner-tested.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -55,4 +56,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-12 — documentation synchronized after separating Duyệt ứng viên; waiting for owner testing before the next upgrade.
+Last updated: 2026-07-12 — private application upload implemented; waiting for R2 bucket/binding and owner testing before the next upgrade.
