@@ -24,6 +24,7 @@ This section is the source of truth for the current production system and overri
 - Admin sessions use a signed 8-hour `__Host-` Secure/HttpOnly/SameSite=Strict cookie. The first security deployment intentionally invalidates the previous cookie and requires one new login.
 - Public class APIs expose only approximate area and suppress detailed address/private notes. Private R2 downloads require both admin authentication and a valid D1 file reference, verify file signatures at upload, and force safe attachment download.
 - Dependency baseline: Next.js `16.2.10`, ESLint flat config, patched nested PostCSS override, and zero known `npm audit` findings as of 2026-07-12.
+- Tutor-request email notifications are implemented as a non-blocking background task after the D1 insert. Messages contain only a safe summary and admin link; the private destination must remain in Cloudflare secret `NOTIFICATION_EMAIL`. Production activation is pending Email Routing verification and optional binding `NOTIFY_EMAIL`.
 - The public footer uses a professional contact-and-navigation layout with a free-consultation CTA, privacy assurance, legal-policy links, business hours, and mobile-safe 44px social controls. Floating desktop contact/chat controls automatically hide while the footer is visible so they never cover its content. Never display a Ministry of Industry and Trade verification badge without completed registration and an official verification link.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
@@ -31,10 +32,10 @@ This section is the source of truth for the current production system and overri
 ## Session handoff
 
 - Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
-- Current handoff: full security hardening is deployed. Production smoke check passed for HTTPS redirect, security headers, cross-site rejection, public address/note suppression, and `security.txt`. Guide the owner through remaining Cloudflare/account hardening before resuming feature work.
+- Current feature in setup: Gmail notification for new parent tutor requests. Worker code is ready without exposing the private Gmail; owner must enable Cloudflare Email Routing and verify the destination before the `NOTIFY_EMAIL` binding can be added and live-tested. Do not start another feature yet.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-12 — full-project security hardening deployed and production-smoke-tested; manual account/Cloudflare settings remain.
+- Last updated: 2026-07-13 — safe background email notification prepared; waiting for verified Cloudflare Email Routing destination and production binding.
 
 ## Original phase-one brief (historical reference)
 

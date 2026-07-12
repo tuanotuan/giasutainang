@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-12. Production security smoke check passed after deployment of commit `01a717e`.
+Last updated: 2026-07-13. Production security smoke check passed after deployment of commit `01a717e`; private email notification setup is pending destination verification.
 
 ## Phạm vi
 
@@ -19,6 +19,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - Prompt AI công khai coi câu hỏi là dữ liệu không đáng tin cậy, không có quyền truy cập PII hoặc secrets; endpoint AI có rate limit riêng.
 - Dependency được khóa ở Next.js 16.2.10, ESLint 9 flat config và PostCSS đã vá. `npm audit` là bắt buộc trước bàn giao.
 - `/.well-known/security.txt` công bố kênh báo cáo bảo mật.
+- Email thông báo yêu cầu mới chạy nền sau khi D1 lưu thành công, không chứa số điện thoại/địa chỉ chi tiết/ghi chú riêng. Destination được giữ trong Cloudflare Secret và binding chỉ được bật sau khi Gmail được xác minh.
 
 ## Việc chủ sở hữu cần xác nhận trên Cloudflare và các tài khoản
 

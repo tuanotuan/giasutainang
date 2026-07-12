@@ -38,6 +38,19 @@ interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>;
 }
 
+interface SendEmailBinding {
+  send(message: {
+    to: string;
+    from: string | { email: string; name?: string };
+    subject: string;
+    text: string;
+  }): Promise<unknown>;
+}
+
+interface WorkerExecutionContext {
+  waitUntil(promise: Promise<unknown>): void;
+}
+
 interface Env {
   ASSETS: { fetch(request: Request): Promise<Response> };
   DB?: D1Database;
@@ -48,6 +61,8 @@ interface Env {
   LOGIN_RATE_LIMITER?: RateLimitBinding;
   PUBLIC_RATE_LIMITER?: RateLimitBinding;
   AI_RATE_LIMITER?: RateLimitBinding;
+  NOTIFY_EMAIL?: SendEmailBinding;
+  NOTIFICATION_EMAIL?: string;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -79,7 +94,7 @@ const SCHEMA_STATEMENTS = [
 ];
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: WorkerExecutionContext): Promise<Response> {
     const url = new URL(request.url);
     const requestHost = (request.headers.get("Host") ?? "").split(":")[0].toLowerCase();
     if (url.protocol === "http:" && ["giasutainang.online", "www.giasutainang.online"].includes(requestHost)) {
@@ -92,7 +107,7 @@ export default {
         response = await env.ASSETS.fetch(request);
       } else {
         const crossSiteError = rejectCrossSiteMutation(request, url);
-        response = crossSiteError ?? await handleApi(request, env, url);
+        response = crossSiteError ?? await handleApi(request, env, url, ctx);
       }
     } catch (error) {
       if (error instanceof ApiError) {
@@ -106,7 +121,7 @@ export default {
   },
 };
 
-async function handleApi(request: Request, env: Env, url: URL): Promise<Response> {
+async function handleApi(request: Request, env: Env, url: URL, ctx?: WorkerExecutionContext): Promise<Response> {
   const { pathname } = url;
 
   if (pathname === "/api/admin/login" && request.method === "POST") {
@@ -255,7 +270,7 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
     return json({ items: result.results.map(rowToPrice) });
   }
   if (pathname === "/api/requests/find-tutor" && request.method === "POST") {
-    return saveTutorRequest(request, env.DB);
+    return saveTutorRequest(request, env.DB, env.NOTIFY_EMAIL, env.NOTIFICATION_EMAIL, ctx);
   }
   if (pathname === "/api/requests/register-tutor" && request.method === "POST") {
     return saveTutorApplication(request, env.DB, env.FILES);
@@ -806,7 +821,13 @@ async function approveTutorApplication(db: D1Database, id: string) {
   return json({ success: true, tutorId, code });
 }
 
-async function saveTutorRequest(request: Request, db: D1Database) {
+async function saveTutorRequest(
+  request: Request,
+  db: D1Database,
+  email: SendEmailBinding | undefined,
+  destination: string | undefined,
+  ctx?: WorkerExecutionContext,
+) {
   const body = await readJson(request);
   const parsed = findTutorSchema.safeParse(body);
   if (!parsed.success) return validationError(parsed.error.issues[0]?.message);
@@ -818,7 +839,52 @@ async function saveTutorRequest(request: Request, db: D1Database) {
     (id,parent_name,phone,email,area,address,learning_mode,grade,subjects,student_count,student_level,sessions_per_week,schedule,tutor_level,tutor_gender,selected_tutor_code,budget,note,status,created_at,updated_at)
     VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,'new',?19,?20)`)
     .bind(id,data.parentName,data.phone,optional(data.email),data.district,fullAddress,data.learningMode,data.grade,JSON.stringify([data.subject]),data.studentCount,data.studentLevel,data.sessionsPerWeek,data.schedule,data.tutorLevel,data.tutorGender,optional(data.selectedTutorCode),data.budget,optional(data.note),stamp,stamp).run();
+  queueTutorRequestNotification(email, destination, ctx, {
+    id,
+    subject: data.subject,
+    grade: data.grade,
+    area: `${data.district}, ${data.province}`,
+    learningMode: data.learningMode,
+    createdAt: stamp,
+  });
   return json({ success: true, id }, 201);
+}
+
+function queueTutorRequestNotification(
+  email: SendEmailBinding | undefined,
+  destination: string | undefined,
+  ctx: WorkerExecutionContext | undefined,
+  request: { id: string; subject: string; grade: string; area: string; learningMode: string; createdAt: string },
+) {
+  const recipient = destination?.trim();
+  if (!email || !recipient || recipient.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient) || !ctx) return;
+  const adminUrl = "https://giasutainang.online/admin";
+  const safeSubject = request.subject.replace(/[\r\n]+/g, " ").trim();
+  const safeGrade = request.grade.replace(/[\r\n]+/g, " ").trim();
+  const message = [
+    "Gia Sư Tài Năng vừa nhận một yêu cầu tìm gia sư mới.",
+    "",
+    `Mã yêu cầu: ${request.id}`,
+    `Môn học: ${request.subject}`,
+    `Lớp học: ${request.grade}`,
+    `Khu vực: ${request.area}`,
+    `Hình thức: ${request.learningMode}`,
+    `Thời gian nhận: ${request.createdAt}`,
+    "",
+    `Mở khu vực quản lý để kiểm tra: ${adminUrl}`,
+    "",
+    "Email này chỉ chứa thông tin tóm tắt; thông tin liên hệ và địa chỉ chi tiết chỉ xem trong khu vực quản lý.",
+  ].join("\n");
+  ctx.waitUntil(
+    email.send({
+      to: recipient,
+      from: { email: "thongbao@giasutainang.online", name: "Gia Sư Tài Năng" },
+      subject: `[Gia Sư Tài Năng] Yêu cầu mới: ${safeSubject} - ${safeGrade}`,
+      text: message,
+    }).catch(() => {
+      console.error("Tutor request email notification failed");
+    }),
+  );
 }
 
 const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);

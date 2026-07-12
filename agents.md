@@ -53,6 +53,8 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep R2 private; require authenticated admin plus a valid D1 reference, verify allowed file signatures, sanitize filenames, and force attachment downloads with nosniff/sandbox headers.
 - Run `npm audit --omit=dev`, `npm run lint`, `npm run build`, `npx wrangler deploy --dry-run`, and `npm run security:check` (after deployment) for security-sensitive changes.
 - Review `SECURITY.md` before changing auth, headers, rate limits, uploads, Cloudflare bindings, or incident-response guidance.
+- Keep tutor-request email notifications non-blocking and send only a safe summary plus the admin link. Never include the parent's phone, email, street address, free-text note, or uploaded files in notification email.
+- Keep the private notification destination in Cloudflare secret `NOTIFICATION_EMAIL`, never in public UI, source control, logs, or Markdown. Add `NOTIFY_EMAIL` only after the Email Routing destination is verified.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -66,4 +68,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-12 — security hardening deployed and production smoke check passed; manual owner account/Cloudflare checklist remains.
+Last updated: 2026-07-13 — tutor-request email notification code prepared; Email Routing verification/binding and owner acceptance remain.

@@ -112,6 +112,25 @@ Sau khi deploy có DB binding:
 3. Nếu thấy thông báo database chưa khởi tạo, bấm “Khởi tạo database”.
 4. Hệ thống sẽ tạo bảng D1 và nạp dữ liệu ban đầu từ `src/data`.
 
+## Thông báo yêu cầu mới qua Gmail
+
+Worker đã có luồng gửi email nền sau khi D1 lưu thành công một yêu cầu tìm gia sư. Email chỉ chứa mã yêu cầu, môn, lớp, khu vực tổng quát, hình thức học và liên kết `/admin`; lỗi gửi email không làm mất yêu cầu của phụ huynh.
+
+Để kích hoạt miễn phí cho một địa chỉ nhận nội bộ:
+
+1. Cloudflare → **Email Service** → **Email Routing** → onboard `giasutainang.online`.
+2. Thêm Gmail nhận thông báo vào **Destination addresses** và bấm liên kết xác minh trong Gmail.
+3. Thêm Worker secret `NOTIFICATION_EMAIL` với giá trị là Gmail đã xác minh; không commit địa chỉ nội bộ vào Git.
+4. Chỉ sau khi xác minh thành công, thêm binding cố định sau vào `wrangler.jsonc` và deploy:
+
+```jsonc
+"send_email": [
+  { "name": "NOTIFY_EMAIL" }
+]
+```
+
+Sender dùng `thongbao@giasutainang.online`. Cloudflare cho phép gửi miễn phí tới destination address đã xác minh trên Workers Free; binding và secret hiện được giữ tùy chọn để deployment không lỗi trước khi owner hoàn tất Email Routing.
+
 ## Bảo mật vận hành
 
 - Mọi request production chạy qua Worker; HTTP được chuyển sang HTTPS và phản hồi có HSTS, CSP, chống clickjacking, MIME sniffing và chính sách quyền trình duyệt.
@@ -262,4 +281,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — security hardening deployed; production smoke check passed for HTTPS, headers, cross-site blocking, public PII suppression, and security disclosure. Manual Cloudflare/account checklist remains for the owner.
+Last updated: 2026-07-13 — non-blocking tutor-request email notification code prepared; waiting for owner to enable Email Routing and verify the private Gmail before adding the production binding.
