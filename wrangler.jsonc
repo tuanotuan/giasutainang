@@ -17,6 +17,12 @@
       "database_id": "3be56bf2-c956-4f2b-a8f1-d7d3c682af8a"
     }
   ],
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "giasutainang-files"
+    }
+  ],
   "ai": {
     "binding": "AI"
   },

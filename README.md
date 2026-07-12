@@ -1,6 +1,6 @@
 # Gia Sư Tài Năng
 
-> Current handoff: production full-stack site with D1/admin/Workers AI, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-11**.
+> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-12**.
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
@@ -244,4 +244,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — private application upload code is ready; waiting for owner to create `giasutainang-files` and bind it as `FILES` before acceptance testing.
+Last updated: 2026-07-12 — private bucket `giasutainang-files` is bound as `FILES`; waiting for deployment and owner acceptance testing before the next feature.
