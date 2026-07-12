@@ -25,10 +25,11 @@ This section is the source of truth for the current production system and overri
 
 ## Session handoff
 
-- Current feature awaiting owner acceptance: private tutor-application file upload is implemented and the private R2 bucket is bound; deploy and live form/admin testing are the remaining acceptance steps. Do not start the next feature yet.
+- Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
+- No next upgrade is active yet; select the next feature before implementation and continue the one-feature-at-a-time acceptance workflow.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-12 — private R2 bucket binding added for application-upload acceptance testing.
+- Last updated: 2026-07-12 — private application uploads accepted by the owner; ready to select the next upgrade.
 
 ## Original phase-one brief (historical reference)
 

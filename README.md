@@ -244,4 +244,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-12 — private bucket `giasutainang-files` is bound as `FILES`; waiting for deployment and owner acceptance testing before the next feature.
+Last updated: 2026-07-12 — private application upload through R2 is deployed and owner-accepted; ready for the next separately tested upgrade.
