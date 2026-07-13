@@ -331,6 +331,15 @@ async function setupDatabase(db: D1Database) {
     }
     await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_demo_replaced_v3', ?1, ?2)").bind(stamp, stamp).run();
   }
+  const tutorReferenceScoresAdded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'tutor_reference_scores_v1'").first<{ value: string }>();
+  if (!tutorReferenceScoresAdded?.value) {
+    const scoreStatements = seedTutors.map((item) => db.prepare("UPDATE tutors SET rating=?1,review_count=0,updated_at=?2 WHERE id=?3 AND verification_status='illustrative'")
+      .bind(item.rating, stamp, item.id));
+    for (let index = 0; index < scoreStatements.length; index += 25) {
+      await db.batch(scoreStatements.slice(index, index + 25));
+    }
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_reference_scores_v1', ?1, ?2)").bind(stamp, stamp).run();
+  }
   if (!seeded?.value) for (const item of seedPosts) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO posts
       (id,slug,title,excerpt,category,thumbnail,date,content,created_at,updated_at)

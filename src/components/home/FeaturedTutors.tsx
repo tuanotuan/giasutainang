@@ -22,7 +22,7 @@ export function FeaturedTutors() {
         <SectionTitle
           eyebrow="Đội ngũ tận tâm"
           title="Gia sư tiêu biểu"
-          description="Hồ sơ minh họa giúp phụ huynh tham khảo chuyên môn và phong cách dạy; thông tin thật sẽ được xác minh trước khi kết nối."
+          description="Tham khảo chuyên môn, khu vực và phong cách dạy để chọn hướng kết nối phù hợp với học sinh."
         />
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {tutors.slice(0, 8).map((tutor) => <TutorCard key={tutor.id} tutor={tutor} />)}

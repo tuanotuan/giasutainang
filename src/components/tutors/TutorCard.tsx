@@ -50,6 +50,7 @@ export function TutorStatusBadge({ tutor }: { tutor: Tutor }) {
 }
 
 export function TutorRating({ tutor }: { tutor: Tutor }) {
+  if (tutor.verificationStatus === "illustrative") return <span className="rounded-lg bg-amber-50 px-2 py-1 text-[11px] font-bold text-amber-700">Điểm tham khảo {tutor.rating}</span>;
   if (tutor.reviewCount === 0) return <span className="rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">Chưa có đánh giá</span>;
   return <span className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-bold text-amber-600"><Star className="h-3.5 w-3.5 fill-current" /> {tutor.rating}</span>;
 }

@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production API verified with 50 privacy-safe fictional tutor records, explicit illustrative status, and zero legacy records.
+Last updated: 2026-07-13. Fictional tutor records retain explicit illustrative status; 4.8/4.9 values are labeled reference scores and no customer review counts are fabricated.
 
 ## Phạm vi
 

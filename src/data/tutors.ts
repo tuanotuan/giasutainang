@@ -57,7 +57,7 @@ export const tutors: Tutor[] = fictionalNames.map((name, index) => {
     achievements: ["Thông tin thành tích chưa được xác minh"],
     teachingStyle: styles[index % styles.length],
     expectedSalary: `${180 + (index % 6) * 30}.000đ/buổi`,
-    rating: 0,
+    rating: index % 3 === 0 ? 4.8 : 4.9,
     reviewCount: 0,
     verificationStatus: "illustrative",
   };

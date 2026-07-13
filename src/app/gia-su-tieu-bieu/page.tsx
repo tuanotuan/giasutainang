@@ -13,7 +13,7 @@ export default function TutorsPage() {
       <ListingHero
         eyebrow="Danh sách tham khảo"
         title="Danh sách gia sư tiêu biểu"
-        description="Khám phá các hồ sơ minh họa để tham khảo tiêu chí lựa chọn. Trung tâm sẽ xác minh hồ sơ thật trước khi kết nối."
+        description="Tìm gia sư phù hợp theo môn học, cấp lớp, khu vực và định hướng học tập của gia đình."
       />
       <TutorList />
     </>
