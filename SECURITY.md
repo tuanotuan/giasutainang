@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production security smoke check passed after deployment of optional private email notification code; destination verification and binding remain pending.
+Last updated: 2026-07-13. Production security smoke check passed; Email Routing destination is verified and `NOTIFY_EMAIL` is configured while the private destination remains a Worker secret.
 
 ## Phạm vi
 

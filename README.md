@@ -121,7 +121,7 @@ Worker đã có luồng gửi email nền sau khi D1 lưu thành công một yê
 1. Cloudflare → **Email Service** → **Email Routing** → onboard `giasutainang.online`.
 2. Thêm Gmail nhận thông báo vào **Destination addresses** và bấm liên kết xác minh trong Gmail.
 3. Thêm Worker secret `NOTIFICATION_EMAIL` với giá trị là Gmail đã xác minh; không commit địa chỉ nội bộ vào Git.
-4. Chỉ sau khi xác minh thành công, thêm binding cố định sau vào `wrangler.jsonc` và deploy:
+4. Sau khi xác minh thành công, binding cố định sau được thêm vào `wrangler.jsonc` và deploy:
 
 ```jsonc
 "send_email": [
@@ -129,7 +129,7 @@ Worker đã có luồng gửi email nền sau khi D1 lưu thành công một yê
 ]
 ```
 
-Sender dùng `thongbao@giasutainang.online`. Cloudflare cho phép gửi miễn phí tới destination address đã xác minh trên Workers Free; binding và secret hiện được giữ tùy chọn để deployment không lỗi trước khi owner hoàn tất Email Routing.
+Sender dùng `thongbao@giasutainang.online`. Cloudflare cho phép gửi miễn phí tới destination address đã xác minh trên Workers Free. Email Routing và destination đã được owner xác minh; binding `NOTIFY_EMAIL` đã được khai báo, còn secret `NOTIFICATION_EMAIL` cần được thêm trong Worker settings trước khi test thật.
 
 ## Bảo mật vận hành
 
@@ -281,4 +281,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — non-blocking tutor-request email notification code deployed and production security check passed; waiting for owner to enable Email Routing and verify the private Gmail before adding the binding.
+Last updated: 2026-07-13 — Email Routing destination verified and `NOTIFY_EMAIL` binding added; waiting for private `NOTIFICATION_EMAIL` Worker secret and live acceptance test.
