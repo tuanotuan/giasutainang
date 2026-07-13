@@ -10,7 +10,6 @@ import {
   Eye,
   Loader2,
   LogOut,
-  MailCheck,
   Paperclip,
   Plus,
   RefreshCw,
@@ -312,8 +311,6 @@ function Dashboard({
   requests: TutorRequest[];
   submissions: SubmissionRecord[];
 }) {
-  const [testingEmail, setTestingEmail] = useState(false);
-  const [emailNotice, setEmailNotice] = useState<{ text: string; tone: "success" | "error" } | null>(null);
   const bars = [45, 68, 52, 82, 64, 90, 76];
   const newRequestCount = requests.filter((item) => item.status === "new").length + submissions.filter((item) => item.status === "new").length;
   const totalClasses = Math.max(classes.length, 1);
@@ -326,36 +323,6 @@ function Dashboard({
         openClasses={classes.filter((item) => item.status !== "assigned").length}
         newRequests={newRequestCount}
       />
-      <section className="mt-6 flex flex-col gap-4 rounded-2xl border border-primary-100 bg-white p-5 shadow-card sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600"><MailCheck className="h-5 w-5" /></span>
-          <div>
-            <h2 className="font-bold text-ink">Thông báo Gmail</h2>
-            <p className="mt-1 text-xs leading-5 text-slate-500">Gửi một email thử, không tạo yêu cầu giả và không chứa dữ liệu phụ huynh.</p>
-            {emailNotice && <p role="status" className={`mt-2 text-xs font-semibold ${emailNotice.tone === "success" ? "text-emerald-600" : "text-rose-600"}`}>{emailNotice.text}</p>}
-          </div>
-        </div>
-        <button
-          type="button"
-          disabled={testingEmail}
-          onClick={async () => {
-            setTestingEmail(true);
-            setEmailNotice(null);
-            try {
-              const result = await apiRequest<{ message: string }>("/api/admin/notifications/test", { method: "POST" });
-              setEmailNotice({ text: result.message, tone: "success" });
-            } catch (error) {
-              setEmailNotice({ text: error instanceof Error ? error.message : "Chưa gửi được email thử.", tone: "error" });
-            } finally {
-              setTestingEmail(false);
-            }
-          }}
-          className="button-secondary min-h-11 shrink-0 justify-center px-4 disabled:cursor-wait disabled:opacity-60"
-        >
-          {testingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <MailCheck className="h-4 w-4" />}
-          {testingEmail ? "Đang gửi..." : "Gửi email thử"}
-        </button>
-      </section>
       <div className="mt-6 grid gap-5 xl:grid-cols-[1.5fr_1fr]">
         <section className="rounded-2xl bg-white p-6 shadow-card">
           <h2 className="font-bold text-ink">Yêu cầu trong 7 ngày</h2>

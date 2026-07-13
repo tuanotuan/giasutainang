@@ -116,11 +116,11 @@ Sau khi deploy có DB binding:
 
 Worker đã có luồng gửi email nền sau khi D1 lưu thành công một yêu cầu tìm gia sư. Email chỉ chứa mã yêu cầu, môn, lớp, khu vực tổng quát, hình thức học và liên kết `/admin`; lỗi gửi email không làm mất yêu cầu của phụ huynh.
 
-Để kích hoạt miễn phí cho một địa chỉ nhận nội bộ:
+Để kích hoạt miễn phí cho tối đa năm địa chỉ nhận nội bộ:
 
 1. Cloudflare → **Email Service** → **Email Routing** → onboard `giasutainang.online`.
-2. Thêm Gmail nhận thông báo vào **Destination addresses** và bấm liên kết xác minh trong Gmail.
-3. Thêm Worker secret `NOTIFICATION_EMAIL` với giá trị là Gmail đã xác minh; không commit địa chỉ nội bộ vào Git.
+2. Thêm từng Gmail nhận thông báo vào **Destination addresses** và bấm liên kết xác minh trong từng Gmail.
+3. Thêm Worker secret `NOTIFICATION_EMAIL` với các Gmail đã xác minh, ngăn cách bằng dấu phẩy, dấu chấm phẩy hoặc xuống dòng; không commit địa chỉ nội bộ vào Git.
 4. Sau khi xác minh thành công, binding cố định sau được thêm vào `wrangler.jsonc` và deploy:
 
 ```jsonc
@@ -129,7 +129,7 @@ Worker đã có luồng gửi email nền sau khi D1 lưu thành công một yê
 ]
 ```
 
-Sender dùng `thongbao@giasutainang.online`. Cloudflare cho phép gửi miễn phí tới destination address đã xác minh trên Workers Free. Email Routing, destination, binding `NOTIFY_EMAIL` và secret `NOTIFICATION_EMAIL` đã được cấu hình. Trang Tổng quan admin có nút **Gửi email thử**; nút không tạo yêu cầu giả hoặc lưu dữ liệu phụ huynh.
+Sender dùng `thongbao@giasutainang.online`. Cloudflare chỉ gửi tới destination address đã xác minh. Email Routing, binding `NOTIFY_EMAIL` và secret `NOTIFICATION_EMAIL` đã được cấu hình. Mỗi yêu cầu thật được gửi riêng tới từng người nhận để không lộ danh sách email; một địa chỉ gửi lỗi không cản các địa chỉ còn lại. Nút và API gửi thử đã được xóa sau khi chủ sở hữu xác nhận email thật hoạt động.
 
 ## Bảo mật vận hành
 
@@ -181,7 +181,6 @@ Admin:
 - `POST /api/admin/ai/tutor-audit/:id` (kiểm tra độ đầy đủ hồ sơ)
 - `POST /api/admin/ai/roadmap` (gợi ý lộ trình học)
 - `GET /api/admin/ai/report` (tổng hợp vận hành)
-- `POST /api/admin/notifications/test` (gửi email kiểm tra; yêu cầu đăng nhập admin và có rate limit)
 
 ## Cấu trúc thư mục
 
@@ -282,4 +281,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — private email destination, secret, binding, authenticated test endpoint, and admin test button configured; waiting for live Gmail acceptance test.
+Last updated: 2026-07-13 — live Gmail delivery accepted; temporary test flow removed and up to five verified notification recipients are supported.

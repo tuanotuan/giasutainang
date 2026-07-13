@@ -169,11 +169,6 @@ async function handleApi(request: Request, env: Env, url: URL, ctx?: WorkerExecu
     if (pathname === "/api/admin/state" && request.method === "GET") {
       return adminState(env.DB);
     }
-    if (pathname === "/api/admin/notifications/test" && request.method === "POST") {
-      const limited = await enforceRateLimit(env.AI_RATE_LIMITER, request, "admin-email-test");
-      if (limited) return limited;
-      return sendTestEmailNotification(env.NOTIFY_EMAIL, env.NOTIFICATION_EMAIL);
-    }
     if (pathname === "/api/admin/files" && request.method === "GET") {
       return downloadApplicationFile(env.FILES, env.DB, url.searchParams.get("key") ?? "");
     }
@@ -861,8 +856,8 @@ function queueTutorRequestNotification(
   ctx: WorkerExecutionContext | undefined,
   request: { id: string; subject: string; grade: string; area: string; learningMode: string; createdAt: string },
 ) {
-  const recipient = destination?.trim();
-  if (!email || !recipient || recipient.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient) || !ctx) return;
+  const recipients = parseNotificationRecipients(destination);
+  if (!email || recipients.length === 0 || !ctx) return;
   const adminUrl = "https://giasutainang.online/admin";
   const safeSubject = request.subject.replace(/[\r\n]+/g, " ").trim();
   const safeGrade = request.grade.replace(/[\r\n]+/g, " ").trim();
@@ -880,40 +875,23 @@ function queueTutorRequestNotification(
     "",
     "Email này chỉ chứa thông tin tóm tắt; thông tin liên hệ và địa chỉ chi tiết chỉ xem trong khu vực quản lý.",
   ].join("\n");
-  ctx.waitUntil(
-    email.send({
-      to: recipient,
-      from: { email: "thongbao@giasutainang.online", name: "Gia Sư Tài Năng" },
-      subject: `[Gia Sư Tài Năng] Yêu cầu mới: ${safeSubject} - ${safeGrade}`,
-      text: message,
-    }).catch(() => {
-      console.error("Tutor request email notification failed");
-    }),
-  );
+  ctx.waitUntil(Promise.allSettled(recipients.map((recipient) => email.send({
+    to: recipient,
+    from: { email: "thongbao@giasutainang.online", name: "Gia Sư Tài Năng" },
+    subject: `[Gia Sư Tài Năng] Yêu cầu mới: ${safeSubject} - ${safeGrade}`,
+    text: message,
+  }))).then((results) => {
+    if (results.some((result) => result.status === "rejected")) {
+      console.error("One or more tutor request email notifications failed");
+    }
+  }));
 }
 
-async function sendTestEmailNotification(email: SendEmailBinding | undefined, destination: string | undefined) {
-  const recipient = destination?.trim();
-  if (!email || !recipient || recipient.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient)) {
-    return json({ error: "Thông báo Gmail chưa được kết nối đầy đủ. Vui lòng kiểm tra binding và secret." }, 503);
-  }
-  try {
-    await email.send({
-      to: recipient,
-      from: { email: "thongbao@giasutainang.online", name: "Gia Sư Tài Năng" },
-      subject: "[Gia Sư Tài Năng] Kiểm tra thông báo Gmail",
-      text: [
-        "Kết nối thông báo Gmail của Gia Sư Tài Năng đang hoạt động.",
-        "",
-        "Khi phụ huynh gửi yêu cầu tìm gia sư mới, bạn sẽ nhận được email tóm tắt và liên kết vào khu vực quản lý.",
-        "Email thật không chứa số điện thoại, địa chỉ chi tiết hoặc ghi chú riêng của phụ huynh.",
-      ].join("\n"),
-    });
-    return json({ success: true, message: "Đã gửi email thử. Vui lòng kiểm tra Hộp thư đến hoặc Thư rác." });
-  } catch {
-    console.error("Test email notification failed");
-    return json({ error: "Chưa gửi được email thử. Vui lòng kiểm tra Email Routing rồi thử lại." }, 502);
-  }
+function parseNotificationRecipients(destination: string | undefined) {
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return [...new Set((destination ?? "").split(/[,;\n]+/).map((item) => item.trim().toLowerCase()))]
+    .filter((item) => item.length <= 254 && emailPattern.test(item))
+    .slice(0, 5);
 }
 
 const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
