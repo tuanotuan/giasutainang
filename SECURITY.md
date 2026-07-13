@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Public tutor cards/details no longer display rating values, star icons, or review counts; illustrative status remains explicit.
+Last updated: 2026-07-13. Tutor demographic correction changes only fictional birth-year/experience fields; no private data or real identities were introduced.
 
 ## Phạm vi
 

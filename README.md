@@ -250,6 +250,7 @@ Trong `/admin`:
 - Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Danh mục ban đầu có 50 hồ sơ hư cấu nguyên bản, avatar chữ cái trung tính và luôn hiện nhãn “Hồ sơ minh họa · Chưa xác minh”. Giao diện public không hiển thị điểm, sao hay lượt đánh giá. Migration `tutor_demo_replaced_v3` thay danh mục cũ. Hồ sơ do admin thêm hoặc duyệt từ ứng viên mặc định là “Chưa xác minh”.
+- Tuổi và kinh nghiệm của hồ sơ minh họa được tạo theo trình độ: sinh viên sinh 2003–2007/kinh nghiệm 1–3 năm, cử nhân 1997–2002/3–6 năm, giáo viên 1990–2000/5–11 năm. Migration `tutor_demographics_fixed_v1` đồng bộ lại 50 bản ghi D1.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 - Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
@@ -282,4 +283,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — all public tutor scores and star icons removed from list and detail views.
+Last updated: 2026-07-13 — tutor demographics corrected and synchronized so birth year/experience match professional level.

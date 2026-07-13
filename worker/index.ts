@@ -340,6 +340,15 @@ async function setupDatabase(db: D1Database) {
     }
     await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_reference_scores_v1', ?1, ?2)").bind(stamp, stamp).run();
   }
+  const tutorDemographicsFixed = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'tutor_demographics_fixed_v1'").first<{ value: string }>();
+  if (!tutorDemographicsFixed?.value) {
+    const demographicStatements = seedTutors.map((item) => db.prepare("UPDATE tutors SET birth_year=?1,experience=?2,updated_at=?3 WHERE id=?4 AND verification_status='illustrative'")
+      .bind(item.birthYear, item.experience, stamp, item.id));
+    for (let index = 0; index < demographicStatements.length; index += 25) {
+      await db.batch(demographicStatements.slice(index, index + 25));
+    }
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_demographics_fixed_v1', ?1, ?2)").bind(stamp, stamp).run();
+  }
   if (!seeded?.value) for (const item of seedPosts) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO posts
       (id,slug,title,excerpt,category,thumbnail,date,content,created_at,updated_at)

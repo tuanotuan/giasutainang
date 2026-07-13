@@ -39,11 +39,17 @@ const styles = [
 export const tutors: Tutor[] = fictionalNames.map((name, index) => {
   const profile = profiles[index % profiles.length];
   const level = levels[index % levels.length];
+  const birthYear = level === "Sinh viên"
+    ? 2003 + (index % 5)
+    : level === "Cử nhân" ? 1997 + (index % 6) : 1990 + (index % 11);
+  const experienceYears = level === "Sinh viên"
+    ? 1 + (index % 3)
+    : level === "Cử nhân" ? 3 + (index % 4) : 5 + (index % 7);
   return {
     id: `ho-so-minh-hoa-${String(index + 1).padStart(2, "0")}`,
     code: `TN${String(index + 1).padStart(3, "0")}`,
     name,
-    birthYear: 1997 + (index % 9),
+    birthYear,
     gender: index % 2 === 0 ? "Nữ" : "Nam",
     avatar: "",
     school: profile.school,
@@ -53,7 +59,7 @@ export const tutors: Tutor[] = fictionalNames.map((name, index) => {
     grades: profile.grades,
     areas: profile.areas,
     availableTimes: [schedules[index % schedules.length]],
-    experience: `${1 + (index % 5)} năm kinh nghiệm minh họa trong việc hỗ trợ học sinh củng cố kiến thức.`,
+    experience: `${experienceYears} năm kinh nghiệm minh họa trong việc hỗ trợ học sinh củng cố kiến thức.`,
     achievements: ["Thông tin thành tích chưa được xác minh"],
     teachingStyle: styles[index % styles.length],
     expectedSalary: `${180 + (index % 6) * 30}.000đ/buổi`,
