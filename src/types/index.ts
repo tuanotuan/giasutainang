@@ -20,6 +20,7 @@ export interface Tutor {
   expectedSalary: string;
   rating: number;
   reviewCount: number;
+  verificationStatus: "illustrative" | "unverified" | "verified";
 }
 
 export interface ClassItem {

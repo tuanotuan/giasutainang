@@ -11,9 +11,9 @@ export default function TutorsPage() {
   return (
     <>
       <ListingHero
-        eyebrow="Hồ sơ được sàng lọc"
+        eyebrow="Danh sách tham khảo"
         title="Danh sách gia sư tiêu biểu"
-        description="Khám phá đội ngũ gia sư đa dạng và dùng bộ lọc để tìm hồ sơ phù hợp với nhu cầu học tập."
+        description="Khám phá các hồ sơ minh họa để tham khảo tiêu chí lựa chọn. Trung tâm sẽ xác minh hồ sơ thật trước khi kết nối."
       />
       <TutorList />
     </>

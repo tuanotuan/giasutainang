@@ -27,15 +27,16 @@ This section is the source of truth for the current production system and overri
 - Tutor-request email notifications are implemented as a non-blocking background task after the D1 insert. Messages contain only a safe summary and admin link. Up to five verified destinations may be stored as a comma-, semicolon-, or newline-separated list in the private Cloudflare secret `NOTIFICATION_EMAIL`; one failed recipient does not block the others. The temporary admin test-email control and endpoint were removed after owner acceptance.
 - The public footer uses a professional contact-and-navigation layout with a free-consultation CTA, privacy assurance, legal-policy links, business hours, and mobile-safe 44px social controls. Floating desktop contact/chat controls automatically hide while the footer is visible so they never cover its content. Never display a Ministry of Industry and Trade verification badge without completed registration and an official verification link.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
-- Seed tutor/class/article content remains illustrative; do not misrepresent fabricated profiles as verified real people.
+- The tutor catalog contains 50 original fictional composite profiles with neutral initial avatars, zero fabricated reviews, and a visible `Hồ sơ minh họa · Chưa xác minh` badge. A one-time D1 migration replaces the previous tutor catalog completely; do not present these profiles as real people or verified center partners.
 
 ## Session handoff
 
 - Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
 - Gmail notification for real parent tutor requests is deployed and owner-accepted. The implementation now supports up to five verified private recipients; adding a second Gmail requires verifying it in Cloudflare Email Routing and updating the existing secret list.
+- Current deployment replaces all previous tutor records with 50 fictional illustrative profiles. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — live Gmail delivery accepted; test flow removed and multi-recipient notification support prepared.
+- Last updated: 2026-07-13 — previous tutor catalog replaced by 50 original fictional profiles with explicit illustrative/unverified labeling.
 
 ## Original phase-one brief (historical reference)
 

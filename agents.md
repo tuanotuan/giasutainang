@@ -6,6 +6,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 ## Important Rules
 - Do not copy real branding, logo, images, phone numbers, addresses, articles, or private data from any reference website.
 - Use mock/seed data only for demo tutor and class profiles; real form submissions and admin changes are stored in Cloudflare D1.
+- Keep fictional tutor profiles visibly labeled `Hồ sơ minh họa · Chưa xác minh`, with no fabricated ratings or reviews. New real profiles must default to `unverified`; never mark a profile verified without a real verification process.
 - UI should be inspired by Vietnamese tutoring service websites, but all content must be original.
 - Prioritize clean code, reusable components, and responsive design.
 
@@ -69,4 +70,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-13 — real Gmail delivery owner-accepted; test flow removed and verified multi-recipient support added.
+Last updated: 2026-07-13 — 50 original fictional tutor profiles replace the old catalog in seed and D1, with explicit status labels and zero fake reviews.

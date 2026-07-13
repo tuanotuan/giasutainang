@@ -4,7 +4,7 @@
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js 16 App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
-Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API để nâng cấp sang dữ liệu thật bằng Cloudflare D1.
+Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API dùng dữ liệu thật từ Cloudflare D1. Danh mục gia sư khởi tạo gồm 50 hồ sơ hư cấu để minh họa cách trình bày, không đại diện cho người thật.
 
 ## Cài đặt
 
@@ -249,6 +249,7 @@ Trong `/admin`:
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
+- Danh mục ban đầu có 50 hồ sơ hư cấu nguyên bản, avatar chữ cái trung tính, không có đánh giá giả và luôn hiện nhãn “Hồ sơ minh họa · Chưa xác minh”. Migration `tutor_demo_replaced_v2` xóa danh mục gia sư cũ và nạp lại đúng một lần; hồ sơ do admin thêm hoặc duyệt từ ứng viên mặc định là “Chưa xác minh”.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 - Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
@@ -281,4 +282,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — live Gmail delivery accepted; temporary test flow removed and up to five verified notification recipients are supported.
+Last updated: 2026-07-13 — old tutor catalog replaced by 50 original fictional profiles in fallback and D1, with visible illustrative status and no fake reviews.

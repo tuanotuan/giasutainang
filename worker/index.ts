@@ -83,7 +83,7 @@ class ApiError extends Error {
 const SCHEMA_STATEMENTS = [
   "CREATE TABLE IF NOT EXISTS app_meta (meta_key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS classes (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, status TEXT NOT NULL DEFAULT 'open', title TEXT NOT NULL, subject TEXT NOT NULL, grade TEXT NOT NULL, student_count INTEGER NOT NULL DEFAULT 1, student_level TEXT NOT NULL, area TEXT NOT NULL, address TEXT NOT NULL, learning_mode TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, duration TEXT NOT NULL, schedule TEXT NOT NULL, tutor_requirement TEXT NOT NULL, salary INTEGER NOT NULL, note TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS tutors (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, birth_year INTEGER NOT NULL, gender TEXT NOT NULL, avatar TEXT NOT NULL DEFAULT '', school TEXT NOT NULL, major TEXT NOT NULL, level TEXT NOT NULL, subjects TEXT NOT NULL, grades TEXT NOT NULL, areas TEXT NOT NULL, available_times TEXT NOT NULL, experience TEXT NOT NULL, achievements TEXT NOT NULL, teaching_style TEXT NOT NULL, expected_salary TEXT NOT NULL, rating REAL NOT NULL DEFAULT 5, review_count INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS tutors (id TEXT PRIMARY KEY, code TEXT NOT NULL UNIQUE, name TEXT NOT NULL, birth_year INTEGER NOT NULL, gender TEXT NOT NULL, avatar TEXT NOT NULL DEFAULT '', school TEXT NOT NULL, major TEXT NOT NULL, level TEXT NOT NULL, subjects TEXT NOT NULL, grades TEXT NOT NULL, areas TEXT NOT NULL, available_times TEXT NOT NULL, experience TEXT NOT NULL, achievements TEXT NOT NULL, teaching_style TEXT NOT NULL, expected_salary TEXT NOT NULL, rating REAL NOT NULL DEFAULT 0, review_count INTEGER NOT NULL DEFAULT 0, verification_status TEXT NOT NULL DEFAULT 'unverified', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS posts (id TEXT PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, excerpt TEXT NOT NULL, category TEXT NOT NULL, thumbnail TEXT NOT NULL DEFAULT '', date TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS prices (id TEXT PRIMARY KEY, category TEXT NOT NULL, subject_or_grade TEXT NOT NULL, student_tutor_price TEXT NOT NULL DEFAULT '', teacher_tutor_price TEXT NOT NULL DEFAULT '', sessions_per_week TEXT NOT NULL, duration TEXT NOT NULL, note TEXT, sort_order INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS tutor_requests (id TEXT PRIMARY KEY, parent_name TEXT NOT NULL, phone TEXT NOT NULL, email TEXT, area TEXT NOT NULL, address TEXT NOT NULL DEFAULT '', learning_mode TEXT NOT NULL, grade TEXT NOT NULL, subjects TEXT NOT NULL, student_count INTEGER NOT NULL, student_level TEXT NOT NULL, sessions_per_week INTEGER NOT NULL, schedule TEXT NOT NULL, tutor_level TEXT NOT NULL, tutor_gender TEXT NOT NULL, selected_tutor_code TEXT, budget TEXT NOT NULL, note TEXT, status TEXT NOT NULL DEFAULT 'new', created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
@@ -299,6 +299,10 @@ async function setupDatabase(db: D1Database) {
   if (!submissionColumns.results.some((column) => column.name === "admin_note")) {
     await db.exec("ALTER TABLE submissions ADD COLUMN admin_note TEXT NOT NULL DEFAULT ''");
   }
+  const tutorColumns = await db.prepare("PRAGMA table_info(tutors)").all<{ name: string }>();
+  if (!tutorColumns.results.some((column) => column.name === "verification_status")) {
+    await db.exec("ALTER TABLE tutors ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'unverified'");
+  }
   const seeded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'seeded_at'").first<{ value: string }>();
   const stamp = now();
   const statements: D1PreparedStatement[] = [];
@@ -313,6 +317,17 @@ async function setupDatabase(db: D1Database) {
       (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,created_at,updated_at)
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21)`)
       .bind(item.id,item.code,item.name,item.birthYear,item.gender,item.avatar,item.school,item.major,item.level,JSON.stringify(item.subjects),JSON.stringify(item.grades),JSON.stringify(item.areas),JSON.stringify(item.availableTimes),item.experience,JSON.stringify(item.achievements),item.teachingStyle,item.expectedSalary,item.rating,item.reviewCount,stamp,stamp));
+  }
+  const tutorDemoReplaced = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'tutor_demo_replaced_v2'").first<{ value: string }>();
+  if (!tutorDemoReplaced?.value) {
+    statements.push(db.prepare("DELETE FROM tutors"));
+    for (const item of seedTutors) {
+      statements.push(db.prepare(`INSERT INTO tutors
+        (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,verification_status,created_at,updated_at)
+        VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22)`)
+        .bind(item.id,item.code,item.name,item.birthYear,item.gender,item.avatar,item.school,item.major,item.level,JSON.stringify(item.subjects),JSON.stringify(item.grades),JSON.stringify(item.areas),JSON.stringify(item.availableTimes),item.experience,JSON.stringify(item.achievements),item.teachingStyle,item.expectedSalary,item.rating,item.reviewCount,item.verificationStatus,stamp,stamp));
+    }
+    statements.push(db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_demo_replaced_v2', ?1, ?2)").bind(stamp, stamp));
   }
   if (!seeded?.value) for (const item of seedPosts) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO posts
@@ -691,9 +706,9 @@ async function createTutor(request: Request, db: D1Database) {
   if (!isSafeId(id)) return json({ error: "Mã gia sư nội bộ chưa hợp lệ." }, 400);
   const stamp = now();
   await db.prepare(`INSERT INTO tutors
-    (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,created_at,updated_at)
-    VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21)`)
-    .bind(id,String(body.code),String(body.name),number(body.birthYear,2000),String(body.gender),String(body.avatar||""),String(body.school),String(body.major),String(body.level),JSON.stringify(body.subjects||[]),JSON.stringify(body.grades||[]),JSON.stringify(body.areas||[]),JSON.stringify(body.availableTimes||[]),String(body.experience||""),JSON.stringify(body.achievements||[]),String(body.teachingStyle||""),String(body.expectedSalary||""),number(body.rating,5),number(body.reviewCount,0),stamp,stamp).run();
+    (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,verification_status,created_at,updated_at)
+    VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22)`)
+    .bind(id,String(body.code),String(body.name),number(body.birthYear,2000),String(body.gender),String(body.avatar||""),String(body.school),String(body.major),String(body.level),JSON.stringify(body.subjects||[]),JSON.stringify(body.grades||[]),JSON.stringify(body.areas||[]),JSON.stringify(body.availableTimes||[]),String(body.experience||""),JSON.stringify(body.achievements||[]),String(body.teachingStyle||""),String(body.expectedSalary||""),number(body.rating,0),number(body.reviewCount,0),"unverified",stamp,stamp).run();
   return json({ success: true, id }, 201);
 }
 
@@ -1050,7 +1065,8 @@ function rowToTutor(row: JsonRecord): Tutor {
     subjects: stringList(row.subjects), grades: stringList(row.grades), areas: stringList(row.areas),
     availableTimes: stringList(row.available_times), experience: text(row.experience),
     achievements: stringList(row.achievements), teachingStyle: text(row.teaching_style),
-    expectedSalary: text(row.expected_salary), rating: number(row.rating, 5), reviewCount: number(row.review_count, 0),
+    expectedSalary: text(row.expected_salary), rating: number(row.rating, 0), reviewCount: number(row.review_count, 0),
+    verificationStatus: (text(row.verification_status) || "unverified") as Tutor["verificationStatus"],
   };
 }
 

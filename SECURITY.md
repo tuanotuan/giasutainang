@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production security smoke check passed; real Gmail delivery is accepted, the temporary test flow is removed, and private verified multi-recipient delivery is supported.
+Last updated: 2026-07-13. Security controls reviewed for the tutor-catalog replacement; 50 fictional profiles contain no contact details, private addresses, uploaded files, or fabricated reviews.
 
 ## Phạm vi
 
@@ -21,6 +21,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - `/.well-known/security.txt` công bố kênh báo cáo bảo mật.
 - Email thông báo yêu cầu mới chạy nền sau khi D1 lưu thành công, không chứa số điện thoại/địa chỉ chi tiết/ghi chú riêng. Tối đa năm destination đã xác minh được giữ trong Cloudflare Secret, gửi thành từng email riêng để không lộ danh sách người nhận; lỗi ở một địa chỉ không chặn các địa chỉ khác.
 - Endpoint và nút thử email tạm thời đã được xóa sau khi chủ sở hữu xác nhận luồng email thật hoạt động.
+- Danh mục 50 gia sư minh họa không chứa số điện thoại, email, địa chỉ nhà, file cá nhân hay ảnh người thật. Trạng thái minh họa/chưa xác minh được trả từ D1 để giao diện không trình bày dữ liệu seed như hồ sơ đã kiểm chứng.
 
 ## Việc chủ sở hữu cần xác nhận trên Cloudflare và các tài khoản
 

@@ -6,7 +6,7 @@ import { Award, BookOpen, ChevronRight, Clock3, GraduationCap, Home, Loader2, Ma
 import { useEffect, useMemo, useState } from "react";
 import { tutors as initialTutors } from "@/data/tutors";
 import type { Tutor } from "@/types";
-import { TutorCard } from "./TutorCard";
+import { TutorCard, TutorStatusBadge } from "./TutorCard";
 
 export function TutorDetailClient() {
   const id = useSearchParams().get("id") ?? "";
@@ -45,7 +45,8 @@ export function TutorDetailClient() {
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-amber-300">{tutor.code}</span>
               <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">{tutor.name}</h1>
               <p className="mt-2 text-primary-100">{tutor.level} · {tutor.major}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-amber-300"><Star className="h-4 w-4 fill-current" /> {tutor.rating} ({tutor.reviewCount} đánh giá)</span>
+              <div className="mt-3"><TutorStatusBadge tutor={tutor} /></div>
+              {tutor.reviewCount > 0 && <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-amber-300"><Star className="h-4 w-4 fill-current" /> {tutor.rating} ({tutor.reviewCount} đánh giá)</span>}
             </div>
           </div>
         </div>

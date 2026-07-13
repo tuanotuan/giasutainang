@@ -59,7 +59,7 @@ export function Hero() {
             </Link>
           </div>
           <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
-            {["Không phí kết nối", "Hồ sơ minh bạch", "Hỗ trợ xuyên suốt"].map((item) => (
+            {["Không phí kết nối", "Tiêu chí rõ ràng", "Hỗ trợ xuyên suốt"].map((item) => (
               <span key={item} className="flex items-center gap-2">
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
                   <Check className="h-3.5 w-3.5" />

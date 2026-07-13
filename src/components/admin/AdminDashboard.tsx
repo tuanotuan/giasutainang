@@ -1425,6 +1425,7 @@ function makeTutorDraft(): Tutor {
     expectedSalary: "",
     rating: 5,
     reviewCount: 0,
+    verificationStatus: "unverified",
   };
 }
 

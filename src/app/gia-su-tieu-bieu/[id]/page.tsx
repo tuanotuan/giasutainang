@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Award, BookOpen, CalendarDays, ChevronRight, Clock3, GraduationCap, Home, MapPin, Star, UserRound } from "lucide-react";
 import { tutors } from "@/data/tutors";
-import { TutorCard } from "@/components/tutors/TutorCard";
+import { TutorCard, TutorStatusBadge } from "@/components/tutors/TutorCard";
 
 interface PageProps { params: Promise<{ id: string }> }
 
@@ -35,7 +35,8 @@ export default async function TutorDetailPage({ params }: PageProps) {
               <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-amber-300">{tutor.code}</span>
               <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">{tutor.name}</h1>
               <p className="mt-2 text-primary-100">{tutor.level} · {tutor.major}</p>
-              <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-amber-300"><Star className="h-4 w-4 fill-current" /> {tutor.rating} ({tutor.reviewCount} đánh giá)</span>
+              <div className="mt-3"><TutorStatusBadge tutor={tutor} /></div>
+              {tutor.reviewCount > 0 && <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-amber-300"><Star className="h-4 w-4 fill-current" /> {tutor.rating} ({tutor.reviewCount} đánh giá)</span>}
             </div>
           </div>
         </div>
