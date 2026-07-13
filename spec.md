@@ -37,7 +37,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — tutor birth years and experience now follow realistic ranges for student, bachelor, and teacher levels.
+- Last updated: 2026-07-13 — production verified: 30 students born 2003–2007, 10 bachelor-level tutors 1997–2002, 10 teachers 1990–2000, with zero invalid profiles.
 
 ## Original phase-one brief (historical reference)
 

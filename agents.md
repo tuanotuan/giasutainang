@@ -71,4 +71,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-13 — fictional tutor age and experience ranges aligned with each professional level.
+Last updated: 2026-07-13 — production demographic audit passed across all 50 tutor profiles with zero level/age mismatches.

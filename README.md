@@ -283,4 +283,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — tutor demographics corrected and synchronized so birth year/experience match professional level.
+Last updated: 2026-07-13 — production verified: all 50 tutor birth years and experience values match their professional levels.

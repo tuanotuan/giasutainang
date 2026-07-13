@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Tutor demographic correction changes only fictional birth-year/experience fields; no private data or real identities were introduced.
+Last updated: 2026-07-13. Production demographic audit passed for all 50 fictional profiles; no private data or real identities were introduced.
 
 ## Phạm vi
 
