@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Security controls reviewed for the tutor-catalog replacement; 50 fictional profiles contain no contact details, private addresses, uploaded files, or fabricated reviews.
+Last updated: 2026-07-13. Tutor-catalog migration is idempotent and marks completion only after all 50 privacy-safe fictional records are inserted; public API initialization ensures schema/migration readiness.
 
 ## Phạm vi
 

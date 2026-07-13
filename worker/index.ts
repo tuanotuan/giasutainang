@@ -238,6 +238,7 @@ async function handleApi(request: Request, env: Env, url: URL, ctx?: WorkerExecu
   }
 
   if (!env.DB) return json({ error: "Hệ thống lưu thông tin chưa sẵn sàng. Vui lòng thử lại sau ít phút." }, 503);
+  await ensureDatabase(env.DB);
   if (pathname === "/api/classes" && request.method === "GET") {
     const result = await env.DB.prepare("SELECT * FROM classes ORDER BY created_at DESC").all<JsonRecord>();
     return json({ items: result.results.map(rowToPublicClass) });
@@ -318,16 +319,17 @@ async function setupDatabase(db: D1Database) {
       VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21)`)
       .bind(item.id,item.code,item.name,item.birthYear,item.gender,item.avatar,item.school,item.major,item.level,JSON.stringify(item.subjects),JSON.stringify(item.grades),JSON.stringify(item.areas),JSON.stringify(item.availableTimes),item.experience,JSON.stringify(item.achievements),item.teachingStyle,item.expectedSalary,item.rating,item.reviewCount,stamp,stamp));
   }
-  const tutorDemoReplaced = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'tutor_demo_replaced_v2'").first<{ value: string }>();
+  const tutorDemoReplaced = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'tutor_demo_replaced_v3'").first<{ value: string }>();
   if (!tutorDemoReplaced?.value) {
-    statements.push(db.prepare("DELETE FROM tutors"));
-    for (const item of seedTutors) {
-      statements.push(db.prepare(`INSERT INTO tutors
+    await db.prepare("DELETE FROM tutors").run();
+    const replacementStatements = seedTutors.map((item) => db.prepare(`INSERT INTO tutors
         (id,code,name,birth_year,gender,avatar,school,major,level,subjects,grades,areas,available_times,experience,achievements,teaching_style,expected_salary,rating,review_count,verification_status,created_at,updated_at)
         VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22)`)
         .bind(item.id,item.code,item.name,item.birthYear,item.gender,item.avatar,item.school,item.major,item.level,JSON.stringify(item.subjects),JSON.stringify(item.grades),JSON.stringify(item.areas),JSON.stringify(item.availableTimes),item.experience,JSON.stringify(item.achievements),item.teachingStyle,item.expectedSalary,item.rating,item.reviewCount,item.verificationStatus,stamp,stamp));
+    for (let index = 0; index < replacementStatements.length; index += 25) {
+      await db.batch(replacementStatements.slice(index, index + 25));
     }
-    statements.push(db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_demo_replaced_v2', ?1, ?2)").bind(stamp, stamp));
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_demo_replaced_v3', ?1, ?2)").bind(stamp, stamp).run();
   }
   if (!seeded?.value) for (const item of seedPosts) {
     statements.push(db.prepare(`INSERT OR IGNORE INTO posts

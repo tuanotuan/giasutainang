@@ -249,7 +249,7 @@ Trong `/admin`:
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
-- Danh mục ban đầu có 50 hồ sơ hư cấu nguyên bản, avatar chữ cái trung tính, không có đánh giá giả và luôn hiện nhãn “Hồ sơ minh họa · Chưa xác minh”. Migration `tutor_demo_replaced_v2` xóa danh mục gia sư cũ và nạp lại đúng một lần; hồ sơ do admin thêm hoặc duyệt từ ứng viên mặc định là “Chưa xác minh”.
+- Danh mục ban đầu có 50 hồ sơ hư cấu nguyên bản, avatar chữ cái trung tính, không có đánh giá giả và luôn hiện nhãn “Hồ sơ minh họa · Chưa xác minh”. Migration `tutor_demo_replaced_v3` xóa danh mục gia sư cũ, nạp lại theo các batch nhỏ rồi mới đánh dấu hoàn tất; public API cũng bảo đảm migration đã chạy. Hồ sơ do admin thêm hoặc duyệt từ ứng viên mặc định là “Chưa xác minh”.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 - Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
@@ -282,4 +282,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — old tutor catalog replaced by 50 original fictional profiles in fallback and D1, with visible illustrative status and no fake reviews.
+Last updated: 2026-07-13 — D1 tutor replacement hardened with sequential delete, batched insert, late completion marker, and public API initialization.
