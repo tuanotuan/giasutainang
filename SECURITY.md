@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production confirms reference-score labeling data with all 50 customer review counts kept at zero; illustrative status remains explicit.
+Last updated: 2026-07-13. Star-score presentation retains the visible illustrative/reference qualifiers and all 50 customer review counts remain zero.
 
 ## Phạm vi
 

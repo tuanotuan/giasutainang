@@ -27,7 +27,7 @@ This section is the source of truth for the current production system and overri
 - Tutor-request email notifications are implemented as a non-blocking background task after the D1 insert. Messages contain only a safe summary and admin link. Up to five verified destinations may be stored as a comma-, semicolon-, or newline-separated list in the private Cloudflare secret `NOTIFICATION_EMAIL`; one failed recipient does not block the others. The temporary admin test-email control and endpoint were removed after owner acceptance.
 - The public footer uses a professional contact-and-navigation layout with a free-consultation CTA, privacy assurance, legal-policy links, business hours, and mobile-safe 44px social controls. Floating desktop contact/chat controls automatically hide while the footer is visible so they never cover its content. Never display a Ministry of Industry and Trade verification badge without completed registration and an official verification link.
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
-- The tutor catalog contains 50 original fictional composite profiles with neutral initial avatars, zero fabricated review counts, and a visible `Hồ sơ minh họa · Chưa xác minh` badge. Illustrative cards use deterministic `Điểm tham khảo 4.8/4.9`, explicitly distinguished from real customer ratings. Do not present these profiles as real people or verified center partners.
+- The tutor catalog contains 50 original fictional composite profiles with neutral initial avatars, zero fabricated review counts, and a visible `Hồ sơ minh họa · Chưa xác minh` badge. Illustrative cards use a compact gold star badge (`★ 4.8/4.9 tham khảo`), explicitly distinguished from real customer ratings. Do not present these profiles as real people or verified center partners.
 
 ## Session handoff
 
@@ -36,7 +36,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — production verified: 17 profiles show reference score 4.8, 33 show 4.9, and all review counts remain zero.
+- Last updated: 2026-07-13 — illustrative 4.8/4.9 scores now use a compact gold star badge with a small reference qualifier.
 
 ## Original phase-one brief (historical reference)
 
