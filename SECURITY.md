@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Tutor-catalog migration is idempotent and marks completion only after all 50 privacy-safe fictional records are inserted; public API initialization ensures schema/migration readiness.
+Last updated: 2026-07-13. Production API verified with 50 privacy-safe fictional tutor records, explicit illustrative status, and zero legacy records.
 
 ## Phạm vi
 

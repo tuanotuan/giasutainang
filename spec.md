@@ -33,10 +33,10 @@ This section is the source of truth for the current production system and overri
 
 - Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
 - Gmail notification for real parent tutor requests is deployed and owner-accepted. The implementation now supports up to five verified private recipients; adding a second Gmail requires verifying it in Cloudflare Email Routing and updating the existing secret list.
-- Current deployment replaces all previous tutor records with 50 fictional illustrative profiles. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
+- Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — tutor replacement migration hardened to complete sequentially before its marker is stored and to run from public API initialization.
+- Last updated: 2026-07-13 — production verified with 50 new illustrative profiles and zero legacy tutor records.
 
 ## Original phase-one brief (historical reference)
 

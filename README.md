@@ -282,4 +282,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — D1 tutor replacement hardened with sequential delete, batched insert, late completion marker, and public API initialization.
+Last updated: 2026-07-13 — production API verified with exactly 50 illustrative `TN001`–`TN050` profiles and no legacy tutor records.
