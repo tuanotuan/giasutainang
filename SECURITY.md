@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production security smoke check passed; Email Routing destination is verified and `NOTIFY_EMAIL` is configured while the private destination remains a Worker secret.
+Last updated: 2026-07-13. Production security smoke check passed; Email Routing destination, binding and private destination secret are configured, with an authenticated rate-limited test flow awaiting acceptance.
 
 ## Phạm vi
 
@@ -20,6 +20,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - Dependency được khóa ở Next.js 16.2.10, ESLint 9 flat config và PostCSS đã vá. `npm audit` là bắt buộc trước bàn giao.
 - `/.well-known/security.txt` công bố kênh báo cáo bảo mật.
 - Email thông báo yêu cầu mới chạy nền sau khi D1 lưu thành công, không chứa số điện thoại/địa chỉ chi tiết/ghi chú riêng. Destination được giữ trong Cloudflare Secret và binding chỉ được bật sau khi Gmail được xác minh.
+- Endpoint thử email yêu cầu session admin, có rate limit, không tạo dữ liệu D1 và không đưa dữ liệu người dùng vào nội dung thử.
 
 ## Việc chủ sở hữu cần xác nhận trên Cloudflare và các tài khoản
 

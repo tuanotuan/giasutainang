@@ -129,7 +129,7 @@ Worker đã có luồng gửi email nền sau khi D1 lưu thành công một yê
 ]
 ```
 
-Sender dùng `thongbao@giasutainang.online`. Cloudflare cho phép gửi miễn phí tới destination address đã xác minh trên Workers Free. Email Routing và destination đã được owner xác minh; binding `NOTIFY_EMAIL` đã được khai báo, còn secret `NOTIFICATION_EMAIL` cần được thêm trong Worker settings trước khi test thật.
+Sender dùng `thongbao@giasutainang.online`. Cloudflare cho phép gửi miễn phí tới destination address đã xác minh trên Workers Free. Email Routing, destination, binding `NOTIFY_EMAIL` và secret `NOTIFICATION_EMAIL` đã được cấu hình. Trang Tổng quan admin có nút **Gửi email thử**; nút không tạo yêu cầu giả hoặc lưu dữ liệu phụ huynh.
 
 ## Bảo mật vận hành
 
@@ -181,6 +181,7 @@ Admin:
 - `POST /api/admin/ai/tutor-audit/:id` (kiểm tra độ đầy đủ hồ sơ)
 - `POST /api/admin/ai/roadmap` (gợi ý lộ trình học)
 - `GET /api/admin/ai/report` (tổng hợp vận hành)
+- `POST /api/admin/notifications/test` (gửi email kiểm tra; yêu cầu đăng nhập admin và có rate limit)
 
 ## Cấu trúc thư mục
 
@@ -281,4 +282,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — Email Routing destination verified and `NOTIFY_EMAIL` binding added; waiting for private `NOTIFICATION_EMAIL` Worker secret and live acceptance test.
+Last updated: 2026-07-13 — private email destination, secret, binding, authenticated test endpoint, and admin test button configured; waiting for live Gmail acceptance test.

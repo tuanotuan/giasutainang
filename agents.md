@@ -55,6 +55,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Review `SECURITY.md` before changing auth, headers, rate limits, uploads, Cloudflare bindings, or incident-response guidance.
 - Keep tutor-request email notifications non-blocking and send only a safe summary plus the admin link. Never include the parent's phone, email, street address, free-text note, or uploaded files in notification email.
 - Keep the private notification destination in Cloudflare secret `NOTIFICATION_EMAIL`, never in public UI, source control, logs, or Markdown. Email Routing destination is verified and `NOTIFY_EMAIL` is an active production binding; preserve both without committing the private address.
+- Preserve authenticated, rate-limited `POST /api/admin/notifications/test` and its user-friendly admin button. A test email must not create a D1 request or include any user data.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -68,4 +69,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-13 — Email Routing destination verified and `NOTIFY_EMAIL` binding configured; private secret and owner acceptance test remain.
+Last updated: 2026-07-13 — private Gmail notification configuration and admin test flow complete; owner receipt/form acceptance tests remain.
