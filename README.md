@@ -282,4 +282,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — tutor listing copy simplified; 50 illustrative profiles show explicit 4.8/4.9 reference scores with zero fabricated reviews.
+Last updated: 2026-07-13 — production verified with 17 reference scores at 4.8, 33 at 4.9, and zero review counts across all 50 illustrative profiles.

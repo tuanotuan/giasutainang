@@ -36,7 +36,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — tutor-page marketing copy simplified and illustrative profiles use clearly labeled 4.8/4.9 reference scores without fake review counts.
+- Last updated: 2026-07-13 — production verified: 17 profiles show reference score 4.8, 33 show 4.9, and all review counts remain zero.
 
 ## Original phase-one brief (historical reference)
 

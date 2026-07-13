@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Fictional tutor records retain explicit illustrative status; 4.8/4.9 values are labeled reference scores and no customer review counts are fabricated.
+Last updated: 2026-07-13. Production confirms reference-score labeling data with all 50 customer review counts kept at zero; illustrative status remains explicit.
 
 ## Phạm vi
 

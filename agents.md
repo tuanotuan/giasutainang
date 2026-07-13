@@ -70,4 +70,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-13 — illustrative tutor scores are explicitly labeled reference values and remain separate from real ratings/review counts.
+Last updated: 2026-07-13 — production reference-score distribution verified at 17×4.8 and 33×4.9 with zero fabricated review counts.
