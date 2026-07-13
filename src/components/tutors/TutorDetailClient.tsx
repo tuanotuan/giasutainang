@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Award, BookOpen, ChevronRight, Clock3, GraduationCap, Home, Loader2, MapPin, SearchX, Star, UserRound } from "lucide-react";
+import { Award, BookOpen, ChevronRight, Clock3, GraduationCap, Home, Loader2, MapPin, SearchX, UserRound } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { tutors as initialTutors } from "@/data/tutors";
 import type { Tutor } from "@/types";
-import { TutorCard, TutorRating, TutorStatusBadge } from "./TutorCard";
+import { TutorCard, TutorStatusBadge } from "./TutorCard";
 
 export function TutorDetailClient() {
   const id = useSearchParams().get("id") ?? "";
@@ -46,8 +46,6 @@ export function TutorDetailClient() {
               <h1 className="mt-3 text-3xl font-extrabold sm:text-4xl">{tutor.name}</h1>
               <p className="mt-2 text-primary-100">{tutor.level} · {tutor.major}</p>
               <div className="mt-3"><TutorStatusBadge tutor={tutor} /></div>
-              {tutor.verificationStatus === "illustrative" && <div className="mt-3"><TutorRating tutor={tutor} /></div>}
-              {tutor.reviewCount > 0 && <span className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-amber-300"><Star className="h-4 w-4 fill-current" /> {tutor.rating} ({tutor.reviewCount} đánh giá)</span>}
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Star-score presentation retains the visible illustrative/reference qualifiers and all 50 customer review counts remain zero.
+Last updated: 2026-07-13. Public tutor cards/details no longer display rating values, star icons, or review counts; illustrative status remains explicit.
 
 ## Phạm vi
 

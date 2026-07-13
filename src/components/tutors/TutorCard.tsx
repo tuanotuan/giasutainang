@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, GraduationCap, MapPin, ShieldQuestion, Star } from "lucide-react";
+import { BookOpen, GraduationCap, MapPin, ShieldQuestion } from "lucide-react";
 import type { Tutor } from "@/types";
 
 export function TutorCard({ tutor }: { tutor: Tutor }) {
@@ -21,7 +21,6 @@ export function TutorCard({ tutor }: { tutor: Tutor }) {
             <h3 className="font-bold text-ink">{tutor.name}</h3>
             <p className="mt-1 text-xs font-semibold text-primary-600">{tutor.level} · {tutor.birthYear}</p>
           </div>
-          <TutorRating tutor={tutor} />
         </div>
         <TutorStatusBadge tutor={tutor} />
         <div className="mt-4 space-y-2 text-xs leading-5 text-slate-500">
@@ -47,10 +46,4 @@ export function TutorStatusBadge({ tutor }: { tutor: Tutor }) {
     ? "Hồ sơ minh họa · Chưa xác minh"
     : tutor.verificationStatus === "verified" ? "Đã xác minh" : "Chưa xác minh";
   return <span className="mt-3 inline-flex min-h-7 items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-bold text-slate-600"><ShieldQuestion className="h-3.5 w-3.5" />{label}</span>;
-}
-
-export function TutorRating({ tutor }: { tutor: Tutor }) {
-  if (tutor.verificationStatus === "illustrative") return <span className="inline-flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-bold text-amber-700"><Star className="h-3.5 w-3.5 fill-current" />{tutor.rating}<span className="font-semibold text-amber-600">tham khảo</span></span>;
-  if (tutor.reviewCount === 0) return <span className="rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-bold text-slate-500">Chưa có đánh giá</span>;
-  return <span className="flex items-center gap-1 rounded-lg bg-amber-50 px-2 py-1 text-xs font-bold text-amber-600"><Star className="h-3.5 w-3.5 fill-current" /> {tutor.rating}</span>;
 }
