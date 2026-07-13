@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-13. Production demographic audit passed for all 50 fictional profiles; no private data or real identities were introduced.
+Last updated: 2026-07-13. Tutor PDF export reads only the public tutor API, requires exactly 50 records, uses initial avatars, and excludes contacts, private files, addresses, and hidden rating fields.
 
 ## Phạm vi
 

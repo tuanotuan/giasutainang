@@ -32,6 +32,12 @@ npm run build
 
 Static export nằm trong thư mục `out/`.
 
+Xuất 50 hồ sơ gia sư hiện có trên production thành PDF A4 trong `exports/` (cần Microsoft Edge trên Windows):
+
+```bash
+npm run export:tutors-pdf
+```
+
 Kiểm tra Worker trước khi deploy:
 
 ```bash
@@ -283,4 +289,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-13 — production verified: all 50 tutor birth years and experience values match their professional levels.
+Last updated: 2026-07-13 — added a reproducible A4 PDF export for all 50 production tutor profiles.

@@ -29,6 +29,7 @@ This section is the source of truth for the current production system and overri
 - Mobile usability is mandatory for all changes: test 320/375/390/430px, 44px touch targets, safe areas, no horizontal overflow, and no fixed control covering content.
 - The tutor catalog contains 50 original fictional composite profiles with neutral initial avatars, zero fabricated review counts, and a visible `Hồ sơ minh họa · Chưa xác minh` badge. Public tutor cards and detail pages do not display ratings or star scores. Do not present these profiles as real people or verified center partners.
 - Fictional tutor demographics must remain internally plausible: students are born 2003–2007 with 1–3 years of illustrative experience, bachelor-level tutors 1997–2002 with 3–6 years, and teachers 1990–2000 with 5–11 years.
+- A reproducible `npm run export:tutors-pdf` task exports exactly 50 production tutor profiles to an A4 PDF with neutral initial avatars and all public profile fields; it refuses to export when the API count is not 50.
 
 ## Session handoff
 
@@ -37,7 +38,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-13 — production verified: 30 students born 2003–2007, 10 bachelor-level tutors 1997–2002, 10 teachers 1990–2000, with zero invalid profiles.
+- Last updated: 2026-07-13 — added and generated a complete 50-profile A4 PDF export from production data.
 
 ## Original phase-one brief (historical reference)
 

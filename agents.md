@@ -8,6 +8,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Use mock/seed data only for demo tutor and class profiles; real form submissions and admin changes are stored in Cloudflare D1.
 - Keep fictional tutor profiles visibly labeled `Hồ sơ minh họa · Chưa xác minh`; do not display rating numbers, star icons, or fabricated review counts on public tutor cards/details. New real profiles must default to `unverified`; never mark a profile verified without a real verification process.
 - Keep fictional tutor demographics coherent: students born 2003–2007 with 1–3 years experience, bachelor-level profiles born 1997–2002 with 3–6 years, and teachers born 1990–2000 with 5–11 years.
+- Preserve `npm run export:tutors-pdf` as the reproducible production tutor PDF export; it must require exactly 50 API records, use neutral initial avatars, and exclude private/contact data and hidden rating fields.
 - UI should be inspired by Vietnamese tutoring service websites, but all content must be original.
 - Prioritize clean code, reusable components, and responsive design.
 
@@ -71,4 +72,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-13 — production demographic audit passed across all 50 tutor profiles with zero level/age mismatches.
+Last updated: 2026-07-13 — reproducible privacy-safe PDF export added for the 50 production tutor profiles.
