@@ -44,6 +44,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Preserve the homepage promise wording: `Miễn phí tư vấn & kết nối`; clarify that parents pay no tutor-introduction fee without implying that tutoring itself is free.
 - Preserve the tutor-application lifecycle (`new`, `reviewing`, `needs_info`, `approved`, `rejected`), internal admin notes, and idempotent approval into a tutor profile.
 - Keep tutor applications in the standalone admin `Duyệt ứng viên` section; do not mix them back into parent `Yêu cầu tìm gia sư`.
+- Keep tutor-application phone validation at exactly 10 digits beginning with `0` in the shared Zod schema used by both the form and Worker; preserve numeric mobile input and the clear Vietnamese error message.
 - Keep application files private in R2 binding `FILES`; allow only JPG/PNG/WebP up to 5MB and PDF/DOC/DOCX up to 10MB, and require authenticated admin access for downloads.
 - Keep bucket `giasutainang-files` bound as `FILES`; private application upload has been deployed and owner-accepted.
 - Keep the public footer truthful: include clear contact, navigation, privacy, and legal-policy information, but never show a Ministry of Industry and Trade verification badge without an official verified registration link.
@@ -72,4 +73,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — full tutor-catalog deletion production-verified: D1 returns zero tutors, public HTML has no old tutor identifiers, static fallback/detail artifacts are gone, and security smoke passes. Future admin/application profiles are not affected by the completed one-time marker.
+Last updated: 2026-07-15 — tutor-application phone numbers now require exactly 10 digits beginning with `0` at both client and Worker boundaries, with mobile-friendly input constraints; production verification pending.

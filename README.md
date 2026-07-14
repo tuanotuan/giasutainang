@@ -251,6 +251,7 @@ Trong `/admin`:
 - Ô ngân sách dùng ví dụ dễ hiểu “2 triệu/tháng”; liên kết bảng giá mở ở tab mới để không làm mất nội dung form đang điền.
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
 - Hồ sơ ứng tuyển được tách thành mục quản trị riêng **Duyệt ứng viên**, có bộ lọc trạng thái, màn hình chi tiết, ghi chú nội bộ và nút duyệt để tạo hồ sơ gia sư công khai.
+- Số điện thoại trong form ứng tuyển phải đúng 10 chữ số và bắt đầu bằng `0`; trình duyệt và Worker dùng chung Zod validation, đồng thời điện thoại hiển thị bàn phím số.
 - Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
@@ -290,4 +291,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — full tutor-catalog deletion production-verified: the API returns zero profiles, old tutor identifiers are absent from public HTML, empty states replace the former catalog, and future D1-backed profiles remain supported.
+Last updated: 2026-07-15 — tutor registration now enforces a 10-digit phone number beginning with `0` in browser and Worker validation, with mobile-friendly numeric input; production verification pending.

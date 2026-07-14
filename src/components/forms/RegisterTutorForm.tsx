@@ -89,7 +89,7 @@ export function RegisterTutorForm() {
               <input {...register("fullName")} className={fieldClass} placeholder="Họ và tên đầy đủ" autoComplete="name" />
             </FormField>
             <FormField label="Số điện thoại" required error={errors.phone?.message}>
-              <input {...register("phone")} className={fieldClass} placeholder="Chỉ nhập 9-11 chữ số" inputMode="numeric" autoComplete="tel" />
+              <input {...register("phone")} className={fieldClass} placeholder="10 chữ số, bắt đầu bằng số 0" inputMode="numeric" pattern="[0-9]*" maxLength={10} autoComplete="tel" />
             </FormField>
             <FormField label="Email" required error={errors.email?.message}>
               <input {...register("email")} className={fieldClass} placeholder="giasu@example.com" type="email" autoComplete="email" />

@@ -19,6 +19,7 @@ This section is the source of truth for the current production system and overri
 - Admin add/edit actions for classes, tutors, prices, and posts smoothly reveal the editor and focus its first field, with sticky-header offset on mobile.
 - Homepage hero prominently states `Miễn phí tư vấn & kết nối`, clarifies that parents pay no tutor-introduction fee, and uses the CTA `Tìm gia sư miễn phí`.
 - Tutor applications have a standalone `Duyệt ứng viên` admin section, separate from parent tutor requests, with status filters, full detail view, internal notes, review/needs-info/approved/rejected states, and idempotent approval that creates a public tutor profile.
+- Tutor applications require a Vietnamese-style phone number containing exactly 10 digits and beginning with `0`; the same Zod rule runs in the browser and Worker before any application is stored.
 - Application upload accepts private avatar images (JPG/PNG/WebP, max 5MB) and profile documents (PDF/DOC/DOCX, max 10MB); only authenticated admin downloads are allowed. Private R2 bucket `giasutainang-files` is bound as `FILES` in production configuration.
 - Security baseline: production HTTP redirects to HTTPS; all responses receive CSP/HSTS/clickjacking/MIME/referrer/permissions headers; unsafe cross-site requests are rejected; login/public forms/public and admin AI have Worker rate limits; JSON/multipart sizes are capped and server-validated.
 - Admin sessions use a signed 8-hour `__Host-` Secure/HttpOnly/SameSite=Strict cookie. The first security deployment intentionally invalidates the previous cookie and requires one new login.
@@ -38,7 +39,7 @@ This section is the source of truth for the current production system and overri
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — owner-requested tutor deletion is production-verified: `/api/tutors` returns zero records, old tutor identifiers are absent from public HTML, static fallback/detail artifacts are removed, and the post-deploy security smoke check passes.
+- Last updated: 2026-07-15 — tutor-application phone validation now requires exactly 10 digits beginning with `0` in both browser and Worker; mobile numeric input guidance and documentation updated, with production verification pending.
 
 ## Original phase-one brief (historical reference)
 

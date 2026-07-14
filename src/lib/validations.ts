@@ -6,6 +6,12 @@ const phoneSchema = z
   .min(1, "Vui lòng nhập số điện thoại")
   .regex(/^\d{9,11}$/, "Số điện thoại phải gồm 9-11 chữ số");
 
+const tutorPhoneSchema = z
+  .string()
+  .trim()
+  .min(1, "Vui lòng nhập số điện thoại")
+  .regex(/^0\d{9}$/, "Số điện thoại phải gồm đúng 10 chữ số và bắt đầu bằng số 0");
+
 const optionalEmail = z
   .string()
   .trim()
@@ -46,7 +52,7 @@ export type FindTutorFormValues = z.infer<typeof findTutorSchema>;
 
 export const registerTutorSchema = z.object({
   fullName: shortRequiredText("Vui lòng nhập họ tên"),
-  phone: phoneSchema,
+  phone: tutorPhoneSchema,
   email: z.string().trim().email("Email chưa đúng định dạng").max(254),
   birthYear: z.coerce
     .number()
