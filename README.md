@@ -290,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — FAQ/chat-message routing production-verified; public advice now prioritizes `gpt-oss-20b` with two lightweight fallbacks after live quality testing.
+Last updated: 2026-07-15 — quick chat production-verified across factual FAQs, open advice, follow-up context, safe diagnostics, bounded output, and the post-deploy security smoke test; primary AI is `gpt-oss-20b` with GLM/Llama fallbacks.

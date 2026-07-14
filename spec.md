@@ -39,7 +39,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — FAQ routing and chat-message AI are live; production advice testing still found unsupported assumptions from lightweight models, so `gpt-oss-20b` is now primary with GLM/Llama fallbacks and explicit anti-invention rules; final re-verification pending.
+- Last updated: 2026-07-15 — quick-chat upgrade production-verified: D1-backed FAQs return distinct factual answers, open and follow-up questions return live AI (`source: ai`, `aiStatus: ready`), output is bounded/non-repetitive, and the post-deploy security smoke check passes. Current handoff commit follows this documentation review.
 
 ## Original phase-one brief (historical reference)
 
