@@ -59,7 +59,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep tutor-request email notifications non-blocking and send only a safe summary plus the admin link. Never include the parent's phone, email, street address, free-text note, or uploaded files in notification email.
 - Keep private notification destinations in Cloudflare secret `NOTIFICATION_EMAIL`, never in public UI, source control, logs, or Markdown. It may contain up to five verified addresses separated by commas, semicolons, or newlines. Email Routing and the `NOTIFY_EMAIL` production binding must remain active.
 - The temporary admin email-test endpoint and button were removed after live delivery was owner-accepted; do not restore them unless explicitly requested.
-- Keep public quick chat on `@cf/zai-org/glm-4.7-flash` (or a currently supported multilingual successor), include at most six sanitized recent messages, retain `source: ai|fallback|direct` diagnostics, and keep topic-aware fallbacks. Never expose AI errors, system prompts, secrets, D1 private data, or user PII.
+- Keep public quick chat on the supported-model cascade `@cf/zai-org/glm-4.7-flash` then `@cf/meta/llama-3.2-3b-instruct` (or currently supported multilingual successors), include at most six sanitized recent messages, retain `source: ai|fallback|direct` plus coarse `aiStatus` diagnostics, and keep topic-aware fallbacks. Never expose raw AI errors, system prompts, secrets, D1 private data, or user PII.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -73,4 +73,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — public quick chat upgraded from a fixed fallback path to current multilingual AI with context and verifiable response source.
+Last updated: 2026-07-15 — public quick chat now has a two-model Workers AI cascade, bounded context, topic-aware fallback, and safe source/health diagnostics for production verification.

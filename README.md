@@ -261,7 +261,7 @@ Trong `/admin`:
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 - Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
 - Khung “Hỏi nhanh” ngoài website trả lời thông tin học phí, quy trình, lịch học và học trực tuyến; không yêu cầu khách cung cấp dữ liệu cá nhân.
-- “Hỏi nhanh” dùng Workers AI model `@cf/zai-org/glm-4.7-flash`, gửi tối đa 6 tin nhắn gần nhất đã giới hạn độ dài để hiểu ngữ cảnh. API trả `source` (`ai`, `fallback`, `direct`) để kiểm tra vận hành; nếu AI tạm lỗi, câu trả lời dự phòng thay đổi theo chủ đề thay vì dùng một câu cố định.
+- “Hỏi nhanh” thử Workers AI model `@cf/zai-org/glm-4.7-flash` trước rồi chuyển sang `@cf/meta/llama-3.2-3b-instruct` nếu cần, đồng thời gửi tối đa 6 tin nhắn gần nhất đã giới hạn độ dài để hiểu ngữ cảnh. API trả `source` (`ai`, `fallback`, `direct`) và `aiStatus` dạng phân loại an toàn để kiểm tra vận hành; không trả lỗi nhà cung cấp. Nếu cả hai model tạm lỗi, câu trả lời dự phòng vẫn thay đổi theo chủ đề thay vì dùng một câu cố định.
 - Mọi tính năng tạo nội dung đều có câu trả lời dự phòng nếu Workers AI tạm thời không khả dụng.
 - Giao diện điện thoại có thanh liên hệ cố định, vùng bấm tối thiểu 44px, form không tự phóng to trên iPhone, bộ lọc dạng bảng kéo và bảng giá dạng thẻ dễ đọc.
 - Hero trang chủ nhấn mạnh “Miễn phí tư vấn & kết nối”, nói rõ phụ huynh không trả phí giới thiệu gia sư và dùng CTA “Tìm gia sư miễn phí”.
@@ -290,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — quick-chat AI upgraded to GLM-4.7-Flash with multi-turn context, source diagnostics, corrected registration intent, and topic-aware fallback responses.
+Last updated: 2026-07-15 — quick-chat now uses a two-model Workers AI cascade with multi-turn context, safe source/health diagnostics, corrected registration intent, and topic-aware fallback responses.
