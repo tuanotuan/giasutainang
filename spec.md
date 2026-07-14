@@ -30,7 +30,7 @@ This section is the source of truth for the current production system and overri
 - The tutor catalog contains 50 original fictional composite profiles with neutral initial avatars, zero fabricated review counts, and a visible `Hồ sơ minh họa · Chưa xác minh` badge. Public tutor cards and detail pages do not display ratings or star scores. Do not present these profiles as real people or verified center partners.
 - Fictional tutor demographics must remain internally plausible: students are born 2003–2007 with 1–3 years of illustrative experience, bachelor-level tutors 1997–2002 with 3–6 years, and teachers 1990–2000 with 5–11 years.
 - A reproducible `npm run export:tutors-pdf` task exports exactly 50 production tutor profiles to an A4 PDF with neutral initial avatars and all public profile fields; it refuses to export when the API count is not 50.
-- Public chat sends at most six recent sanitized messages for conversational context. `/api/ai/chat` returns `source: ai|fallback|direct` plus a coarse `aiStatus` health category for operational verification; raw provider errors are never returned. Contact/address answers remain deterministic, and tutor-application intent is separated from parent tutor-search intent.
+- Public chat sends at most six recent sanitized messages for conversational context. Common factual questions (price, process, online learning, tutor replacement, contact/address) are answered deterministically from current center/D1 data, while open-ended in-scope questions use AI. `/api/ai/chat` returns `source: ai|fallback|direct` plus a coarse `aiStatus` health category for operational verification; raw provider errors are never returned. Tutor-application intent is separated from parent tutor-search intent.
 
 ## Session handoff
 
@@ -39,7 +39,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — Workers AI is live; after a repetitive GLM production response, quick chat now prioritizes Llama 3.2, caps output, removes repeated sentences, and retains GLM plus topic fallbacks for resilience; final production re-verification pending.
+- Last updated: 2026-07-15 — Workers AI is live; common factual FAQs now use current D1/center data for precise answers, while open questions use the bounded two-model cascade. Vietnamese intent folding, actual price-category matching, and no-redundant-question prompt rules added; final production re-verification pending.
 
 ## Original phase-one brief (historical reference)
 

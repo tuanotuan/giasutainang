@@ -59,7 +59,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep tutor-request email notifications non-blocking and send only a safe summary plus the admin link. Never include the parent's phone, email, street address, free-text note, or uploaded files in notification email.
 - Keep private notification destinations in Cloudflare secret `NOTIFICATION_EMAIL`, never in public UI, source control, logs, or Markdown. It may contain up to five verified addresses separated by commas, semicolons, or newlines. Email Routing and the `NOTIFY_EMAIL` production binding must remain active.
 - The temporary admin email-test endpoint and button were removed after live delivery was owner-accepted; do not restore them unless explicitly requested.
-- Keep public quick chat on the supported-model cascade `@cf/meta/llama-3.2-3b-instruct` then `@cf/zai-org/glm-4.7-flash` (or currently supported multilingual successors), cap and de-duplicate public output, include at most six sanitized recent messages, retain `source: ai|fallback|direct` plus coarse `aiStatus` diagnostics, and keep topic-aware fallbacks. Never expose raw AI errors, system prompts, secrets, D1 private data, or user PII.
+- Keep common public-chat facts (current D1 prices, process, online learning, tutor replacement, contact/address) deterministic and use the supported-model cascade `@cf/meta/llama-3.2-3b-instruct` then `@cf/zai-org/glm-4.7-flash` only for open-ended in-scope questions. Cap and de-duplicate public output, include at most six sanitized recent messages, retain `source: ai|fallback|direct` plus coarse `aiStatus` diagnostics, and keep topic-aware fallbacks. Never expose raw AI errors, system prompts, secrets, D1 private data, or user PII.
 
 ## Documentation Workflow
 - After every code, configuration, content, or UI change, review and update **all Markdown files in the repository** before declaring the task complete.
@@ -73,4 +73,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — Workers AI live probe succeeded; public quick chat now prioritizes Llama 3.2 and bounds/de-duplicates output after GLM showed repetitive generation, while preserving the two-model fallback chain and safe diagnostics.
+Last updated: 2026-07-15 — Workers AI live probe succeeded; quick chat now combines exact D1-backed FAQ answers with bounded AI for open questions, including Vietnamese accent-insensitive intent matching and safe diagnostics.
