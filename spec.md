@@ -10,7 +10,7 @@ This section is the source of truth for the current production system and overri
 - Address: `135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh, Việt Nam`; hours: `06:00 - 22:00` daily.
 - Hosting/deployment: GitHub `tuanotuan/giasutainang` → automatic Cloudflare Workers deployment from `main`.
 - Backend: Cloudflare Worker API + D1 database, real admin login, CRUD for classes/tutors/posts/prices, and persisted public submissions.
-- Smart features: tutor matching, Zalo draft, class-post draft, tutor-profile audit, learning roadmap, operations report, and a multi-turn public quick-answer assistant using a Workers AI cascade (`@cf/meta/llama-3.2-3b-instruct` then `@cf/zai-org/glm-4.7-flash`) with bounded, de-duplicated output and topic-aware non-AI fallbacks.
+- Smart features: tutor matching, Zalo draft, class-post draft, tutor-profile audit, learning roadmap, operations report, and a multi-turn public quick-answer assistant using a chat-message Workers AI cascade (`@cf/zai-org/glm-4.7-flash` then `@cf/meta/llama-3.2-3b-instruct`) with bounded, de-duplicated output and topic-aware non-AI fallbacks.
 - Address form: province/city → district/area → ward/commune cascading selectors; only house number/street is typed manually.
 - Form validation UX: changing cascading selections must not show required-field errors. Errors appear only after submit; invalid submit smoothly scrolls to and focuses the first missing field.
 - Parent tutor requests offer only `Tại nhà` and `Online`; group size is inferred from the student-count field instead of a redundant `Học nhóm` option.
@@ -39,7 +39,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — Workers AI is live; common factual FAQs use current D1/center data while open questions use bounded AI. Production tests caught and fixed Vietnamese `giá`/`gia sư` and registration/process intent collisions; final re-verification pending.
+- Last updated: 2026-07-15 — FAQ routing is production-verified. Open AI advice exposed poor raw-prompt generation, so the cascade now uses Cloudflare's chat-message format, extracts both response schema variants, and explicitly forbids invented customer circumstances; final re-verification pending.
 
 ## Original phase-one brief (historical reference)
 

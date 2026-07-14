@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-15. Public chat hybrid FAQ/AI path and corrected intent routing reviewed: deterministic public D1 facts, two-model cascade, bounded sanitized history/output, prompt-injection guardrails, rate limiting, safe coarse health diagnostics, and no raw AI errors exposed.
+Last updated: 2026-07-15. Public chat hybrid FAQ/chat-message AI path reviewed: deterministic public D1 facts, two-model cascade, bounded sanitized history/output, anti-invention and prompt-injection guardrails, rate limiting, safe coarse health diagnostics, and no raw AI errors exposed.
 
 ## Phạm vi
 
