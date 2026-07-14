@@ -73,4 +73,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — tutor-application phone numbers now require exactly 10 digits beginning with `0` at both client and Worker boundaries, with mobile-friendly input constraints; production verification pending.
+Last updated: 2026-07-15 — exact 10-digit, leading-zero tutor-phone validation is production-verified against wrong-prefix and wrong-length cases; mobile input constraints and Worker enforcement are active, and security smoke passes.

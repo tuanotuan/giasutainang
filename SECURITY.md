@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-15. Tutor-application phone validation reviewed: exact 10-digit, leading-zero rule is enforced by the shared client/Worker Zod schema before D1 storage; production verification pending.
+Last updated: 2026-07-15. Tutor-application phone validation is production-verified: wrong-prefix and wrong-length submissions are rejected by Worker before D1 storage, shared client validation remains active, and security smoke passes.
 
 ## Phạm vi
 

@@ -39,7 +39,7 @@ This section is the source of truth for the current production system and overri
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — tutor-application phone validation now requires exactly 10 digits beginning with `0` in both browser and Worker; mobile numeric input guidance and documentation updated, with production verification pending.
+- Last updated: 2026-07-15 — tutor-application phone validation is production-verified: 10 digits without a leading `0`, 9 digits with a leading `0`, and 12 digits are all rejected by Worker with the friendly exact-rule message; security smoke passes.
 
 ## Original phase-one brief (historical reference)
 

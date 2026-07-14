@@ -291,4 +291,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — tutor registration now enforces a 10-digit phone number beginning with `0` in browser and Worker validation, with mobile-friendly numeric input; production verification pending.
+Last updated: 2026-07-15 — tutor registration phone validation is production-verified for wrong-prefix and wrong-length cases; browser/mobile guidance and Worker enforcement both use the exact 10-digit, leading-zero rule.
