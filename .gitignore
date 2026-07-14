@@ -9,3 +9,4 @@ pnpm-debug.log*
 .dev-server*.log
 .wrangler
 *.tsbuildinfo
+exports/*.pdf

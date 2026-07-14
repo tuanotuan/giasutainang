@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-15. Public chat hybrid FAQ/chat-message AI path is production-verified: deterministic public D1 facts, three-model cascade, bounded sanitized history/output, anti-invention and prompt-injection guardrails, rate limiting, safe coarse health diagnostics, no raw AI errors exposed, and security smoke check passing.
+Last updated: 2026-07-15. Owner-requested tutor-catalog deletion reviewed: one-time D1 deletion marker, no static tutor fallback or seed-only detail routes, no committed profile PDF, and future profiles remain unverified/private-data-safe. Production verification pending deployment.
 
 ## Phạm vi
 
@@ -21,7 +21,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - `/.well-known/security.txt` công bố kênh báo cáo bảo mật.
 - Email thông báo yêu cầu mới chạy nền sau khi D1 lưu thành công, không chứa số điện thoại/địa chỉ chi tiết/ghi chú riêng. Tối đa năm destination đã xác minh được giữ trong Cloudflare Secret, gửi thành từng email riêng để không lộ danh sách người nhận; lỗi ở một địa chỉ không chặn các địa chỉ khác.
 - Endpoint và nút thử email tạm thời đã được xóa sau khi chủ sở hữu xác nhận luồng email thật hoạt động.
-- Danh mục 50 gia sư minh họa không chứa số điện thoại, email, địa chỉ nhà, file cá nhân hay ảnh người thật. Trạng thái minh họa/chưa xác minh được trả từ D1 để giao diện không trình bày dữ liệu seed như hồ sơ đã kiểm chứng.
+- Danh mục gia sư không có static seed/fallback sau lần xóa toàn bộ do chủ sở hữu yêu cầu. Hồ sơ mới chỉ đến từ admin hoặc quy trình duyệt ứng viên, mặc định chưa xác minh và vẫn không công khai dữ liệu liên hệ riêng.
 
 ## Việc chủ sở hữu cần xác nhận trên Cloudflare và các tài khoản
 

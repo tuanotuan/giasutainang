@@ -5,10 +5,9 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 
 ## Important Rules
 - Do not copy real branding, logo, images, phone numbers, addresses, articles, or private data from any reference website.
-- Use mock/seed data only for demo tutor and class profiles; real form submissions and admin changes are stored in Cloudflare D1.
-- Keep fictional tutor profiles visibly labeled `Hồ sơ minh họa · Chưa xác minh`; do not display rating numbers, star icons, or fabricated review counts on public tutor cards/details. New real profiles must default to `unverified`; never mark a profile verified without a real verification process.
-- Keep fictional tutor demographics coherent: students born 2003–2007 with 1–3 years experience, bachelor-level profiles born 1997–2002 with 3–6 years, and teachers born 1990–2000 with 5–11 years.
-- Preserve `npm run export:tutors-pdf` as the reproducible production tutor PDF export; it must require exactly 50 API records, use neutral initial avatars, and exclude private/contact data and hidden rating fields.
+- Real form submissions and admin changes are stored in Cloudflare D1. The tutor catalog has no static seed/fallback records after the owner-requested full deletion; do not reintroduce fictional tutors unless explicitly requested.
+- New real tutor profiles must default to `unverified`; never mark a profile verified without a real verification process. Do not display hidden ratings, stars, or fabricated review counts on public tutor cards/details.
+- Preserve `npm run export:tutors-pdf` as a privacy-safe export of all current production tutor profiles; it must refuse an empty catalog and exclude private/contact data and hidden rating fields.
 - UI should be inspired by Vietnamese tutoring service websites, but all content must be original.
 - Prioritize clean code, reusable components, and responsive design.
 
@@ -73,4 +72,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — production verification passed for D1-backed FAQs, open AI advice, multi-turn context, safe diagnostics, bounded output, and the security smoke test; `gpt-oss-20b` remains primary with two fallbacks.
+Last updated: 2026-07-15 — full tutor-catalog deletion implemented with a one-time D1 marker, empty static fallback, friendly empty states, removal of obsolete seed-only detail routes, and generalized privacy-safe PDF export; production verification pending.

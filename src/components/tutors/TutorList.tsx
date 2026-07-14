@@ -75,8 +75,8 @@ export function TutorList() {
           ) : (
             <div className="rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-16 text-center">
               <SearchX className="mx-auto h-12 w-12 text-slate-300" />
-              <h2 className="mt-4 text-lg font-bold text-ink">Chưa tìm thấy gia sư phù hợp</h2>
-              <p className="mt-2 text-sm text-slate-500">Thử bỏ bớt một vài điều kiện để xem thêm hồ sơ.</p>
+              <h2 className="mt-4 text-lg font-bold text-ink">{items.length === 0 ? "Danh sách gia sư đang được cập nhật" : "Chưa tìm thấy gia sư phù hợp"}</h2>
+              <p className="mt-2 text-sm text-slate-500">{items.length === 0 ? "Bạn có thể gửi nhu cầu để trung tâm chủ động tìm hồ sơ phù hợp." : "Thử bỏ bớt một vài điều kiện để xem thêm hồ sơ."}</p>
             </div>
           )}
         </div>

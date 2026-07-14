@@ -313,6 +313,13 @@ async function setupDatabase(db: D1Database) {
   if (!tutorColumns.results.some((column) => column.name === "verification_status")) {
     await db.exec("ALTER TABLE tutors ADD COLUMN verification_status TEXT NOT NULL DEFAULT 'unverified'");
   }
+  const tutorCatalogCleared = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'tutor_catalog_cleared_v1'").first<{ value: string }>();
+  if (!tutorCatalogCleared?.value) {
+    const clearedAt = now();
+    await db.prepare("DELETE FROM tutors").run();
+    await db.prepare("INSERT OR REPLACE INTO app_meta (meta_key, value, updated_at) VALUES ('tutor_catalog_cleared_v1', ?1, ?2)")
+      .bind(clearedAt, clearedAt).run();
+  }
   const seeded = await db.prepare("SELECT value FROM app_meta WHERE meta_key = 'seeded_at'").first<{ value: string }>();
   const stamp = now();
   const statements: D1PreparedStatement[] = [];

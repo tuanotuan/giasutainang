@@ -4,7 +4,7 @@
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js 16 App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
-Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API dùng dữ liệu thật từ Cloudflare D1. Danh mục gia sư khởi tạo gồm 50 hồ sơ hư cấu để minh họa cách trình bày, không đại diện cho người thật.
+Site hiện có giao diện public, form đăng ký, danh sách lớp/gia sư/bài viết, khu quản trị `/admin` và Worker API dùng dữ liệu thật từ Cloudflare D1. Danh mục gia sư hiện để trống theo yêu cầu của chủ trung tâm; hồ sơ mới được thêm trong admin hoặc tạo khi duyệt ứng viên.
 
 ## Cài đặt
 
@@ -32,7 +32,7 @@ npm run build
 
 Static export nằm trong thư mục `out/`.
 
-Xuất 50 hồ sơ gia sư hiện có trên production thành PDF A4 trong `exports/` (cần Microsoft Edge trên Windows):
+Xuất toàn bộ hồ sơ gia sư hiện có trên production thành PDF A4 trong `exports/` (cần Microsoft Edge trên Windows; lệnh báo rõ khi danh mục trống):
 
 ```bash
 npm run export:tutors-pdf
@@ -255,7 +255,7 @@ Trong `/admin`:
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
-- Danh mục ban đầu có 50 hồ sơ hư cấu nguyên bản, avatar chữ cái trung tính và luôn hiện nhãn “Hồ sơ minh họa · Chưa xác minh”. Giao diện public không hiển thị điểm, sao hay lượt đánh giá. Migration `tutor_demo_replaced_v3` thay danh mục cũ. Hồ sơ do admin thêm hoặc duyệt từ ứng viên mặc định là “Chưa xác minh”.
+- Danh mục gia sư không còn dữ liệu mẫu hoặc fallback sau yêu cầu xóa toàn bộ của chủ trung tâm. Migration một lần `tutor_catalog_cleared_v1` xóa dữ liệu production cũ; hồ sơ do admin thêm hoặc duyệt từ ứng viên sau đó mặc định là “Chưa xác minh”.
 - Tuổi và kinh nghiệm của hồ sơ minh họa được tạo theo trình độ: sinh viên sinh 2003–2007/kinh nghiệm 1–3 năm, cử nhân 1997–2002/3–6 năm, giáo viên 1990–2000/5–11 năm. Migration `tutor_demographics_fixed_v1` đồng bộ lại 50 bản ghi D1.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
@@ -290,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — quick chat production-verified across factual FAQs, open advice, follow-up context, safe diagnostics, bounded output, and the post-deploy security smoke test; primary AI is `gpt-oss-20b` with GLM/Llama fallbacks.
+Last updated: 2026-07-15 — all existing tutor profiles removed from static fallback and scheduled for one-time D1 production deletion; obsolete seed-only detail routes were removed, while the D1-backed detail page remains for future profiles. Production verification pending.
