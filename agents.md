@@ -73,4 +73,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — Workers AI live probe succeeded; quick chat now combines exact D1-backed FAQ answers with bounded AI for open questions, including Vietnamese accent-insensitive intent matching and safe diagnostics.
+Last updated: 2026-07-15 — Workers AI live probe succeeded; hybrid D1/AI quick chat includes accent-insensitive intent matching with explicit guards against `giá`/`gia sư` and registration/process collisions.

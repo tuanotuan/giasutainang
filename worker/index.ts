@@ -715,7 +715,7 @@ async function answerPublicQuestion(request: Request, db: D1Database, ai: AiBind
       ? "Gia Sư Tài Năng tại 135/1 Nguyễn Hữu Cảnh, TP. Hồ Chí Minh. Trung tâm cũng tư vấn học trực tuyến trên toàn quốc."
       : folded.includes("lam gia su") || folded.includes("tro thanh gia su") || folded.includes("ung tuyen") || folded.includes("nhan lop")
         ? "Bạn vào mục “Trở thành gia sư”, điền hồ sơ và gửi giấy tờ phù hợp nếu có. Trung tâm sẽ xem xét thông tin trước khi duyệt hồ sơ và hỗ trợ nhận lớp."
-      : folded.includes("dang ky") || folded.includes("tim gia su")
+      : folded.includes("dang ky") || (folded.includes("tim gia su") && !folded.includes("quy trinh"))
         ? "Bạn vào mục “Tìm gia sư”, điền nhu cầu học tập và số điện thoại. Trung tâm sẽ liên hệ để xác nhận lịch, ngân sách và gửi hồ sơ phù hợp."
         : "";
   if (direct) return json({ answer: direct, source: "direct", suggestions: ["Học phí khoảng bao nhiêu?", "Quy trình tìm gia sư thế nào?", "Có dạy online không?"] });
@@ -740,7 +740,7 @@ async function answerPublicQuestion(request: Request, db: D1Database, ai: AiBind
 }
 
 function publicChatFallback(folded: string, prices: Array<Record<string, unknown>>) {
-  if (folded.includes("hoc phi") || folded.includes("bao nhieu") || folded.includes("gia ")) {
+  if (isPriceIntent(folded)) {
     const wantedGroup = folded.includes("online") || folded.includes("truc tuyen") ? "online"
       : folded.includes("tieu hoc") || /lop\s*[1-5](?:\D|$)/.test(folded) ? "tieu hoc"
         : folded.includes("thcs") || /lop\s*[6-9](?:\D|$)/.test(folded) ? "thcs"
@@ -758,7 +758,12 @@ function publicChatFallback(folded: string, prices: Array<Record<string, unknown
 }
 
 function isPublicFaqIntent(folded: string) {
-  return ["hoc phi", "bao nhieu", "gia ", "quy trinh", "bao lau", "online", "truc tuyen", "doi gia su", "khong phu hop"]
+  return isPriceIntent(folded) || ["quy trinh", "bao lau", "online", "truc tuyen", "doi gia su", "khong phu hop"]
+    .some((phrase) => folded.includes(phrase));
+}
+
+function isPriceIntent(folded: string) {
+  return ["hoc phi", "bao nhieu", "bang gia", "muc gia", "gia bao nhieu", "gia gia su"]
     .some((phrase) => folded.includes(phrase));
 }
 

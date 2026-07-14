@@ -290,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — Workers AI connectivity verified; quick chat now combines exact D1-backed FAQs with bounded multi-turn AI, Vietnamese accent-insensitive intent matching, safe diagnostics, and resilient fallbacks.
+Last updated: 2026-07-15 — Workers AI connectivity verified; hybrid D1/AI quick chat now includes production-tested Vietnamese intent handling, including guards against `giá`/`gia sư` and registration/process collisions.

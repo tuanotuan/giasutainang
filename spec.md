@@ -39,7 +39,7 @@ This section is the source of truth for the current production system and overri
 - Production replacement is verified: the public API returns exactly 50 `TN001`–`TN050` fictional illustrative profiles and zero legacy tutor codes. New admin-created or application-approved profiles default to `unverified`; only a future explicit verification process may mark a profile `verified`.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — Workers AI is live; common factual FAQs now use current D1/center data for precise answers, while open questions use the bounded two-model cascade. Vietnamese intent folding, actual price-category matching, and no-redundant-question prompt rules added; final production re-verification pending.
+- Last updated: 2026-07-15 — Workers AI is live; common factual FAQs use current D1/center data while open questions use bounded AI. Production tests caught and fixed Vietnamese `giá`/`gia sư` and registration/process intent collisions; final re-verification pending.
 
 ## Original phase-one brief (historical reference)
 
