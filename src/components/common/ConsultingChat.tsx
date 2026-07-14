@@ -26,7 +26,8 @@ export function ConsultingChat() {
     setMessages((current) => [...current, { role: "visitor", text: clean }]);
     setQuestion(""); setLoading(true);
     try {
-      const result = await apiRequest<{ answer: string }>("/api/ai/chat", { method: "POST", body: JSON.stringify({ question: clean }) });
+      const history = messages.slice(-6);
+      const result = await apiRequest<{ answer: string }>("/api/ai/chat", { method: "POST", body: JSON.stringify({ question: clean, history }) });
       setMessages((current) => [...current, { role: "assistant", text: result.answer }]);
     } catch {
       setMessages((current) => [...current, { role: "assistant", text: `Mình chưa trả lời được lúc này. Bạn vui lòng gọi hoặc nhắn Zalo ${siteConfig.phone} để được hỗ trợ nhé.` }]);
