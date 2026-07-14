@@ -290,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — all existing tutor profiles removed from static fallback and scheduled for one-time D1 production deletion; obsolete seed-only detail routes were removed, while the D1-backed detail page remains for future profiles. Production verification pending.
+Last updated: 2026-07-15 — full tutor-catalog deletion production-verified: the API returns zero profiles, old tutor identifiers are absent from public HTML, empty states replace the former catalog, and future D1-backed profiles remain supported.

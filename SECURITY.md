@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-15. Owner-requested tutor-catalog deletion reviewed: one-time D1 deletion marker, no static tutor fallback or seed-only detail routes, no committed profile PDF, and future profiles remain unverified/private-data-safe. Production verification pending deployment.
+Last updated: 2026-07-15. Owner-requested tutor-catalog deletion is production-verified: D1 returns zero profiles, old identifiers are absent from public HTML, no fallback/detail/PDF artifacts remain in source control, future profiles remain unverified/private-data-safe, and security smoke passes.
 
 ## Phạm vi
 

@@ -72,4 +72,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-15 — full tutor-catalog deletion implemented with a one-time D1 marker, empty static fallback, friendly empty states, removal of obsolete seed-only detail routes, and generalized privacy-safe PDF export; production verification pending.
+Last updated: 2026-07-15 — full tutor-catalog deletion production-verified: D1 returns zero tutors, public HTML has no old tutor identifiers, static fallback/detail artifacts are gone, and security smoke passes. Future admin/application profiles are not affected by the completed one-time marker.

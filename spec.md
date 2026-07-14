@@ -38,7 +38,7 @@ This section is the source of truth for the current production system and overri
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — owner-requested full tutor-catalog deletion implemented through one-time D1 migration, empty static fallback, friendly empty states, removal of obsolete seed-only detail routes, and a generalized PDF exporter; production verification pending deployment.
+- Last updated: 2026-07-15 — owner-requested tutor deletion is production-verified: `/api/tutors` returns zero records, old tutor identifiers are absent from public HTML, static fallback/detail artifacts are removed, and the post-deploy security smoke check passes.
 
 ## Original phase-one brief (historical reference)
 
