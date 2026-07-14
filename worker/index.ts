@@ -80,7 +80,7 @@ const SESSION_AGE = 60 * 60 * 8;
 const CONTACT_PHONE = "0365002142";
 const MAX_JSON_BYTES = 64 * 1024;
 const MAX_MULTIPART_BYTES = 16 * 1024 * 1024;
-const AI_TEXT_MODELS = ["@cf/zai-org/glm-4.7-flash", "@cf/meta/llama-3.2-3b-instruct"] as const;
+const AI_TEXT_MODELS = ["@cf/openai/gpt-oss-20b", "@cf/zai-org/glm-4.7-flash", "@cf/meta/llama-3.2-3b-instruct"] as const;
 let setupPromise: Promise<void> | null = null;
 
 class ApiError extends Error {

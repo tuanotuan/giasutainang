@@ -261,7 +261,7 @@ Trong `/admin`:
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 - Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
 - Khung “Hỏi nhanh” ngoài website trả lời thông tin học phí, quy trình, lịch học và học trực tuyến; không yêu cầu khách cung cấp dữ liệu cá nhân.
-- “Hỏi nhanh” trả lời các thông tin cần chính xác như học phí hiện hành, quy trình, học online, đổi gia sư và liên hệ trực tiếp từ dữ liệu trung tâm/D1; nhận diện được câu tiếng Việt có hoặc không dấu. Câu hỏi mở trong đúng phạm vi dùng system/user chat messages, thử Workers AI model `@cf/zai-org/glm-4.7-flash` trước rồi chuyển sang `@cf/meta/llama-3.2-3b-instruct` nếu cần, đồng thời gửi tối đa 6 tin nhắn gần nhất đã giới hạn độ dài để hiểu ngữ cảnh. Đầu ra bị giới hạn tối đa 4 câu/700 ký tự, tự loại câu lặp và không được suy diễn hoàn cảnh khách. API trả `source` (`ai`, `fallback`, `direct`) và `aiStatus` dạng phân loại an toàn; không trả lỗi nhà cung cấp.
+- “Hỏi nhanh” trả lời các thông tin cần chính xác như học phí hiện hành, quy trình, học online, đổi gia sư và liên hệ trực tiếp từ dữ liệu trung tâm/D1; nhận diện được câu tiếng Việt có hoặc không dấu. Câu hỏi mở trong đúng phạm vi dùng system/user chat messages, thử Workers AI model `@cf/openai/gpt-oss-20b` trước rồi chuyển qua GLM 4.7 Flash và Llama 3.2 nếu cần, đồng thời gửi tối đa 6 tin nhắn gần nhất đã giới hạn độ dài để hiểu ngữ cảnh. Đầu ra bị giới hạn tối đa 4 câu/700 ký tự, tự loại câu lặp và không được suy diễn hoàn cảnh khách. API trả `source` (`ai`, `fallback`, `direct`) và `aiStatus` dạng phân loại an toàn; không trả lỗi nhà cung cấp.
 - Mọi tính năng tạo nội dung đều có câu trả lời dự phòng nếu Workers AI tạm thời không khả dụng.
 - Giao diện điện thoại có thanh liên hệ cố định, vùng bấm tối thiểu 44px, form không tự phóng to trên iPhone, bộ lọc dạng bảng kéo và bảng giá dạng thẻ dễ đọc.
 - Hero trang chủ nhấn mạnh “Miễn phí tư vấn & kết nối”, nói rõ phụ huynh không trả phí giới thiệu gia sư và dùng CTA “Tìm gia sư miễn phí”.
@@ -290,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — FAQ routing production-verified; open AI questions now use Cloudflare chat-message format with explicit anti-invention guidance and compatible response extraction.
+Last updated: 2026-07-15 — FAQ/chat-message routing production-verified; public advice now prioritizes `gpt-oss-20b` with two lightweight fallbacks after live quality testing.
