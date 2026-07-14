@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-15. Public chat two-model cascade reviewed: bounded sanitized history, prompt-injection guardrails, rate limiting, safe coarse health diagnostics, and no raw AI errors exposed.
+Last updated: 2026-07-15. Public chat live AI path reviewed: two-model cascade, bounded sanitized history and output, prompt-injection guardrails, rate limiting, safe coarse health diagnostics, and no raw AI errors exposed.
 
 ## Phạm vi
 
@@ -16,7 +16,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - JSON tối đa 64KB; multipart tối đa 16MB. Form phụ huynh, ứng viên, nhận lớp và liên hệ đều được kiểm tra lại tại server bằng Zod.
 - API lớp công khai xóa địa chỉ chi tiết và lời nhắn riêng; dữ liệu đầy đủ chỉ có trong admin đã xác thực.
 - Bucket R2 không public. File phải đúng giới hạn, MIME và magic bytes; tên file được làm sạch; download cần session admin và tham chiếu D1, dùng attachment + nosniff + CSP sandbox.
-- Prompt AI công khai coi câu hỏi và tối đa sáu tin nhắn gần nhất là dữ liệu không đáng tin cậy, giới hạn mỗi nội dung 300 ký tự, không có quyền truy cập PII hoặc secrets; endpoint AI có rate limit riêng. Response chỉ công bố nguồn xử lý và nhóm trạng thái sức khỏe tổng quát, không trả lỗi nhà cung cấp, system prompt hay chi tiết nội bộ.
+- Prompt AI công khai coi câu hỏi và tối đa sáu tin nhắn gần nhất là dữ liệu không đáng tin cậy, giới hạn mỗi nội dung 300 ký tự, không có quyền truy cập PII hoặc secrets; endpoint AI có rate limit riêng. Đầu ra bị giới hạn độ dài và loại câu lặp; response chỉ công bố nguồn xử lý và nhóm trạng thái sức khỏe tổng quát, không trả lỗi nhà cung cấp, system prompt hay chi tiết nội bộ.
 - Dependency được khóa ở Next.js 16.2.10, ESLint 9 flat config và PostCSS đã vá. `npm audit` là bắt buộc trước bàn giao.
 - `/.well-known/security.txt` công bố kênh báo cáo bảo mật.
 - Email thông báo yêu cầu mới chạy nền sau khi D1 lưu thành công, không chứa số điện thoại/địa chỉ chi tiết/ghi chú riêng. Tối đa năm destination đã xác minh được giữ trong Cloudflare Secret, gửi thành từng email riêng để không lộ danh sách người nhận; lỗi ở một địa chỉ không chặn các địa chỉ khác.

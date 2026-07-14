@@ -19,7 +19,14 @@ interface D1Database {
 }
 
 interface AiBinding {
-  run(model: string, input: { prompt: string }): Promise<{ response?: string }>;
+  run(model: string, input: {
+    prompt: string;
+    max_tokens?: number;
+    max_completion_tokens?: number;
+    temperature?: number;
+    repetition_penalty?: number;
+    frequency_penalty?: number;
+  }): Promise<{ response?: string }>;
 }
 
 interface R2ObjectBody {
@@ -72,7 +79,7 @@ const SESSION_AGE = 60 * 60 * 8;
 const CONTACT_PHONE = "0365002142";
 const MAX_JSON_BYTES = 64 * 1024;
 const MAX_MULTIPART_BYTES = 16 * 1024 * 1024;
-const AI_TEXT_MODELS = ["@cf/zai-org/glm-4.7-flash", "@cf/meta/llama-3.2-3b-instruct"] as const;
+const AI_TEXT_MODELS = ["@cf/meta/llama-3.2-3b-instruct", "@cf/zai-org/glm-4.7-flash"] as const;
 let setupPromise: Promise<void> | null = null;
 
 class ApiError extends Error {
@@ -532,8 +539,10 @@ async function runAiTextWithSource(ai: AiBinding | undefined, prompt: string, fa
   const failures: string[] = [];
   for (const model of AI_TEXT_MODELS) {
     try {
-      const result = await ai.run(model, { prompt });
-      const text = String(result.response ?? "").trim();
+      const result = await ai.run(model, model.includes("glm-4.7")
+        ? { prompt, max_completion_tokens: 180, temperature: 0.2, frequency_penalty: 0.6 }
+        : { prompt, max_tokens: 180, temperature: 0.3, repetition_penalty: 1.15 });
+      const text = cleanPublicAiAnswer(String(result.response ?? ""));
       if (text) return { text, source: "ai" as const, aiStatus: "ready" };
       failures.push("empty_response");
     } catch (error) {
@@ -542,6 +551,19 @@ async function runAiTextWithSource(ai: AiBinding | undefined, prompt: string, fa
     }
   }
   return { text: fallback, source: "fallback" as const, aiStatus: failures.includes("account_or_quota") ? "account_or_quota" : failures.includes("model_unavailable") ? "model_unavailable" : "runtime_error" };
+}
+
+function cleanPublicAiAnswer(value: string) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  const unique: string[] = [];
+  for (const sentence of normalized.match(/[^.!?]+[.!?]+|[^.!?]+$/g) ?? []) {
+    const clean = sentence.trim();
+    if (clean.length < 2 || unique.some((item) => sameText(item, clean))) continue;
+    unique.push(clean);
+    if (unique.length === 4) break;
+  }
+  return unique.join(" ").slice(0, 700).trim();
 }
 
 function classifyAiError(error: unknown) {
