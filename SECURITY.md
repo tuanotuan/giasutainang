@@ -15,6 +15,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - Rate limit tại Worker: đăng nhập 8 lần/phút, mỗi endpoint form 20 lần/phút và public/admin AI 10 lần/phút theo client/location. Rate limit này là lớp giảm abuse, không phải bộ đếm tuyệt đối.
 - JSON tối đa 64KB; multipart tối đa 16MB. Form phụ huynh, ứng viên, nhận lớp và liên hệ đều được kiểm tra lại tại server bằng Zod.
 - Riêng hồ sơ ứng viên gia sư, số điện thoại phải đúng 10 chữ số và bắt đầu bằng `0`; kiểm tra phía trình duyệt chỉ hỗ trợ trải nghiệm, Worker vẫn là ranh giới bắt buộc trước khi ghi D1.
+- Điều kiện ứng viên đủ 18 tuổi được tính khi Worker kiểm tra từng yêu cầu, không chốt năm tại thời điểm module khởi tạo.
 - API lớp công khai xóa địa chỉ chi tiết và lời nhắn riêng; dữ liệu đầy đủ chỉ có trong admin đã xác thực.
 - Bucket R2 không public. Ứng viên sinh viên bắt buộc gửi ảnh thẻ JPG/PNG/WebP tối đa 5MB; ứng viên đã tốt nghiệp bắt buộc gửi ảnh bằng tối đa 5MB hoặc PDF/DOC/DOCX tối đa 10MB. Worker kiểm tra nhóm ứng viên, giới hạn, MIME và magic bytes; tên file được làm sạch; download cần session admin và tham chiếu D1, dùng attachment + nosniff + CSP sandbox.
 - Prompt AI công khai coi câu hỏi và tối đa sáu tin nhắn gần nhất là dữ liệu không đáng tin cậy, giới hạn mỗi nội dung 300 ký tự, không có quyền truy cập PII hoặc secrets; endpoint AI có rate limit riêng. Đầu ra bị giới hạn độ dài và loại câu lặp; response chỉ công bố nguồn xử lý và nhóm trạng thái sức khỏe tổng quát, không trả lỗi nhà cung cấp, system prompt hay chi tiết nội bộ.

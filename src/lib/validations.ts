@@ -57,7 +57,7 @@ export const registerTutorSchema = z.object({
   birthYear: z.coerce
     .number()
     .min(1960, "Năm sinh chưa hợp lệ")
-    .max(new Date().getFullYear() - 18, "Ứng viên cần đủ 18 tuổi"),
+    .refine((value) => value <= new Date().getFullYear() - 18, "Ứng viên cần đủ 18 tuổi"),
   gender: z.enum(["Nam", "Nữ"]),
   school: shortRequiredText("Vui lòng nhập trường học hoặc nơi đã tốt nghiệp", 200),
   major: shortRequiredText("Vui lòng nhập chuyên ngành", 200),

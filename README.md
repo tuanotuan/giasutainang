@@ -252,6 +252,7 @@ Trong `/admin`:
 - Xem đăng ký nhận lớp, ứng tuyển gia sư và liên hệ.
 - Hồ sơ ứng tuyển được tách thành mục quản trị riêng **Duyệt ứng viên**, có bộ lọc trạng thái, màn hình chi tiết, ghi chú nội bộ và nút duyệt để tạo hồ sơ gia sư công khai.
 - Số điện thoại trong form ứng tuyển phải đúng 10 chữ số và bắt đầu bằng `0`; trình duyệt và Worker dùng chung Zod validation, đồng thời điện thoại hiển thị bàn phím số.
+- Điều kiện đủ 18 tuổi được tính tại thời điểm gửi form ở cả trình duyệt và Worker, tránh sai năm do thời điểm khởi tạo tiến trình Cloudflare.
 - Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Form ứng viên chỉ còn hai đối tượng `Sinh viên` và `Đã tốt nghiệp`. Sau khi chọn, ô giấy tờ bắt buộc xuất hiện ngay bên dưới: sinh viên gửi ảnh thẻ sinh viên JPG/PNG/WebP tối đa 5MB; người đã tốt nghiệp gửi ảnh bằng tối đa 5MB hoặc PDF/DOC/DOCX tối đa 10MB. File được giữ trong R2 riêng tư và chỉ admin đã đăng nhập được tải xuống.
