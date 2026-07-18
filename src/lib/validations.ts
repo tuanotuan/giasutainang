@@ -61,7 +61,10 @@ export const registerTutorSchema = z.object({
   gender: z.enum(["Nam", "Nữ"]),
   school: shortRequiredText("Vui lòng nhập trường học hoặc nơi đã tốt nghiệp", 200),
   major: shortRequiredText("Vui lòng nhập chuyên ngành", 200),
-  occupation: z.string().trim().min(1, "Vui lòng chọn nghề nghiệp").max(100),
+  occupation: z.string().trim().refine(
+    (value): boolean => value === "Sinh viên" || value === "Đã tốt nghiệp",
+    "Vui lòng chọn Sinh viên hoặc Đã tốt nghiệp",
+  ),
   experience: z.string().trim().min(10, "Vui lòng mô tả kinh nghiệm ít nhất 10 ký tự").max(3000),
   subjects: shortList("Vui lòng chọn ít nhất một môn có thể dạy"),
   grades: shortList("Vui lòng chọn ít nhất một lớp có thể dạy"),

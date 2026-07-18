@@ -1,6 +1,6 @@
 # Gia Sư Tài Năng
 
-> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, production-verified API/browser security, professional responsive footer, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-12**.
+> Current handoff: production full-stack site with D1/admin/Workers AI, private R2 application uploads, production-verified API/browser security, professional responsive footer, mobile polish, cascading address selectors, and hotline/Zalo `0365002142`. Last reviewed: **2026-07-18**.
 
 Website tiếng Việt của trung tâm Gia Sư Tài Năng, xây dựng bằng Next.js 16 App Router, TypeScript, Tailwind CSS và Cloudflare Workers Static Assets.
 
@@ -254,10 +254,9 @@ Trong `/admin`:
 - Số điện thoại trong form ứng tuyển phải đúng 10 chữ số và bắt đầu bằng `0`; trình duyệt và Worker dùng chung Zod validation, đồng thời điện thoại hiển thị bàn phím số.
 - Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
-- Form ứng viên có thể tải ảnh JPG/PNG/WebP tối đa 5MB và hồ sơ PDF/DOC/DOCX tối đa 10MB lên R2 riêng tư; admin tải file đã qua kiểm tra định dạng từ màn hình duyệt.
+- Form ứng viên chỉ còn hai đối tượng `Sinh viên` và `Đã tốt nghiệp`. Sau khi chọn, ô giấy tờ bắt buộc xuất hiện ngay bên dưới: sinh viên gửi ảnh thẻ sinh viên JPG/PNG/WebP tối đa 5MB; người đã tốt nghiệp gửi ảnh bằng tối đa 5MB hoặc PDF/DOC/DOCX tối đa 10MB. File được giữ trong R2 riêng tư và chỉ admin đã đăng nhập được tải xuống.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Danh mục gia sư không còn dữ liệu mẫu hoặc fallback sau yêu cầu xóa toàn bộ của chủ trung tâm. Migration một lần `tutor_catalog_cleared_v1` xóa dữ liệu production cũ; hồ sơ do admin thêm hoặc duyệt từ ứng viên sau đó mặc định là “Chưa xác minh”.
-- Tuổi và kinh nghiệm của hồ sơ minh họa được tạo theo trình độ: sinh viên sinh 2003–2007/kinh nghiệm 1–3 năm, cử nhân 1997–2002/3–6 năm, giáo viên 1990–2000/5–11 năm. Migration `tutor_demographics_fixed_v1` đồng bộ lại 50 bản ghi D1.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
 - Thêm/sửa/xóa bảng học phí; thay đổi được hiển thị trên trang bảng giá và trang chủ.
 - Trợ lý thông minh dùng Cloudflare Workers AI để gợi ý ghép gia sư, soạn tin Zalo, soạn bài đăng lớp, kiểm tra hồ sơ, tạo lộ trình học và tổng hợp vận hành.
@@ -272,7 +271,7 @@ Trong `/admin`:
 ## Lưu ý
 
 - Tên trung tâm, logo, hotline, email, Zalo/Facebook và địa chỉ là thông tin do chủ trung tâm cung cấp.
-- Dữ liệu gia sư, lớp, bài viết ban đầu vẫn là seed/fallback để site không bị trắng khi DB chưa sẵn sàng.
+- Danh mục gia sư không có seed/fallback; dữ liệu lớp và bài viết vẫn có dữ liệu hiển thị dự phòng khi API chưa sẵn sàng.
 - Không commit `ADMIN_PASSWORD`, `SESSION_SECRET` hoặc thông tin bí mật vào repo.
 
 ## Workflow bàn giao cho session mới
@@ -291,4 +290,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-15 — tutor registration phone validation is production-verified for wrong-prefix and wrong-length cases; browser/mobile guidance and Worker enforcement both use the exact 10-digit, leading-zero rule.
+Last updated: 2026-07-18 — reviewed for the two-group tutor application flow; qualification evidence is conditional, required, privately stored, and enforced in both browser UX and Worker validation.

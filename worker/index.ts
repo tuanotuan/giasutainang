@@ -939,7 +939,10 @@ async function approveTutorApplication(db: D1Database, id: string) {
   }
   const tutorId = `tutor-${crypto.randomUUID()}`;
   const occupation = text(payload.occupation);
-  const level = ["Sinh viên", "Giáo viên", "Cử nhân", "Thạc sĩ"].includes(occupation) ? occupation : "Cử nhân";
+  const legacyLevels = ["Sinh viên", "Giáo viên", "Cử nhân", "Thạc sĩ"];
+  const level = occupation === "Đã tốt nghiệp"
+    ? "Cử nhân"
+    : legacyLevels.includes(occupation) ? occupation : "Cử nhân";
   const stamp = now();
   await db.batch([
     db.prepare(`INSERT INTO tutors
@@ -1028,6 +1031,9 @@ function parseNotificationRecipients(destination: string | undefined) {
 
 const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 const PROFILE_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -1062,20 +1068,27 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   const profile = form.get("profileFile");
   const avatarFile = avatar instanceof File && avatar.size > 0 ? avatar : null;
   const profileFile = profile instanceof File && profile.size > 0 ? profile : null;
+  if (!profileFile) {
+    return json({ error: data.occupation === "Sinh viên" ? "Vui lòng tải ảnh chụp thẻ sinh viên." : "Vui lòng tải bằng tốt nghiệp." }, 400);
+  }
   if (avatarFile && (!AVATAR_TYPES.has(avatarFile.type) || avatarFile.size > 5 * 1024 * 1024)) {
     return json({ error: "Ảnh đại diện phải là JPG, PNG hoặc WebP và không quá 5MB." }, 400);
   }
-  if (profileFile && (!PROFILE_TYPES.has(profileFile.type) || profileFile.size > 10 * 1024 * 1024)) {
-    return json({ error: "Hồ sơ phải là PDF, DOC hoặc DOCX và không quá 10MB." }, 400);
+  if (data.occupation === "Sinh viên" && !AVATAR_TYPES.has(profileFile.type)) {
+    return json({ error: "Thẻ sinh viên phải là ảnh JPG, PNG hoặc WebP." }, 400);
+  }
+  const profileLimit = AVATAR_TYPES.has(profileFile.type) ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+  if (!PROFILE_TYPES.has(profileFile.type) || profileFile.size > profileLimit) {
+    return json({ error: AVATAR_TYPES.has(profileFile.type) ? "Ảnh giấy tờ không được vượt quá 5MB." : "Bằng tốt nghiệp phải là ảnh, PDF, DOC hoặc DOCX và không quá 10MB." }, 400);
   }
   if (avatarFile && !(await matchesFileSignature(avatarFile, avatarFile.type))) {
     return json({ error: "Nội dung ảnh không khớp với định dạng JPG, PNG hoặc WebP đã chọn." }, 400);
   }
-  if (profileFile && !(await matchesFileSignature(profileFile, profileFile.type))) {
-    return json({ error: "Nội dung file hồ sơ không khớp với định dạng PDF, DOC hoặc DOCX đã chọn." }, 400);
+  if (!(await matchesFileSignature(profileFile, profileFile.type))) {
+    return json({ error: "Nội dung giấy tờ không khớp với định dạng file đã chọn." }, 400);
   }
   if ((avatarFile || profileFile) && !files) {
-    return json({ error: "Kho lưu hồ sơ chưa được kết nối. Vui lòng gửi không kèm file hoặc liên hệ trung tâm." }, 503);
+    return json({ error: "Kho lưu giấy tờ chưa được kết nối. Vui lòng thử lại sau hoặc liên hệ trung tâm." }, 503);
   }
   const fullName = data.fullName;
   const phone = data.phone;
@@ -1091,12 +1104,12 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
       uploadedKeys.push(key);
       storedFiles.avatar = { key, name: originalName, type: avatarFile.type, size: avatarFile.size };
     }
-    if (profileFile && files) {
+    if (files) {
       const key = `tutor-applications/${id}/profile${extensionFor(profileFile.type)}`;
       const originalName = safeFileName(profileFile.name);
       await files.put(key, await profileFile.arrayBuffer(), { httpMetadata: { contentType: profileFile.type }, customMetadata: { originalName } });
       uploadedKeys.push(key);
-      storedFiles.profile = { key, name: originalName, type: profileFile.type, size: profileFile.size };
+      storedFiles.profile = { key, name: originalName, type: profileFile.type, size: profileFile.size, label: data.occupation === "Sinh viên" ? "Thẻ sinh viên" : "Bằng tốt nghiệp" };
     }
     const stamp = now();
     await db.prepare(`INSERT INTO submissions (id,type,name,phone,email,reference_code,payload,status,admin_note,created_at,updated_at)
@@ -1111,7 +1124,7 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
 
 async function downloadApplicationFile(files: R2Bucket | undefined, db: D1Database, key: string) {
   if (!files) return json({ error: "Kho lưu hồ sơ chưa được kết nối." }, 503);
-  if (!/^tutor-applications\/[0-9a-f-]{36}\/(?:avatar\.(?:jpg|png|webp)|profile\.(?:pdf|doc|docx))$/i.test(key)) {
+  if (!/^tutor-applications\/[0-9a-f-]{36}\/(?:avatar\.(?:jpg|png|webp)|profile\.(?:jpg|png|webp|pdf|doc|docx))$/i.test(key)) {
     return json({ error: "Đường dẫn file chưa hợp lệ." }, 400);
   }
   const reference = await db.prepare("SELECT id FROM submissions WHERE type='tutor_application' AND payload LIKE ?1 LIMIT 1")

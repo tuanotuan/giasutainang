@@ -20,7 +20,7 @@ This section is the source of truth for the current production system and overri
 - Homepage hero prominently states `Miễn phí tư vấn & kết nối`, clarifies that parents pay no tutor-introduction fee, and uses the CTA `Tìm gia sư miễn phí`.
 - Tutor applications have a standalone `Duyệt ứng viên` admin section, separate from parent tutor requests, with status filters, full detail view, internal notes, review/needs-info/approved/rejected states, and idempotent approval that creates a public tutor profile.
 - Tutor applications require a Vietnamese-style phone number containing exactly 10 digits and beginning with `0`; the same Zod rule runs in the browser and Worker before any application is stored.
-- Application upload accepts private avatar images (JPG/PNG/WebP, max 5MB) and profile documents (PDF/DOC/DOCX, max 10MB); only authenticated admin downloads are allowed. Private R2 bucket `giasutainang-files` is bound as `FILES` in production configuration.
+- Tutor applicants choose only `Sinh viên` or `Đã tốt nghiệp`. The required qualification upload appears immediately below that choice: students submit a student-card JPG/PNG/WebP (max 5MB); graduates submit a diploma image (max 5MB) or PDF/DOC/DOCX (max 10MB). The optional avatar stays separate. Only authenticated admin downloads are allowed from private R2 bucket `giasutainang-files`, bound as `FILES`.
 - Security baseline: production HTTP redirects to HTTPS; all responses receive CSP/HSTS/clickjacking/MIME/referrer/permissions headers; unsafe cross-site requests are rejected; login/public forms/public and admin AI have Worker rate limits; JSON/multipart sizes are capped and server-validated.
 - Admin sessions use a signed 8-hour `__Host-` Secure/HttpOnly/SameSite=Strict cookie. The first security deployment intentionally invalidates the previous cookie and requires one new login.
 - Public class APIs expose only approximate area and suppress detailed address/private notes. Private R2 downloads require both admin authentication and a valid D1 file reference, verify file signatures at upload, and force safe attachment download.
@@ -34,12 +34,12 @@ This section is the source of truth for the current production system and overri
 
 ## Session handoff
 
-- Private tutor-application file upload is deployed and owner-accepted: applicants can submit an avatar and profile document, while authenticated admins can review the private files.
+- Private tutor-application upload supports an optional avatar plus required, occupation-specific qualification evidence; authenticated admins can review the private files.
 - Gmail notification for real parent tutor requests is deployed and owner-accepted. The implementation now supports up to five verified private recipients; adding a second Gmail requires verifying it in Cloudflare Email Routing and updating the existing secret list.
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-15 — tutor-application phone validation is production-verified: 10 digits without a leading `0`, 9 digits with a leading `0`, and 12 digits are all rejected by Worker with the friendly exact-rule message; security smoke passes.
+- Last updated: 2026-07-18 — current handoff adds the two-group applicant choice and required conditional student-card/diploma upload with client UX and Worker enforcement; production verification is pending the deployment in this handoff.
 
 ## Original phase-one brief (historical reference)
 

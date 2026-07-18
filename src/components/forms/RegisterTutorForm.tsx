@@ -28,6 +28,9 @@ export function RegisterTutorForm() {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
+    setValue,
     watch,
     formState: { errors, isSubmitting },
   } = useForm<RegisterTutorFormValues>({
@@ -53,16 +56,28 @@ export function RegisterTutorForm() {
   });
   const avatarFiles = watch("avatar") as FileList | undefined;
   const profileFiles = watch("profileFile") as FileList | undefined;
+  const occupation = watch("occupation");
+  const occupationField = register("occupation");
 
   const onSubmit = async (data: RegisterTutorFormValues) => {
     try {
       const { avatar, profileFile, ...payload } = data;
+      const profileDocument = firstFile(profileFile);
+      const qualificationError = validateQualificationFile(profileDocument, data.occupation);
+      if (qualificationError || !profileDocument) {
+        setError("profileFile", { type: "manual", message: qualificationError });
+        requestAnimationFrame(() => {
+          const input = document.getElementById("qualification-file");
+          input?.scrollIntoView({ behavior: "smooth", block: "center" });
+          input?.focus({ preventScroll: true });
+        });
+        return;
+      }
       const body = new FormData();
       body.append("payload", JSON.stringify(payload));
       const avatarFile = firstFile(avatar);
-      const profileDocument = firstFile(profileFile);
       if (avatarFile) body.append("avatar", avatarFile);
-      if (profileDocument) body.append("profileFile", profileDocument);
+      body.append("profileFile", profileDocument);
       const response = await fetch("/api/requests/register-tutor", { method: "POST", body });
       const result = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) throw new Error(result.error || "Không thể gửi hồ sơ.");
@@ -120,12 +135,35 @@ export function RegisterTutorForm() {
             <FormField label="Chuyên ngành" required error={errors.major?.message}>
               <input {...register("major")} className={fieldClass} placeholder="Ví dụ: Sư phạm Toán" />
             </FormField>
-            <FormField label="Nghề nghiệp hiện tại" required error={errors.occupation?.message} className="sm:col-span-2">
-              <select {...register("occupation")} className={fieldClass}>
-                <option value="">Chọn nghề nghiệp</option>
-                {["Sinh viên", "Giáo viên", "Cử nhân", "Thạc sĩ", "Khác"].map((item) => <option key={item}>{item}</option>)}
+            <FormField label="Bạn hiện là" required error={errors.occupation?.message} className="sm:col-span-2">
+              <select
+                {...occupationField}
+                className={fieldClass}
+                onChange={(event) => {
+                  occupationField.onChange(event);
+                  setValue("profileFile", undefined);
+                  clearErrors("profileFile");
+                }}
+              >
+                <option value="">Chọn đối tượng</option>
+                <option value="Sinh viên">Sinh viên</option>
+                <option value="Đã tốt nghiệp">Đã tốt nghiệp</option>
               </select>
             </FormField>
+            {occupation && (
+              <div className="sm:col-span-2">
+                <FileField
+                  label={occupation === "Sinh viên" ? "Ảnh chụp thẻ sinh viên" : "Bằng tốt nghiệp"}
+                  required
+                  error={errors.profileFile?.message as string | undefined}
+                  description={profileFiles?.[0]?.name || (occupation === "Sinh viên"
+                    ? "Chụp rõ mặt trước thẻ · JPG, PNG hoặc WebP · tối đa 5MB"
+                    : "Ảnh chụp rõ hoặc PDF/DOC/DOCX · ảnh tối đa 5MB, tài liệu tối đa 10MB")}
+                  icon={<FileText className="h-5 w-5" />}
+                  input={<input key={occupation} id="qualification-file" {...register("profileFile")} type="file" accept={occupation === "Sinh viên" ? "image/jpeg,image/png,image/webp" : "image/jpeg,image/png,image/webp,.pdf,.doc,.docx"} className="absolute inset-0 cursor-pointer opacity-0" />}
+                />
+              </div>
+            )}
             <FormField label="Kinh nghiệm dạy" required error={errors.experience?.message} className="sm:col-span-2">
               <textarea {...register("experience")} className={textAreaClass} placeholder="Số năm kinh nghiệm, nhóm học sinh từng dạy, kết quả tiêu biểu..." />
             </FormField>
@@ -181,12 +219,6 @@ export function RegisterTutorForm() {
                 icon={<ImagePlus className="h-5 w-5" />}
                 input={<input {...register("avatar")} type="file" accept="image/*" className="absolute inset-0 cursor-pointer opacity-0" />}
               />
-              <FileField
-                label="File hồ sơ"
-                description={profileFiles?.[0]?.name || "PDF, DOC hoặc DOCX · tối đa 10MB"}
-                icon={<FileText className="h-5 w-5" />}
-                input={<input {...register("profileFile")} type="file" accept=".pdf,.doc,.docx" className="absolute inset-0 cursor-pointer opacity-0" />}
-              />
             </div>
             <FormField label="Yêu cầu khác" error={errors.note?.message}>
               <textarea {...register("note")} className={textAreaClass} placeholder="Chia sẻ thêm mong muốn về lớp dạy..." />
@@ -218,6 +250,19 @@ function firstFile(value: unknown) {
   if (typeof FileList !== "undefined" && value instanceof FileList) return value.item(0);
   if (Array.isArray(value) && value[0] instanceof File) return value[0];
   return null;
+}
+
+function validateQualificationFile(file: File | null, occupation: string) {
+  if (!file) return occupation === "Sinh viên"
+    ? "Vui lòng tải ảnh chụp thẻ sinh viên"
+    : "Vui lòng tải bằng tốt nghiệp";
+  const imageTypes = ["image/jpeg", "image/png", "image/webp"];
+  const documentTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+  if (occupation === "Sinh viên" && !imageTypes.includes(file.type)) return "Thẻ sinh viên phải là ảnh JPG, PNG hoặc WebP";
+  if (occupation === "Đã tốt nghiệp" && ![...imageTypes, ...documentTypes].includes(file.type)) return "Bằng tốt nghiệp phải là ảnh, PDF, DOC hoặc DOCX";
+  const limit = imageTypes.includes(file.type) ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+  if (file.size > limit) return imageTypes.includes(file.type) ? "Ảnh giấy tờ không được vượt quá 5MB" : "File bằng tốt nghiệp không được vượt quá 10MB";
+  return "";
 }
 
 function CheckboxGroup({
@@ -253,20 +298,27 @@ function CheckboxGroup({
 
 function FileField({
   label,
+  required,
+  error,
   description,
   icon,
   input,
 }: {
   label: string;
+  required?: boolean;
+  error?: string;
   description: string;
   icon: React.ReactNode;
   input: React.ReactNode;
 }) {
   return (
-    <label className="relative flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 transition hover:border-primary-400 hover:bg-primary-50">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-primary-600 shadow-sm">{icon}</span>
-      <span><strong className="block text-sm text-slate-700">{label}</strong><small className="text-slate-400">{description}</small></span>
-      {input}
-    </label>
+    <div>
+      <label className={`relative flex min-h-20 cursor-pointer items-center gap-3 rounded-2xl border border-dashed bg-slate-50 p-4 transition hover:border-primary-400 hover:bg-primary-50 ${error ? "border-rose-400" : "border-slate-300"}`}>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-primary-600 shadow-sm">{icon}</span>
+        <span className="min-w-0"><strong className="block text-sm text-slate-700">{label} {required && <span className="text-rose-500">*</span>}</strong><small className="block break-words text-slate-400">{description}</small></span>
+        {input}
+      </label>
+      {error && <p className="mt-1.5 text-xs font-medium text-rose-600">{error}</p>}
+    </div>
   );
 }

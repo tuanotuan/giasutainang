@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-15. Tutor-application phone validation is production-verified: wrong-prefix and wrong-length submissions are rejected by Worker before D1 storage, shared client validation remains active, and security smoke passes.
+Last updated: 2026-07-18. Reviewed for occupation-specific qualification uploads: student cards and diplomas remain private, type/size/signature validation is enforced at the Worker, and production verification is pending the deployment in this handoff.
 
 ## Phạm vi
 
@@ -16,7 +16,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - JSON tối đa 64KB; multipart tối đa 16MB. Form phụ huynh, ứng viên, nhận lớp và liên hệ đều được kiểm tra lại tại server bằng Zod.
 - Riêng hồ sơ ứng viên gia sư, số điện thoại phải đúng 10 chữ số và bắt đầu bằng `0`; kiểm tra phía trình duyệt chỉ hỗ trợ trải nghiệm, Worker vẫn là ranh giới bắt buộc trước khi ghi D1.
 - API lớp công khai xóa địa chỉ chi tiết và lời nhắn riêng; dữ liệu đầy đủ chỉ có trong admin đã xác thực.
-- Bucket R2 không public. File phải đúng giới hạn, MIME và magic bytes; tên file được làm sạch; download cần session admin và tham chiếu D1, dùng attachment + nosniff + CSP sandbox.
+- Bucket R2 không public. Ứng viên sinh viên bắt buộc gửi ảnh thẻ JPG/PNG/WebP tối đa 5MB; ứng viên đã tốt nghiệp bắt buộc gửi ảnh bằng tối đa 5MB hoặc PDF/DOC/DOCX tối đa 10MB. Worker kiểm tra nhóm ứng viên, giới hạn, MIME và magic bytes; tên file được làm sạch; download cần session admin và tham chiếu D1, dùng attachment + nosniff + CSP sandbox.
 - Prompt AI công khai coi câu hỏi và tối đa sáu tin nhắn gần nhất là dữ liệu không đáng tin cậy, giới hạn mỗi nội dung 300 ký tự, không có quyền truy cập PII hoặc secrets; endpoint AI có rate limit riêng. Đầu ra bị giới hạn độ dài và loại câu lặp; response chỉ công bố nguồn xử lý và nhóm trạng thái sức khỏe tổng quát, không trả lỗi nhà cung cấp, system prompt hay chi tiết nội bộ.
 - Dependency được khóa ở Next.js 16.2.10, ESLint 9 flat config và PostCSS đã vá. `npm audit` là bắt buộc trước bàn giao.
 - `/.well-known/security.txt` công bố kênh báo cáo bảo mật.
