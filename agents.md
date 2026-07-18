@@ -76,4 +76,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-18 — reviewed for optional teaching experience and private multi-image feedback uploads; client/server limits, admin labels, and the existing 16MB request cap are documented.
+Last updated: 2026-07-19 — optional teaching experience and private multi-image feedback uploads are production-verified; client/server limits, admin labels, the 16MB request cap, and security smoke are active.

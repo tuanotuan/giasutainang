@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-18. Reviewed for optional multi-image feedback uploads: image type, per-file count/size/signature checks, private R2 storage, authenticated downloads, and the 16MB total request cap remain enforced; production verification is pending deployment.
+Last updated: 2026-07-19. Optional multi-image feedback uploads are production-verified: a sixth image is rejected before storage, while type/size/signature checks, private R2 storage, authenticated downloads, the 16MB cap, and security smoke remain active.
 
 ## Phạm vi
 

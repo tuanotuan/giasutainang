@@ -292,4 +292,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-18 — reviewed for optional teaching experience and private multi-image feedback upload; production verification is pending this handoff deployment.
+Last updated: 2026-07-19 — optional teaching experience and private multi-image feedback upload are production-verified; the live UI is active, a sixth feedback image is rejected, and security smoke passes.

@@ -41,7 +41,7 @@ This section is the source of truth for the current production system and overri
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-18 — current handoff makes teaching experience optional and adds private multi-image feedback evidence with client/Worker validation and labeled admin review; production verification is pending deployment.
+- Last updated: 2026-07-19 — optional teaching experience and private multi-image feedback evidence are production-verified; the live UI is active, the Worker rejects a sixth image before storage, and security smoke passes.
 
 ## Original phase-one brief (historical reference)
 
