@@ -71,8 +71,8 @@ export const registerTutorSchema = z.object({
   areas: shortList("Vui lòng chọn ít nhất một khu vực"),
   availableTimes: shortList("Vui lòng chọn ít nhất một thời gian"),
   minimumSalary: z.string().trim().min(1, "Vui lòng nhập mức lương mong muốn").max(100),
-  avatar: z.any().optional(),
   profileFile: z.any().optional(),
+  cvFile: z.any().optional(),
   feedbackImages: z.any().optional(),
   note: z.string().trim().max(1000, "Yêu cầu khác tối đa 1000 ký tự").optional(),
   agreement: z

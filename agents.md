@@ -47,6 +47,7 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 - Keep tutor-application phone validation at exactly 10 digits beginning with `0` in the shared Zod schema used by both the form and Worker; preserve numeric mobile input and the clear Vietnamese error message.
 - Evaluate the tutor minimum-age year inside validation execution; do not capture the current year while the Worker module is initializing.
 - Keep tutor applicants grouped as only `Sinh viên` and `Đã tốt nghiệp`. Reveal the required qualification upload immediately after selection: students must submit a student-card JPG/PNG/WebP up to 5MB; graduates must submit a diploma image up to 5MB or PDF/DOC/DOCX up to 10MB.
+- Do not show or accept a tutor-application avatar upload. Keep the optional CV immediately after qualification evidence, limited to PDF/DOC/DOCX up to 10MB and private admin-only review; retain legacy avatar download support only for already stored applications.
 - Keep tutor teaching experience optional. Allow up to five optional feedback screenshots from parents/students, limited to JPG/PNG/WebP and 5MB each while retaining the 16MB total multipart cap; keep these images private and clearly labeled for admin review.
 - Keep application files private in R2 binding `FILES`; validate MIME, size, and signature, and require authenticated admin access for downloads.
 - Keep bucket `giasutainang-files` bound as `FILES`; private application upload has been deployed and owner-accepted.
@@ -76,4 +77,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-19 — optional teaching experience and private multi-image feedback uploads are production-verified; client/server limits, admin labels, the 16MB request cap, and security smoke are active.
+Last updated: 2026-07-19 — reviewed after removing applicant avatars and adding an optional private CV beside qualification evidence; production verification is pending deployment.

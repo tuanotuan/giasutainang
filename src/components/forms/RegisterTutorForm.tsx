@@ -54,8 +54,8 @@ export function RegisterTutorForm() {
       agreement: false,
     },
   });
-  const avatarFiles = watch("avatar") as FileList | undefined;
   const profileFiles = watch("profileFile") as FileList | undefined;
+  const cvFiles = watch("cvFile") as FileList | undefined;
   const feedbackFiles = watch("feedbackImages") as FileList | undefined;
   const occupation = watch("occupation");
   const occupationField = register("occupation");
@@ -63,7 +63,7 @@ export function RegisterTutorForm() {
 
   const onSubmit = async (data: RegisterTutorFormValues) => {
     try {
-      const { avatar, profileFile, feedbackImages, ...payload } = data;
+      const { profileFile, cvFile, feedbackImages, ...payload } = data;
       const profileDocument = firstFile(profileFile);
       const qualificationError = validateQualificationFile(profileDocument, data.occupation);
       if (qualificationError || !profileDocument) {
@@ -75,9 +75,19 @@ export function RegisterTutorForm() {
         });
         return;
       }
-      const avatarFile = firstFile(avatar);
+      const cvDocument = firstFile(cvFile);
+      const cvError = validateCvFile(cvDocument);
+      if (cvError) {
+        setError("cvFile", { type: "manual", message: cvError });
+        requestAnimationFrame(() => {
+          const input = document.getElementById("cv-file");
+          input?.scrollIntoView({ behavior: "smooth", block: "center" });
+          input?.focus({ preventScroll: true });
+        });
+        return;
+      }
       const feedbackPhotos = filesFrom(feedbackImages);
-      const feedbackError = validateFeedbackFiles(feedbackPhotos, (avatarFile?.size ?? 0) + profileDocument.size);
+      const feedbackError = validateFeedbackFiles(feedbackPhotos, profileDocument.size + (cvDocument?.size ?? 0));
       if (feedbackError) {
         setError("feedbackImages", { type: "manual", message: feedbackError });
         requestAnimationFrame(() => {
@@ -89,8 +99,8 @@ export function RegisterTutorForm() {
       }
       const body = new FormData();
       body.append("payload", JSON.stringify(payload));
-      if (avatarFile) body.append("avatar", avatarFile);
       body.append("profileFile", profileDocument);
+      if (cvDocument) body.append("cvFile", cvDocument);
       feedbackPhotos.forEach((file) => body.append("feedbackImages", file));
       const response = await fetch("/api/requests/register-tutor", { method: "POST", body });
       const result = await response.json().catch(() => ({})) as { error?: string };
@@ -178,6 +188,15 @@ export function RegisterTutorForm() {
                 />
               </div>
             )}
+            <div className="sm:col-span-2">
+              <FileField
+                label="CV cá nhân (không bắt buộc)"
+                error={errors.cvFile?.message as string | undefined}
+                description={cvFiles?.[0]?.name || "PDF, DOC hoặc DOCX · tối đa 10MB"}
+                icon={<FileText className="h-5 w-5" />}
+                input={<input id="cv-file" {...register("cvFile")} type="file" accept=".pdf,.doc,.docx" className="absolute inset-0 cursor-pointer opacity-0" />}
+              />
+            </div>
             <FormField label="Kinh nghiệm dạy (không bắt buộc)" error={errors.experience?.message} className="sm:col-span-2">
               <textarea {...register("experience")} className={textAreaClass} placeholder="Nếu có, bạn có thể chia sẻ ngắn gọn về lớp từng dạy hoặc kết quả đạt được..." />
             </FormField>
@@ -248,14 +267,6 @@ export function RegisterTutorForm() {
             <FormField label="Lương tối thiểu mong muốn / buổi" required error={errors.minimumSalary?.message}>
               <input {...register("minimumSalary")} className={fieldClass} placeholder="Ví dụ: 200.000đ/buổi" />
             </FormField>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <FileField
-                label="Ảnh đại diện"
-                description={avatarFiles?.[0]?.name || "JPG, PNG hoặc WebP · tối đa 5MB"}
-                icon={<ImagePlus className="h-5 w-5" />}
-                input={<input {...register("avatar")} type="file" accept="image/*" className="absolute inset-0 cursor-pointer opacity-0" />}
-              />
-            </div>
             <FormField label="Yêu cầu khác" error={errors.note?.message}>
               <textarea {...register("note")} className={textAreaClass} placeholder="Chia sẻ thêm mong muốn về lớp dạy..." />
             </FormField>
@@ -315,6 +326,14 @@ function validateQualificationFile(file: File | null, occupation: string) {
   if (occupation === "Đã tốt nghiệp" && ![...imageTypes, ...documentTypes].includes(file.type)) return "Bằng tốt nghiệp phải là ảnh, PDF, DOC hoặc DOCX";
   const limit = imageTypes.includes(file.type) ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
   if (file.size > limit) return imageTypes.includes(file.type) ? "Ảnh giấy tờ không được vượt quá 5MB" : "File bằng tốt nghiệp không được vượt quá 10MB";
+  return "";
+}
+
+function validateCvFile(file: File | null) {
+  if (!file) return "";
+  const documentTypes = ["application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+  if (!documentTypes.includes(file.type)) return "CV phải là file PDF, DOC hoặc DOCX";
+  if (file.size > 10 * 1024 * 1024) return "CV không được vượt quá 10MB";
   return "";
 }
 

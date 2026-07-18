@@ -21,7 +21,7 @@ This section is the source of truth for the current production system and overri
 - Tutor applications have a standalone `Duyệt ứng viên` admin section, separate from parent tutor requests, with status filters, full detail view, internal notes, review/needs-info/approved/rejected states, and idempotent approval that creates a public tutor profile.
 - Tutor applications require a Vietnamese-style phone number containing exactly 10 digits and beginning with `0`; the same Zod rule runs in the browser and Worker before any application is stored.
 - The minimum-age check is evaluated when each application is validated, not during Worker module initialization, so Cloudflare runtime startup time cannot incorrectly reject valid birth years.
-- Tutor applicants choose only `Sinh viên` or `Đã tốt nghiệp`. The required qualification upload appears immediately below that choice: students submit a student-card JPG/PNG/WebP (max 5MB); graduates submit a diploma image (max 5MB) or PDF/DOC/DOCX (max 10MB). The optional avatar stays separate. Only authenticated admin downloads are allowed from private R2 bucket `giasutainang-files`, bound as `FILES`.
+- Tutor applicants choose only `Sinh viên` or `Đã tốt nghiệp`. The required qualification upload appears immediately below that choice: students submit a student-card JPG/PNG/WebP (max 5MB); graduates submit a diploma image (max 5MB) or PDF/DOC/DOCX (max 10MB). Applicant avatar upload is removed. An optional CV field sits directly after qualification evidence and accepts PDF/DOC/DOCX up to 10MB. Only authenticated admin downloads are allowed from private R2 bucket `giasutainang-files`, bound as `FILES`.
 - Teaching experience is optional. Applicants may attach up to five optional parent/student feedback screenshots (JPG/PNG/WebP, max 5MB each); the complete multipart request remains capped at 16MB. Feedback images are signature-checked, stored privately, and labeled individually in admin review.
 - Security baseline: production HTTP redirects to HTTPS; all responses receive CSP/HSTS/clickjacking/MIME/referrer/permissions headers; unsafe cross-site requests are rejected; login/public forms/public and admin AI have Worker rate limits; JSON/multipart sizes are capped and server-validated.
 - Admin sessions use a signed 8-hour `__Host-` Secure/HttpOnly/SameSite=Strict cookie. The first security deployment intentionally invalidates the previous cookie and requires one new login.
@@ -36,12 +36,12 @@ This section is the source of truth for the current production system and overri
 
 ## Session handoff
 
-- Private tutor-application upload supports an optional avatar plus required, occupation-specific qualification evidence; authenticated admins can review the private files.
+- Private tutor-application upload supports required occupation-specific qualification evidence, an optional CV, and optional feedback images; authenticated admins can review the private files. New applications do not accept avatars.
 - Gmail notification for real parent tutor requests is deployed and owner-accepted. The implementation now supports up to five verified private recipients; adding a second Gmail requires verifying it in Cloudflare Email Routing and updating the existing secret list.
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-19 — optional teaching experience and private multi-image feedback evidence are production-verified; the live UI is active, the Worker rejects a sixth image before storage, and security smoke passes.
+- Last updated: 2026-07-19 — current handoff removes applicant avatar upload and adds a private optional CV directly after qualification evidence; production verification is pending deployment.
 
 ## Original phase-one brief (historical reference)
 

@@ -1029,14 +1029,17 @@ function parseNotificationRecipients(destination: string | undefined) {
     .slice(0, 5);
 }
 
-const AVATAR_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const DOCUMENT_TYPES = new Set([
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
 const PROFILE_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ...DOCUMENT_TYPES,
 ]);
 
 async function saveTutorApplication(request: Request, db: D1Database, files: R2Bucket | undefined) {
@@ -1064,33 +1067,33 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   const parsedPayload = registerTutorSchema.safeParse(payload);
   if (!parsedPayload.success) return validationError(parsedPayload.error.issues[0]?.message);
   const data = parsedPayload.data;
-  const avatar = form.get("avatar");
   const profile = form.get("profileFile");
+  const cv = form.get("cvFile");
   const feedbackFiles = form.getAll("feedbackImages")
     .filter((value): value is File => value instanceof File && value.size > 0);
-  const avatarFile = avatar instanceof File && avatar.size > 0 ? avatar : null;
   const profileFile = profile instanceof File && profile.size > 0 ? profile : null;
+  const cvFile = cv instanceof File && cv.size > 0 ? cv : null;
   if (!profileFile) {
     return json({ error: data.occupation === "Sinh viên" ? "Vui lòng tải ảnh chụp thẻ sinh viên." : "Vui lòng tải bằng tốt nghiệp." }, 400);
-  }
-  if (avatarFile && (!AVATAR_TYPES.has(avatarFile.type) || avatarFile.size > 5 * 1024 * 1024)) {
-    return json({ error: "Ảnh đại diện phải là JPG, PNG hoặc WebP và không quá 5MB." }, 400);
   }
   if (feedbackFiles.length > 5) {
     return json({ error: "Bạn có thể tải tối đa 5 ảnh feedback." }, 400);
   }
-  if (feedbackFiles.some((file) => !AVATAR_TYPES.has(file.type) || file.size > 5 * 1024 * 1024)) {
+  if (feedbackFiles.some((file) => !IMAGE_TYPES.has(file.type) || file.size > 5 * 1024 * 1024)) {
     return json({ error: "Ảnh feedback phải là JPG, PNG hoặc WebP và mỗi ảnh không quá 5MB." }, 400);
   }
-  if (data.occupation === "Sinh viên" && !AVATAR_TYPES.has(profileFile.type)) {
+  if (cvFile && (!DOCUMENT_TYPES.has(cvFile.type) || cvFile.size > 10 * 1024 * 1024)) {
+    return json({ error: "CV phải là PDF, DOC hoặc DOCX và không quá 10MB." }, 400);
+  }
+  if (data.occupation === "Sinh viên" && !IMAGE_TYPES.has(profileFile.type)) {
     return json({ error: "Thẻ sinh viên phải là ảnh JPG, PNG hoặc WebP." }, 400);
   }
-  const profileLimit = AVATAR_TYPES.has(profileFile.type) ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
+  const profileLimit = IMAGE_TYPES.has(profileFile.type) ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
   if (!PROFILE_TYPES.has(profileFile.type) || profileFile.size > profileLimit) {
-    return json({ error: AVATAR_TYPES.has(profileFile.type) ? "Ảnh giấy tờ không được vượt quá 5MB." : "Bằng tốt nghiệp phải là ảnh, PDF, DOC hoặc DOCX và không quá 10MB." }, 400);
+    return json({ error: IMAGE_TYPES.has(profileFile.type) ? "Ảnh giấy tờ không được vượt quá 5MB." : "Bằng tốt nghiệp phải là ảnh, PDF, DOC hoặc DOCX và không quá 10MB." }, 400);
   }
-  if (avatarFile && !(await matchesFileSignature(avatarFile, avatarFile.type))) {
-    return json({ error: "Nội dung ảnh không khớp với định dạng JPG, PNG hoặc WebP đã chọn." }, 400);
+  if (cvFile && !(await matchesFileSignature(cvFile, cvFile.type))) {
+    return json({ error: "Nội dung CV không khớp với định dạng PDF, DOC hoặc DOCX đã chọn." }, 400);
   }
   for (const feedbackFile of feedbackFiles) {
     if (!(await matchesFileSignature(feedbackFile, feedbackFile.type))) {
@@ -1100,7 +1103,7 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   if (!(await matchesFileSignature(profileFile, profileFile.type))) {
     return json({ error: "Nội dung giấy tờ không khớp với định dạng file đã chọn." }, 400);
   }
-  if ((avatarFile || profileFile) && !files) {
+  if (!files) {
     return json({ error: "Kho lưu giấy tờ chưa được kết nối. Vui lòng thử lại sau hoặc liên hệ trung tâm." }, 503);
   }
   const fullName = data.fullName;
@@ -1110,19 +1113,19 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   const uploadedKeys: string[] = [];
   const storedFiles: Record<string, unknown> = {};
   try {
-    if (avatarFile && files) {
-      const key = `tutor-applications/${id}/avatar${extensionFor(avatarFile.type)}`;
-      const originalName = safeFileName(avatarFile.name);
-      await files.put(key, await avatarFile.arrayBuffer(), { httpMetadata: { contentType: avatarFile.type }, customMetadata: { originalName } });
-      uploadedKeys.push(key);
-      storedFiles.avatar = { key, name: originalName, type: avatarFile.type, size: avatarFile.size };
-    }
     if (files) {
       const key = `tutor-applications/${id}/profile${extensionFor(profileFile.type)}`;
       const originalName = safeFileName(profileFile.name);
       await files.put(key, await profileFile.arrayBuffer(), { httpMetadata: { contentType: profileFile.type }, customMetadata: { originalName } });
       uploadedKeys.push(key);
       storedFiles.profile = { key, name: originalName, type: profileFile.type, size: profileFile.size, label: data.occupation === "Sinh viên" ? "Thẻ sinh viên" : "Bằng tốt nghiệp" };
+    }
+    if (cvFile && files) {
+      const key = `tutor-applications/${id}/cv${extensionFor(cvFile.type)}`;
+      const originalName = safeFileName(cvFile.name);
+      await files.put(key, await cvFile.arrayBuffer(), { httpMetadata: { contentType: cvFile.type }, customMetadata: { originalName } });
+      uploadedKeys.push(key);
+      storedFiles.cv = { key, name: originalName, type: cvFile.type, size: cvFile.size, label: "CV cá nhân" };
     }
     if (files) {
       for (const [index, feedbackFile] of feedbackFiles.entries()) {
@@ -1136,7 +1139,7 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
     const stamp = now();
     await db.prepare(`INSERT INTO submissions (id,type,name,phone,email,reference_code,payload,status,admin_note,created_at,updated_at)
       VALUES (?1,'tutor_application',?2,?3,?4,NULL,?5,'new','',?6,?7)`)
-      .bind(id, fullName, phone, optional(data.email), JSON.stringify({ ...data, avatar: undefined, profileFile: undefined, feedbackImages: undefined, files: storedFiles }), stamp, stamp).run();
+      .bind(id, fullName, phone, optional(data.email), JSON.stringify({ ...data, profileFile: undefined, cvFile: undefined, feedbackImages: undefined, files: storedFiles }), stamp, stamp).run();
     return json({ success: true, id }, 201);
   } catch (error) {
     if (files) await Promise.all(uploadedKeys.map((key) => files.delete(key).catch(() => undefined)));
@@ -1146,7 +1149,7 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
 
 async function downloadApplicationFile(files: R2Bucket | undefined, db: D1Database, key: string) {
   if (!files) return json({ error: "Kho lưu hồ sơ chưa được kết nối." }, 503);
-  if (!/^tutor-applications\/[0-9a-f-]{36}\/(?:avatar\.(?:jpg|png|webp)|profile\.(?:jpg|png|webp|pdf|doc|docx)|feedback-[1-5]\.(?:jpg|png|webp))$/i.test(key)) {
+  if (!/^tutor-applications\/[0-9a-f-]{36}\/(?:avatar\.(?:jpg|png|webp)|profile\.(?:jpg|png|webp|pdf|doc|docx)|cv\.(?:pdf|doc|docx)|feedback-[1-5]\.(?:jpg|png|webp))$/i.test(key)) {
     return json({ error: "Đường dẫn file chưa hợp lệ." }, 400);
   }
   const reference = await db.prepare("SELECT id FROM submissions WHERE type='tutor_application' AND payload LIKE ?1 LIMIT 1")

@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-19. Optional multi-image feedback uploads are production-verified: a sixth image is rejected before storage, while type/size/signature checks, private R2 storage, authenticated downloads, the 16MB cap, and security smoke remain active.
+Last updated: 2026-07-19. Reviewed after removing new applicant avatar uploads and adding an optional private CV: CV type/size/signature validation, private R2 storage, authenticated downloads, and the 16MB total cap are enforced; production verification is pending deployment.
 
 ## Phạm vi
 
@@ -18,6 +18,7 @@ Tài liệu này mô tả lớp bảo vệ hiện có cho `https://giasutainang.
 - Điều kiện ứng viên đủ 18 tuổi được tính khi Worker kiểm tra từng yêu cầu, không chốt năm tại thời điểm module khởi tạo.
 - API lớp công khai xóa địa chỉ chi tiết và lời nhắn riêng; dữ liệu đầy đủ chỉ có trong admin đã xác thực.
 - Bucket R2 không public. Ứng viên sinh viên bắt buộc gửi ảnh thẻ JPG/PNG/WebP tối đa 5MB; ứng viên đã tốt nghiệp bắt buộc gửi ảnh bằng tối đa 5MB hoặc PDF/DOC/DOCX tối đa 10MB. Worker kiểm tra nhóm ứng viên, giới hạn, MIME và magic bytes; tên file được làm sạch; download cần session admin và tham chiếu D1, dùng attachment + nosniff + CSP sandbox.
+- Form mới không nhận ảnh đại diện ứng viên. CV là tùy chọn, chỉ nhận PDF/DOC/DOCX tối đa 10MB, được kiểm tra MIME/magic bytes và lưu R2 riêng tư; đường dẫn avatar cũ chỉ còn để admin tải các file lịch sử đã được D1 tham chiếu.
 - Ảnh feedback là tùy chọn nhưng chỉ nhận tối đa 5 ảnh JPG/PNG/WebP, mỗi ảnh tối đa 5MB và vẫn nằm trong tổng multipart 16MB. Từng ảnh được kiểm tra magic bytes, lưu trong R2 riêng tư và chỉ admin đã xác thực có tham chiếu D1 hợp lệ mới tải được.
 - Prompt AI công khai coi câu hỏi và tối đa sáu tin nhắn gần nhất là dữ liệu không đáng tin cậy, giới hạn mỗi nội dung 300 ký tự, không có quyền truy cập PII hoặc secrets; endpoint AI có rate limit riêng. Đầu ra bị giới hạn độ dài và loại câu lặp; response chỉ công bố nguồn xử lý và nhóm trạng thái sức khỏe tổng quát, không trả lỗi nhà cung cấp, system prompt hay chi tiết nội bộ.
 - Dependency được khóa ở Next.js 16.2.10, ESLint 9 flat config và PostCSS đã vá. `npm audit` là bắt buộc trước bàn giao.
