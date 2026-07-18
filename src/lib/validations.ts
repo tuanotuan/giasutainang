@@ -65,7 +65,7 @@ export const registerTutorSchema = z.object({
     (value): boolean => value === "Sinh viên" || value === "Đã tốt nghiệp",
     "Vui lòng chọn Sinh viên hoặc Đã tốt nghiệp",
   ),
-  experience: z.string().trim().min(10, "Vui lòng mô tả kinh nghiệm ít nhất 10 ký tự").max(3000),
+  experience: z.string().trim().max(3000, "Kinh nghiệm dạy tối đa 3000 ký tự").optional(),
   subjects: shortList("Vui lòng chọn ít nhất một môn có thể dạy"),
   grades: shortList("Vui lòng chọn ít nhất một lớp có thể dạy"),
   areas: shortList("Vui lòng chọn ít nhất một khu vực"),
@@ -73,6 +73,7 @@ export const registerTutorSchema = z.object({
   minimumSalary: z.string().trim().min(1, "Vui lòng nhập mức lương mong muốn").max(100),
   avatar: z.any().optional(),
   profileFile: z.any().optional(),
+  feedbackImages: z.any().optional(),
   note: z.string().trim().max(1000, "Yêu cầu khác tối đa 1000 ký tự").optional(),
   agreement: z
     .boolean()

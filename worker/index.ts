@@ -1066,6 +1066,8 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   const data = parsedPayload.data;
   const avatar = form.get("avatar");
   const profile = form.get("profileFile");
+  const feedbackFiles = form.getAll("feedbackImages")
+    .filter((value): value is File => value instanceof File && value.size > 0);
   const avatarFile = avatar instanceof File && avatar.size > 0 ? avatar : null;
   const profileFile = profile instanceof File && profile.size > 0 ? profile : null;
   if (!profileFile) {
@@ -1073,6 +1075,12 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   }
   if (avatarFile && (!AVATAR_TYPES.has(avatarFile.type) || avatarFile.size > 5 * 1024 * 1024)) {
     return json({ error: "Ảnh đại diện phải là JPG, PNG hoặc WebP và không quá 5MB." }, 400);
+  }
+  if (feedbackFiles.length > 5) {
+    return json({ error: "Bạn có thể tải tối đa 5 ảnh feedback." }, 400);
+  }
+  if (feedbackFiles.some((file) => !AVATAR_TYPES.has(file.type) || file.size > 5 * 1024 * 1024)) {
+    return json({ error: "Ảnh feedback phải là JPG, PNG hoặc WebP và mỗi ảnh không quá 5MB." }, 400);
   }
   if (data.occupation === "Sinh viên" && !AVATAR_TYPES.has(profileFile.type)) {
     return json({ error: "Thẻ sinh viên phải là ảnh JPG, PNG hoặc WebP." }, 400);
@@ -1083,6 +1091,11 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
   }
   if (avatarFile && !(await matchesFileSignature(avatarFile, avatarFile.type))) {
     return json({ error: "Nội dung ảnh không khớp với định dạng JPG, PNG hoặc WebP đã chọn." }, 400);
+  }
+  for (const feedbackFile of feedbackFiles) {
+    if (!(await matchesFileSignature(feedbackFile, feedbackFile.type))) {
+      return json({ error: "Có ảnh feedback không khớp với định dạng JPG, PNG hoặc WebP đã chọn." }, 400);
+    }
   }
   if (!(await matchesFileSignature(profileFile, profileFile.type))) {
     return json({ error: "Nội dung giấy tờ không khớp với định dạng file đã chọn." }, 400);
@@ -1111,10 +1124,19 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
       uploadedKeys.push(key);
       storedFiles.profile = { key, name: originalName, type: profileFile.type, size: profileFile.size, label: data.occupation === "Sinh viên" ? "Thẻ sinh viên" : "Bằng tốt nghiệp" };
     }
+    if (files) {
+      for (const [index, feedbackFile] of feedbackFiles.entries()) {
+        const key = `tutor-applications/${id}/feedback-${index + 1}${extensionFor(feedbackFile.type)}`;
+        const originalName = safeFileName(feedbackFile.name);
+        await files.put(key, await feedbackFile.arrayBuffer(), { httpMetadata: { contentType: feedbackFile.type }, customMetadata: { originalName } });
+        uploadedKeys.push(key);
+        storedFiles[`feedback${index + 1}`] = { key, name: originalName, type: feedbackFile.type, size: feedbackFile.size, label: `Feedback ${index + 1}` };
+      }
+    }
     const stamp = now();
     await db.prepare(`INSERT INTO submissions (id,type,name,phone,email,reference_code,payload,status,admin_note,created_at,updated_at)
       VALUES (?1,'tutor_application',?2,?3,?4,NULL,?5,'new','',?6,?7)`)
-      .bind(id, fullName, phone, optional(data.email), JSON.stringify({ ...data, avatar: undefined, profileFile: undefined, files: storedFiles }), stamp, stamp).run();
+      .bind(id, fullName, phone, optional(data.email), JSON.stringify({ ...data, avatar: undefined, profileFile: undefined, feedbackImages: undefined, files: storedFiles }), stamp, stamp).run();
     return json({ success: true, id }, 201);
   } catch (error) {
     if (files) await Promise.all(uploadedKeys.map((key) => files.delete(key).catch(() => undefined)));
@@ -1124,7 +1146,7 @@ async function saveTutorApplication(request: Request, db: D1Database, files: R2B
 
 async function downloadApplicationFile(files: R2Bucket | undefined, db: D1Database, key: string) {
   if (!files) return json({ error: "Kho lưu hồ sơ chưa được kết nối." }, 503);
-  if (!/^tutor-applications\/[0-9a-f-]{36}\/(?:avatar\.(?:jpg|png|webp)|profile\.(?:jpg|png|webp|pdf|doc|docx))$/i.test(key)) {
+  if (!/^tutor-applications\/[0-9a-f-]{36}\/(?:avatar\.(?:jpg|png|webp)|profile\.(?:jpg|png|webp|pdf|doc|docx)|feedback-[1-5]\.(?:jpg|png|webp))$/i.test(key)) {
     return json({ error: "Đường dẫn file chưa hợp lệ." }, 400);
   }
   const reference = await db.prepare("SELECT id FROM submissions WHERE type='tutor_application' AND payload LIKE ?1 LIMIT 1")

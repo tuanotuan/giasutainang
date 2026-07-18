@@ -256,6 +256,7 @@ Trong `/admin`:
 - Mục **Yêu cầu tìm gia sư** chỉ xử lý yêu cầu phụ huynh, đăng ký nhận lớp và liên hệ; không trộn hồ sơ ứng viên.
 - Việc duyệt lại cùng một đơn không tạo hồ sơ trùng; mã gia sư đã tạo được lưu ngược vào đơn ứng tuyển.
 - Form ứng viên chỉ còn hai đối tượng `Sinh viên` và `Đã tốt nghiệp`. Sau khi chọn, ô giấy tờ bắt buộc xuất hiện ngay bên dưới: sinh viên gửi ảnh thẻ sinh viên JPG/PNG/WebP tối đa 5MB; người đã tốt nghiệp gửi ảnh bằng tối đa 5MB hoặc PDF/DOC/DOCX tối đa 10MB. File được giữ trong R2 riêng tư và chỉ admin đã đăng nhập được tải xuống.
+- Kinh nghiệm dạy trong form ứng viên không bắt buộc. Ứng viên có thể chọn cùng lúc tối đa 5 ảnh feedback JPG/PNG/WebP từ phụ huynh hoặc học sinh, mỗi ảnh tối đa 5MB; tổng multipart vẫn giới hạn 16MB. Admin xem các ảnh được gắn nhãn riêng trong hồ sơ ứng viên.
 - Thêm/sửa/xóa gia sư và bài viết bằng biểu mẫu đầy đủ.
 - Danh mục gia sư không còn dữ liệu mẫu hoặc fallback sau yêu cầu xóa toàn bộ của chủ trung tâm. Migration một lần `tutor_catalog_cleared_v1` xóa dữ liệu production cũ; hồ sơ do admin thêm hoặc duyệt từ ứng viên sau đó mặc định là “Chưa xác minh”.
 - Có thông báo thành công/lỗi, xác nhận thân thiện trước khi xóa và trạng thái rỗng cho từng danh sách.
@@ -291,4 +292,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-18 — the two-group tutor application flow is production-verified: missing graduate evidence and non-image student evidence are rejected before storage; the age check and security smoke also pass.
+Last updated: 2026-07-18 — reviewed for optional teaching experience and private multi-image feedback upload; production verification is pending this handoff deployment.

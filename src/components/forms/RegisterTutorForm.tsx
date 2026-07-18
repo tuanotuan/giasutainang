@@ -56,12 +56,14 @@ export function RegisterTutorForm() {
   });
   const avatarFiles = watch("avatar") as FileList | undefined;
   const profileFiles = watch("profileFile") as FileList | undefined;
+  const feedbackFiles = watch("feedbackImages") as FileList | undefined;
   const occupation = watch("occupation");
   const occupationField = register("occupation");
+  const feedbackField = register("feedbackImages");
 
   const onSubmit = async (data: RegisterTutorFormValues) => {
     try {
-      const { avatar, profileFile, ...payload } = data;
+      const { avatar, profileFile, feedbackImages, ...payload } = data;
       const profileDocument = firstFile(profileFile);
       const qualificationError = validateQualificationFile(profileDocument, data.occupation);
       if (qualificationError || !profileDocument) {
@@ -73,11 +75,23 @@ export function RegisterTutorForm() {
         });
         return;
       }
+      const avatarFile = firstFile(avatar);
+      const feedbackPhotos = filesFrom(feedbackImages);
+      const feedbackError = validateFeedbackFiles(feedbackPhotos, (avatarFile?.size ?? 0) + profileDocument.size);
+      if (feedbackError) {
+        setError("feedbackImages", { type: "manual", message: feedbackError });
+        requestAnimationFrame(() => {
+          const input = document.getElementById("feedback-images");
+          input?.scrollIntoView({ behavior: "smooth", block: "center" });
+          input?.focus({ preventScroll: true });
+        });
+        return;
+      }
       const body = new FormData();
       body.append("payload", JSON.stringify(payload));
-      const avatarFile = firstFile(avatar);
       if (avatarFile) body.append("avatar", avatarFile);
       body.append("profileFile", profileDocument);
+      feedbackPhotos.forEach((file) => body.append("feedbackImages", file));
       const response = await fetch("/api/requests/register-tutor", { method: "POST", body });
       const result = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) throw new Error(result.error || "Không thể gửi hồ sơ.");
@@ -164,9 +178,31 @@ export function RegisterTutorForm() {
                 />
               </div>
             )}
-            <FormField label="Kinh nghiệm dạy" required error={errors.experience?.message} className="sm:col-span-2">
-              <textarea {...register("experience")} className={textAreaClass} placeholder="Số năm kinh nghiệm, nhóm học sinh từng dạy, kết quả tiêu biểu..." />
+            <FormField label="Kinh nghiệm dạy (không bắt buộc)" error={errors.experience?.message} className="sm:col-span-2">
+              <textarea {...register("experience")} className={textAreaClass} placeholder="Nếu có, bạn có thể chia sẻ ngắn gọn về lớp từng dạy hoặc kết quả đạt được..." />
             </FormField>
+            <div className="sm:col-span-2">
+              <FileField
+                label="Ảnh feedback từ phụ huynh hoặc học sinh (không bắt buộc)"
+                error={errors.feedbackImages?.message as string | undefined}
+                description={feedbackFiles?.length
+                  ? `Đã chọn ${feedbackFiles.length} ảnh`
+                  : "Có thể chọn nhiều ảnh · JPG, PNG hoặc WebP · mỗi ảnh tối đa 5MB · toàn bộ hồ sơ tối đa 16MB"}
+                icon={<ImagePlus className="h-5 w-5" />}
+                input={<input
+                  id="feedback-images"
+                  {...feedbackField}
+                  type="file"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={(event) => {
+                    feedbackField.onChange(event);
+                    clearErrors("feedbackImages");
+                  }}
+                  className="absolute inset-0 cursor-pointer opacity-0"
+                />}
+              />
+            </div>
           </div>
         </FormSection>
 
@@ -250,6 +286,23 @@ function firstFile(value: unknown) {
   if (typeof FileList !== "undefined" && value instanceof FileList) return value.item(0);
   if (Array.isArray(value) && value[0] instanceof File) return value[0];
   return null;
+}
+
+function filesFrom(value: unknown) {
+  if (typeof FileList !== "undefined" && value instanceof FileList) return Array.from(value);
+  if (Array.isArray(value)) return value.filter((item): item is File => item instanceof File);
+  return [];
+}
+
+function validateFeedbackFiles(files: File[], existingSize: number) {
+  if (!files.length) return "";
+  if (files.length > 5) return "Bạn có thể tải tối đa 5 ảnh feedback";
+  const imageTypes = ["image/jpeg", "image/png", "image/webp"];
+  if (files.some((file) => !imageTypes.includes(file.type))) return "Ảnh feedback phải là JPG, PNG hoặc WebP";
+  if (files.some((file) => file.size > 5 * 1024 * 1024)) return "Mỗi ảnh feedback không được vượt quá 5MB";
+  const totalSize = existingSize + files.reduce((sum, file) => sum + file.size, 0);
+  if (totalSize > 16 * 1024 * 1024) return "Tổng dung lượng ảnh và giấy tờ không được vượt quá 16MB";
+  return "";
 }
 
 function validateQualificationFile(file: File | null, occupation: string) {

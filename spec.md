@@ -22,6 +22,7 @@ This section is the source of truth for the current production system and overri
 - Tutor applications require a Vietnamese-style phone number containing exactly 10 digits and beginning with `0`; the same Zod rule runs in the browser and Worker before any application is stored.
 - The minimum-age check is evaluated when each application is validated, not during Worker module initialization, so Cloudflare runtime startup time cannot incorrectly reject valid birth years.
 - Tutor applicants choose only `Sinh viên` or `Đã tốt nghiệp`. The required qualification upload appears immediately below that choice: students submit a student-card JPG/PNG/WebP (max 5MB); graduates submit a diploma image (max 5MB) or PDF/DOC/DOCX (max 10MB). The optional avatar stays separate. Only authenticated admin downloads are allowed from private R2 bucket `giasutainang-files`, bound as `FILES`.
+- Teaching experience is optional. Applicants may attach up to five optional parent/student feedback screenshots (JPG/PNG/WebP, max 5MB each); the complete multipart request remains capped at 16MB. Feedback images are signature-checked, stored privately, and labeled individually in admin review.
 - Security baseline: production HTTP redirects to HTTPS; all responses receive CSP/HSTS/clickjacking/MIME/referrer/permissions headers; unsafe cross-site requests are rejected; login/public forms/public and admin AI have Worker rate limits; JSON/multipart sizes are capped and server-validated.
 - Admin sessions use a signed 8-hour `__Host-` Secure/HttpOnly/SameSite=Strict cookie. The first security deployment intentionally invalidates the previous cookie and requires one new login.
 - Public class APIs expose only approximate area and suppress detailed address/private notes. Private R2 downloads require both admin authentication and a valid D1 file reference, verify file signatures at upload, and force safe attachment download.
@@ -40,7 +41,7 @@ This section is the source of truth for the current production system and overri
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-18 — the two-group applicant choice, required conditional student-card/diploma upload, and request-time age check are production-verified; invalid evidence is rejected before D1/R2 writes and security smoke passes.
+- Last updated: 2026-07-18 — current handoff makes teaching experience optional and adds private multi-image feedback evidence with client/Worker validation and labeled admin review; production verification is pending deployment.
 
 ## Original phase-one brief (historical reference)
 
