@@ -1,6 +1,6 @@
 # Security — Gia Sư Tài Năng
 
-Last updated: 2026-07-18. Reviewed for occupation-specific qualification uploads: student cards and diplomas remain private, type/size/signature validation is enforced at the Worker, and production verification is pending the deployment in this handoff.
+Last updated: 2026-07-18. Occupation-specific qualification uploads are production-verified: missing graduate evidence and PDF student-card attempts are rejected before storage; private-file protections and security smoke pass.
 
 ## Phạm vi
 

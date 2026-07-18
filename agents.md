@@ -75,4 +75,4 @@ Build and maintain the production Vietnamese tutoring center website "Gia Sư T�
 Before coding, read `spec.md`, `agents.md`, and `README.md` carefully and follow the current-state notes over obsolete phase-one requirements.
 After coding, run relevant checks, update every `.md` file, commit, push, and record the resulting handoff state.
 
-Last updated: 2026-07-18 — reviewed for the conditional qualification-upload flow; the two applicant groups, private storage rules, mobile behavior, and Worker-side enforcement are documented.
+Last updated: 2026-07-18 — conditional student-card/diploma upload and request-time age validation are production-verified; invalid evidence is rejected before storage and security smoke passes.

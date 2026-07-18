@@ -40,7 +40,7 @@ This section is the source of truth for the current production system and overri
 - Owner requested removal of every current tutor profile. Migration `tutor_catalog_cleared_v1` performs the one-time production deletion without affecting tutors added afterward; static seed/fallback profiles and the committed legacy PDF were removed.
 - Required checks before handoff: `npm run lint`, `npm run build`, and `npx wrangler deploy --dry-run` when Worker/config changes.
 - After every modification, review and update `spec.md`, `agents.md`, and `README.md`, then commit and push all documentation with the implementation.
-- Last updated: 2026-07-18 — current handoff adds the two-group applicant choice and required conditional student-card/diploma upload with client UX and Worker enforcement; production verification is pending the deployment in this handoff.
+- Last updated: 2026-07-18 — the two-group applicant choice, required conditional student-card/diploma upload, and request-time age check are production-verified; invalid evidence is rejected before D1/R2 writes and security smoke passes.
 
 ## Original phase-one brief (historical reference)
 

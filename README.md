@@ -291,4 +291,4 @@ Sau **mọi** thay đổi:
 3. Ghi trạng thái/commit mới nhất để session sau không dựa vào thông tin cũ.
 4. Commit và push code cùng tài liệu lên `main`.
 
-Last updated: 2026-07-18 — reviewed for the two-group tutor application flow; qualification evidence is conditional, required, privately stored, and enforced in both browser UX and Worker validation.
+Last updated: 2026-07-18 — the two-group tutor application flow is production-verified: missing graduate evidence and non-image student evidence are rejected before storage; the age check and security smoke also pass.
